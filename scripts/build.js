@@ -6,9 +6,135 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const dist = path.join(root, "dist");
 
-const site = JSON.parse(await readFile(path.join(root, "data", "site.json"), "utf8"));
-const posts = JSON.parse(await readFile(path.join(root, "data", "posts.json"), "utf8"));
-const pages = JSON.parse(await readFile(path.join(root, "data", "pages.json"), "utf8"));
+const rawSite = JSON.parse(await readFile(path.join(root, "data", "site.json"), "utf8"));
+const rawPosts = JSON.parse(await readFile(path.join(root, "data", "posts.json"), "utf8"));
+
+const site = {
+  ...rawSite,
+  title: "omybusiness",
+  description:
+    "omybusiness는 중동 비즈니스, 에너지 산업, 사우디아람코와 산업 기술 변화를 쉽게 이해할 수 있도록 정리하는 비즈니스 인사이트 아카이브입니다.",
+};
+
+function repairMojibake(value = "") {
+  const text = String(value);
+  const hangulCount = (text.match(/[가-힣]/g) || []).length;
+  const mojibakeCount = (text.match(/[ìíëêð]/g) || []).length;
+  if (mojibakeCount === 0 || hangulCount > mojibakeCount) return text;
+
+  try {
+    const repaired = Buffer.from(text, "latin1").toString("utf8");
+    const repairedHangulCount = (repaired.match(/[가-힣]/g) || []).length;
+    return repairedHangulCount > hangulCount ? repaired : text;
+  } catch {
+    return text;
+  }
+}
+
+function normalizePost(post) {
+  return {
+    ...post,
+    title: repairMojibake(post.title),
+    description: repairMojibake(post.description),
+    category: "에너지 산업",
+    content: sanitizeContent(repairMojibake(post.content)),
+  };
+}
+
+function sanitizeContent(html = "") {
+  return String(html)
+    .replace(/<!--\s*inventory\s*-->/gi, "")
+    .replace(/<!--\s*System\s*-\s*START\s*-->[\s\S]*?<!--\s*System\s*-\s*END\s*-->/gi, "")
+    .replace(/<ins\b[^>]*class=["'][^"']*adsbygoogle[^"']*["'][^>]*>[\s\S]*?<\/ins>/gi, "")
+    .replace(/<div\b[^>]*data-tistory-react-app=["']NaverAd["'][^>]*><\/div>/gi, "")
+    .replace(/\sdata-ad-[a-z-]+=["'][^"']*["']/gi, "")
+    .replace(/<p>\s*<\/p>/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+const posts = rawPosts.map(normalizePost);
+
+const trustPages = [
+  {
+    title: "사이트 소개",
+    routePath: "/about/",
+    description: "omybusiness의 운영 목적과 다루는 주제를 소개합니다.",
+    modifiedAt: site.migratedAt,
+    content: `
+      <p>omybusiness는 중동 비즈니스와 에너지 산업의 흐름을 독자가 이해하기 쉬운 언어로 정리하는 정보 사이트입니다. 사우디아람코, 탄소 저감 기술, 친환경 소재, 스마트 팩토리, 공급망 변화처럼 앞으로 산업 경쟁력에 영향을 줄 수 있는 주제를 중심으로 다룹니다.</p>
+      <p>각 글은 단순한 뉴스 요약보다 산업적 맥락, 기술의 의미, 기업 전략의 방향을 함께 설명하는 데 초점을 둡니다. 전문 용어는 가능한 한 풀어서 설명하고, 독자가 한 편의 글 안에서 배경과 시사점을 같이 파악할 수 있도록 구성합니다.</p>
+      <h2>다루는 주제</h2>
+      <ul>
+        <li>중동 주요 기업과 산업 동향</li>
+        <li>에너지 전환과 저탄소 기술</li>
+        <li>사우디아람코의 기술, 공급망, 투자 전략</li>
+        <li>스마트 팩토리, 디지털 전환, 소재 혁신 사례</li>
+      </ul>
+    `,
+  },
+  {
+    title: "문의",
+    routePath: "/contact/",
+    description: "omybusiness 운영자에게 문의하는 방법을 안내합니다.",
+    modifiedAt: site.migratedAt,
+    content: `
+      <p>사이트 운영, 콘텐츠 정정 요청, 제휴 문의는 아래 이메일로 연락해 주세요.</p>
+      <p><strong>이메일:</strong> <a href="mailto:yoonezra@gmail.com">yoonezra@gmail.com</a></p>
+      <p>문의 내용에는 확인이 필요한 글 주소와 요청 사항을 함께 적어주시면 더 빠르게 검토할 수 있습니다.</p>
+    `,
+  },
+  {
+    title: "개인정보처리방침",
+    routePath: "/privacy-policy/",
+    description: "omybusiness의 개인정보 처리 기준을 안내합니다.",
+    modifiedAt: site.migratedAt,
+    content: `
+      <p>omybusiness는 방문자가 별도의 회원가입 없이 콘텐츠를 열람할 수 있는 정적 정보 사이트입니다. 사이트 자체적으로 이름, 주소, 전화번호 같은 개인정보를 직접 수집하지 않습니다.</p>
+      <h2>수집될 수 있는 정보</h2>
+      <p>Cloudflare, 검색엔진, 향후 광고 또는 분석 도구가 서비스 제공과 보안, 통계 목적을 위해 쿠키, 접속 로그, 브라우저 정보, 대략적인 지역 정보를 처리할 수 있습니다.</p>
+      <h2>이용 목적</h2>
+      <ul>
+        <li>사이트 보안과 안정적인 접속 제공</li>
+        <li>콘텐츠 품질 개선을 위한 방문 통계 확인</li>
+        <li>광고 정책 준수와 부정 이용 방지</li>
+      </ul>
+      <h2>문의</h2>
+      <p>개인정보 관련 문의는 <a href="mailto:yoonezra@gmail.com">yoonezra@gmail.com</a>으로 연락해 주세요.</p>
+    `,
+  },
+  {
+    title: "이용약관",
+    routePath: "/terms/",
+    description: "omybusiness 콘텐츠 이용 기준과 책임 범위를 안내합니다.",
+    modifiedAt: site.migratedAt,
+    content: `
+      <p>omybusiness의 콘텐츠는 일반적인 정보 제공을 목적으로 작성됩니다. 투자, 법률, 세무, 사업 의사결정의 최종 판단은 독자 본인의 상황과 전문가 검토를 바탕으로 해야 합니다.</p>
+      <h2>콘텐츠 이용</h2>
+      <p>사이트의 글과 이미지는 저작권 보호를 받습니다. 출처를 밝힌 짧은 인용은 가능하지만, 전체 글의 무단 복제, 재배포, 자동 수집은 허용하지 않습니다.</p>
+      <h2>외부 링크</h2>
+      <p>글 안의 외부 링크는 참고 자료 확인을 돕기 위한 것입니다. 외부 사이트의 내용, 보안, 정책은 해당 사이트 운영자가 관리합니다.</p>
+    `,
+  },
+  {
+    title: "편집 기준",
+    routePath: "/editorial-policy/",
+    description: "omybusiness의 콘텐츠 작성 및 검토 기준을 안내합니다.",
+    modifiedAt: site.migratedAt,
+    content: `
+      <p>omybusiness는 독자가 산업 흐름을 이해하는 데 도움이 되는 설명형 콘텐츠를 지향합니다. 사실과 의견을 구분하고, 가능한 경우 기업 공식 자료, 기관 보고서, 공신력 있는 보도자료 등 확인 가능한 근거를 참고합니다.</p>
+      <h2>작성 원칙</h2>
+      <ul>
+        <li>핵심 주제를 명확히 설명하고 불필요한 과장을 줄입니다.</li>
+        <li>기술 용어는 독자가 이해할 수 있도록 문맥과 함께 풀이합니다.</li>
+        <li>오류가 확인되면 내용을 수정하거나 보완합니다.</li>
+        <li>광고와 콘텐츠는 구분되도록 운영합니다.</li>
+      </ul>
+      <h2>정정 요청</h2>
+      <p>오류나 보완이 필요한 내용은 <a href="mailto:yoonezra@gmail.com">yoonezra@gmail.com</a>으로 알려주세요.</p>
+    `,
+  },
+];
 
 function escapeHtml(value = "") {
   return String(value)
@@ -32,7 +158,7 @@ function formatDate(dateString) {
 }
 
 function routeToFile(routePath) {
-  const decoded = decodeURIComponent(routePath);
+  const decoded = decodeURIComponent(routePath.split("?")[0]);
   const segments = decoded.split("/").filter(Boolean);
   return path.join(dist, ...segments, "index.html");
 }
@@ -43,10 +169,25 @@ async function writeRoute(routePath, html) {
   await writeFile(file, html);
 }
 
+function navLink(routePath, label) {
+  return `<a href="${encodeURI(routePath)}">${escapeHtml(label)}</a>`;
+}
+
 function layout({ title, description, routePath = "/", image = "", body, type = "website", extraHead = "" }) {
   const pageTitle = title === site.title ? site.title : `${title} | ${site.title}`;
   const canonical = absoluteUrl(routePath);
   const socialImage = image ? absoluteUrl(image) : "";
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: site.title,
+    url: site.url,
+    contactPoint: {
+      "@type": "ContactPoint",
+      email: "yoonezra@gmail.com",
+      contactType: "editorial inquiries",
+    },
+  };
 
   return `<!doctype html>
 <html lang="ko">
@@ -64,6 +205,7 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
   ${socialImage ? `<meta property="og:image" content="${socialImage}">` : ""}
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="/assets/style.css">
+  <script type="application/ld+json">${JSON.stringify(organizationJsonLd)}</script>
   ${extraHead}
 </head>
 <body>
@@ -74,9 +216,11 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
         <span>Middle East business intelligence</span>
       </a>
       <nav class="nav" aria-label="주요 메뉴">
-        <a href="/">홈</a>
-        <a href="/category/회사/">회사</a>
-        ${pages.map((page) => `<a href="${encodeURI(page.routePath)}">${escapeHtml(page.title)}</a>`).join("")}
+        ${navLink("/", "홈")}
+        ${navLink("/category/energy/", "에너지 산업")}
+        ${navLink("/about/", "소개")}
+        ${navLink("/editorial-policy/", "편집 기준")}
+        ${navLink("/contact/", "문의")}
       </nav>
     </div>
   </header>
@@ -84,7 +228,14 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
 ${body}
   </main>
   <footer class="site-footer">
-    <p>© AXZ Corp. Migrated from Tistory to Cloudflare Pages.</p>
+    <div class="footer-links">
+      ${navLink("/about/", "사이트 소개")}
+      ${navLink("/privacy-policy/", "개인정보처리방침")}
+      ${navLink("/terms/", "이용약관")}
+      ${navLink("/editorial-policy/", "편집 기준")}
+      ${navLink("/contact/", "문의")}
+    </div>
+    <p>© ${new Date().getFullYear()} omybusiness. 중동 비즈니스와 에너지 산업 정보를 정리하는 독립 정보 사이트입니다.</p>
   </footer>
 </body>
 </html>`;
@@ -105,8 +256,14 @@ function postCard(post) {
 
 function renderIndex(filteredPosts = posts, title = site.title, routePath = "/") {
   const body = `  <section class="intro">
+    <p class="eyebrow">Middle East Business Archive</p>
     <h1>${escapeHtml(site.title)}</h1>
     <p>${escapeHtml(site.description)}</p>
+  </section>
+  <section class="trust-strip" aria-label="사이트 운영 기준">
+    <div><strong>${posts.length}</strong><span>분석 글</span></div>
+    <div><strong>광고 정리</strong><span>승인 전 광고 잔재 제거</span></div>
+    <div><strong>출처 중심</strong><span>산업 자료 기반 정리</span></div>
   </section>
   <section>
     <div class="toolbar">
@@ -142,9 +299,10 @@ function renderPost(post, index) {
     url: absoluteUrl(post.routePath),
     datePublished: post.publishedAt,
     dateModified: post.modifiedAt || post.publishedAt,
-    author: { "@type": "Person", name: "omybusiness" },
-    publisher: { "@type": "Organization", name: site.title },
+    author: { "@type": "Organization", name: site.title, url: site.url },
+    publisher: { "@type": "Organization", name: site.title, url: site.url },
     image: post.image ? absoluteUrl(post.image) : undefined,
+    inLanguage: "ko-KR",
   };
 
   const body = `  <article class="article">
@@ -153,6 +311,10 @@ function renderPost(post, index) {
       <h1>${escapeHtml(post.title)}</h1>
       <p class="article-description">${escapeHtml(post.description)}</p>
     </header>
+    <aside class="editor-note">
+      <strong>편집 기준</strong>
+      <p>이 글은 중동 비즈니스와 에너지 산업 흐름을 이해하기 쉽도록 정리한 정보 콘텐츠입니다. 광고와 본문은 분리해 운영하며, 오류가 확인되면 보완합니다.</p>
+    </aside>
     <div class="entry-content">
       ${post.content}
     </div>
@@ -189,9 +351,10 @@ function renderPage(page) {
 function renderSitemap() {
   const items = [
     { routePath: "/", modifiedAt: site.migratedAt },
-    ...pages,
+    ...trustPages,
     ...posts,
-    { routePath: "/category/회사/", modifiedAt: site.migratedAt },
+    { routePath: "/category/energy/", modifiedAt: site.migratedAt },
+    { routePath: "/tag/", modifiedAt: site.migratedAt },
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -240,6 +403,8 @@ function renderRedirects() {
     rows.push(`/m${encodeURI(post.routePath)} ${encodeURI(post.routePath)} 301`);
     return rows;
   });
+  lines.push("/pages/%EC%82%AC%EC%9D%B4%ED%8A%B8-%EC%86%8C%EA%B0%9C /about/ 301");
+  lines.push("/category/%ED%9A%8C%EC%82%AC/ /category/energy/ 301");
   lines.push("/rss.xml /rss.xml 200");
   return `${lines.join("\n")}\n`;
 }
@@ -250,14 +415,14 @@ await cp(path.join(root, "public"), dist, { recursive: true, force: true });
 await cp(path.join(root, "src", "styles.css"), path.join(dist, "assets", "style.css"));
 
 await writeRoute("/", renderIndex());
-await writeRoute("/category/회사/", renderIndex(posts.filter((post) => post.category === "회사"), "회사", "/category/회사/"));
+await writeRoute("/category/energy/", renderIndex(posts, "에너지 산업", "/category/energy/"));
 await writeRoute("/tag/", renderIndex(posts, "태그", "/tag/"));
 
 for (const [index, post] of posts.entries()) {
   await writeRoute(post.routePath, renderPost(post, index));
 }
 
-for (const page of pages) {
+for (const page of trustPages) {
   await writeRoute(page.routePath, renderPage(page));
 }
 
@@ -265,10 +430,13 @@ await writeFile(path.join(dist, "sitemap.xml"), renderSitemap());
 await writeFile(path.join(dist, "rss.xml"), renderRss());
 await writeFile(path.join(dist, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${site.url}/sitemap.xml\n`);
 await writeFile(path.join(dist, "_redirects"), renderRedirects());
-await writeFile(path.join(dist, "404.html"), layout({
-  title: "페이지를 찾을 수 없습니다",
-  description: site.description,
-  body: `  <section class="intro"><h1>페이지를 찾을 수 없습니다</h1><p><a href="/">홈으로 이동</a></p></section>`,
-}));
+await writeFile(
+  path.join(dist, "404.html"),
+  layout({
+    title: "페이지를 찾을 수 없습니다",
+    description: site.description,
+    body: `  <section class="intro"><h1>페이지를 찾을 수 없습니다</h1><p><a href="/">홈으로 이동</a></p></section>`,
+  }),
+);
 
-console.log(`Built ${posts.length} posts, ${pages.length} pages into dist/.`);
+console.log(`Built ${posts.length} posts and ${trustPages.length} trust pages into dist/.`);
