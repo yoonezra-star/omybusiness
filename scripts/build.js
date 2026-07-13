@@ -136,6 +136,128 @@ const trustPages = [
   },
 ];
 
+const sourceLibrary = {
+  annualReport: {
+    label: "Aramco Annual Report",
+    url: "https://www.aramco.com/en/investors/annual-report",
+    note: "재무, 운영, upstream/downstream 전략을 확인할 수 있는 공식 연차보고서",
+  },
+  sustainabilityReport: {
+    label: "Aramco Sustainability Report",
+    url: "https://www.aramco.com/en/sustainability/sustainability-report",
+    note: "탄소, 지속가능성, 안전, 환경 관련 공식 보고서",
+  },
+  digitalization: {
+    label: "Aramco Digitalization",
+    url: "https://www.aramco.com/en/what-we-do/energy-innovation/digitalization",
+    note: "디지털 전환, 데이터, 운영 효율화 관련 공식 설명",
+  },
+  digitalInnovationCenters: {
+    label: "Aramco Digital Innovation Centers",
+    url: "https://www.aramco.com/en/what-we-do/energy-innovation/digitalization/our-digital-innovation-centers",
+    note: "4차 산업혁명 기술과 upstream 디지털 혁신 사례",
+  },
+  globalResearch: {
+    label: "Aramco Global Research Centers",
+    url: "https://www.aramco.com/en/what-we-do/energy-innovation/global-research-centers",
+    note: "글로벌 연구 네트워크와 기술 개발 방향",
+  },
+  houstonResearch: {
+    label: "Aramco Research Center Houston",
+    url: "https://americas.aramco.com/en/what-we-do/technology-and-innovation/aramco-research-center-houston",
+    note: "지질, 지구물리, 저류층, 생산 관리 중심 upstream 연구",
+  },
+  beijingResearch: {
+    label: "Aramco Beijing Research Center",
+    url: "https://china.aramco.com/en/what-we-do/technology-development/beijing-research-center",
+    note: "지질·지구물리, 유전 화학, 정유·화학, 지속가능 운송 연구",
+  },
+  investors: {
+    label: "Aramco Investor Overview",
+    url: "https://www.aramco.com/en/investors",
+    note: "사업 구조, upstream/downstream 개요, 핵심 운영 지표",
+  },
+};
+
+function stripHtml(html = "") {
+  return String(html)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function summarizeDescription(description = "") {
+  const plain = stripHtml(description);
+  const sentences = plain
+    .split(/(?<=[.!?。！？]|다\.|요\.|죠\.)\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const fallback = plain ? [plain.slice(0, 130)] : [];
+  return (sentences.length ? sentences : fallback).slice(0, 3);
+}
+
+function getArticleSources(title = "") {
+  const sources = new Map();
+  const add = (...keys) => keys.forEach((key) => sources.set(key, sourceLibrary[key]));
+
+  add("annualReport", "globalResearch");
+
+  if (/지진파|유전|수층|가스전|탐사|저류|시추|웰헤드/.test(title)) {
+    add("houstonResearch", "digitalInnovationCenters");
+  }
+
+  if (/화학|촉매|윤활유|소재|탄소 나노|탄소 섬유|자동차|기유/.test(title)) {
+    add("beijingResearch", "sustainabilityReport");
+  }
+
+  if (/AI|언어모델|블록체인|무선|보안|가스 검지|물류|자동화|그리드|디지털/.test(title)) {
+    add("digitalization", "digitalInnovationCenters");
+  }
+
+  if (/바이오|탄소 가격|친환경|담수화|포럼|저탄소|수소|암모니아/.test(title)) {
+    add("sustainabilityReport", "investors");
+  }
+
+  return [...sources.values()].filter(Boolean).slice(0, 5);
+}
+
+function renderArticleEnhancement(post, index) {
+  if (index >= 20) return "";
+
+  const summaryItems = summarizeDescription(post.description);
+  const sources = getArticleSources(post.title);
+  const perspective = [
+    "본문의 주장과 수치는 기업 발표, 공식 보고서, 산업 기관 자료와 함께 교차 확인하는 것이 좋습니다.",
+    "에너지·화학 산업은 유가, 규제, 기술 상용화 속도에 따라 해석이 달라질 수 있으므로 최신 자료 확인이 필요합니다.",
+  ];
+
+  return `<section class="content-enhancement" aria-label="콘텐츠 검토 정보">
+      <h2>핵심 요약과 참고자료</h2>
+      <div class="enhancement-grid">
+        <div>
+          <h3>핵심 요약</h3>
+          <ul>
+            ${summaryItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+          </ul>
+        </div>
+        <div>
+          <h3>검토 관점</h3>
+          <ul>
+            ${perspective.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+          </ul>
+        </div>
+      </div>
+      <h3>공개 참고자료</h3>
+      <ul class="source-list">
+        ${sources
+          .map(
+            (source) => `<li><a href="${source.url}" rel="nofollow noopener" target="_blank">${escapeHtml(source.label)}</a><span>${escapeHtml(source.note)}</span></li>`,
+          )
+          .join("")}
+      </ul>
+    </section>`;
+}
+
 function escapeHtml(value = "") {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -318,6 +440,7 @@ function renderPost(post, index) {
     <div class="entry-content">
       ${post.content}
     </div>
+    ${renderArticleEnhancement(post, index)}
     <nav class="article-nav" aria-label="글 이동">
       <span>${previous ? `<a href="${encodeURI(previous.routePath)}">이전 글: ${escapeHtml(previous.title)}</a>` : ""}</span>
       <span>${next ? `<a href="${encodeURI(next.routePath)}">다음 글: ${escapeHtml(next.title)}</a>` : ""}</span>
