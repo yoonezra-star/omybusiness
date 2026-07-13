@@ -54,7 +54,7 @@ function sanitizeContent(html = "") {
 }
 
 const posts = rawPosts.map(normalizePost);
-const reviewUpdatedAt = "2026-07-13T12:05:00+09:00";
+const reviewUpdatedAt = "2026-07-13T12:40:00+09:00";
 
 const topicHubs = [
   {
@@ -228,12 +228,37 @@ const trustPages = [
     content: `
       <p>omybusiness는 기업 공식 자료, 연차보고서, 지속가능성 보고서, 기술 소개 페이지, 산업 기관 자료처럼 독자가 직접 확인할 수 있는 공개 자료를 우선 참고합니다. 모든 글이 동일한 자료를 인용하는 것은 아니지만, 해석의 기준은 확인 가능한 공개 정보에 두고 있습니다.</p>
       <h2>주요 참고 범위</h2>
-      <ul>
-        <li>기업 공식 연차보고서와 투자자 자료</li>
-        <li>지속가능성 보고서와 저탄소 전환 관련 공개 자료</li>
-        <li>기술 연구소, 디지털 전환, 연구개발 소개 페이지</li>
-        <li>정책, 에너지 전환, 산업 수요와 관련된 공개 보고서</li>
-      </ul>
+      <table class="source-matrix">
+        <thead>
+          <tr>
+            <th>자료 유형</th>
+            <th>확인하는 내용</th>
+            <th>글에서 쓰는 방식</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>연차보고서·투자자 자료</td>
+            <td>사업 구조, 생산·정제·화학 부문, 주요 투자 방향</td>
+            <td>기업 전략과 밸류체인 해석의 기준으로 사용합니다.</td>
+          </tr>
+          <tr>
+            <td>지속가능성 보고서</td>
+            <td>탄소 저감, 안전, 물 관리, 지역사회, 환경 프로젝트</td>
+            <td>저탄소 전환과 ESG 관련 주제의 실행 조건을 검토합니다.</td>
+          </tr>
+          <tr>
+            <td>기술·연구개발 소개 자료</td>
+            <td>디지털 전환, 탐사 기술, 소재, 공정 효율화 사례</td>
+            <td>기술명이 아니라 실제 적용 위치와 운영 효과를 설명합니다.</td>
+          </tr>
+          <tr>
+            <td>산업·정책 공개 자료</td>
+            <td>수요 전망, 규제 변화, 탄소 가격, 에너지 안보 이슈</td>
+            <td>기업 발표를 시장과 정책 맥락 안에서 교차 검토합니다.</td>
+          </tr>
+        </tbody>
+      </table>
       <h2>출처를 읽는 방식</h2>
       <p>공식 자료는 기업의 관점을 담고 있으므로 장점만 받아들이지 않고, 비용 구조, 상용화 조건, 인프라, 수요처, 정책 변수와 함께 해석합니다. 블로그 글에서는 독자가 더 찾아볼 수 있도록 관련 공식 자료를 하단에 배치합니다.</p>
       <h2>주의 사항</h2>
@@ -308,6 +333,64 @@ const researchPages = [
         <li>기업 전략을 생산, 운송, 수요, 정책이라는 흐름으로 나누어 설명합니다.</li>
         <li>단기 이슈와 장기 산업 변화를 구분해 독자가 판단할 수 있도록 정리합니다.</li>
       </ul>
+    `,
+  },
+];
+
+const checklistPages = [
+  {
+    title: "에너지 기업 분석 체크리스트",
+    routePath: "/checklist/energy-company-analysis/",
+    description:
+      "에너지 기업의 생산 기반, 다운스트림, 기술 투자, 저탄소 전략, 공급망 리스크를 빠르게 점검하는 실무형 체크리스트입니다.",
+    modifiedAt: reviewUpdatedAt,
+    content: `
+      <p>에너지 기업을 볼 때는 한두 가지 뉴스만으로 판단하기 어렵습니다. 생산 자산, 비용 구조, 정제·화학 통합, 기술 투자, 탄소 규제, 공급망 리스크가 서로 연결되어 있기 때문입니다. 아래 체크리스트는 omybusiness의 글을 읽을 때 같은 기준으로 비교할 수 있도록 만든 도구형 페이지입니다.</p>
+      <h2>빠른 점검표</h2>
+      <table class="source-matrix checklist-table">
+        <thead>
+          <tr>
+            <th>점검 항목</th>
+            <th>확인 질문</th>
+            <th>읽을 때 볼 신호</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>생산 기반</td>
+            <td>매장량, 생산비용, 증산 여력, 설비 안정성이 충분한가?</td>
+            <td>탐사 기술, 저류층 관리, 원격 시추, 생산 잠재력 관련 글을 함께 봅니다.</td>
+          </tr>
+          <tr>
+            <td>다운스트림</td>
+            <td>정제, 화학, 소재 영역으로 수익 구조를 넓히고 있는가?</td>
+            <td>화학 공정, 촉매, 윤활유, 탄소 섬유, 항공유 관련 주제를 확인합니다.</td>
+          </tr>
+          <tr>
+            <td>기술 투자</td>
+            <td>AI, 데이터, 자동화가 실제 운영 비용과 안전성에 연결되는가?</td>
+            <td>디지털 트윈, 산업 특화 AI, 센서, 블록체인, 물류 자동화 글을 참고합니다.</td>
+          </tr>
+          <tr>
+            <td>저탄소 전략</td>
+            <td>수소, 암모니아, 바이오 연료, 탄소 가격 대응이 실행 조건을 갖췄는가?</td>
+            <td>생산 단가, 운송 인프라, 수요처, 정책 지원 여부를 함께 봅니다.</td>
+          </tr>
+          <tr>
+            <td>공급망 리스크</td>
+            <td>원료, 물류, 지역 정책, 해운 규제 변화에 대응할 수 있는가?</td>
+            <td>트레이딩, 유조선 배출, 저유황 선박유, 공급망 국산화 주제를 함께 확인합니다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <h2>사용 방법</h2>
+      <ol>
+        <li>먼저 관심 기업이나 기술이 어느 항목에 속하는지 표시합니다.</li>
+        <li>관련 글의 빠른 요약 표에서 산업적 의미와 리스크를 확인합니다.</li>
+        <li>출처 기준 페이지와 공식 자료를 함께 보며 최신성을 점검합니다.</li>
+        <li>단기 뉴스인지 장기 구조 변화인지 구분해 판단합니다.</li>
+      </ol>
+      <p>이 체크리스트는 투자 권유가 아니라 산업 이해를 돕는 참고 도구입니다. 중요한 판단에는 최신 공시와 전문가 검토가 필요합니다.</p>
     `,
   },
 ];
@@ -1038,11 +1121,23 @@ function articleTableRows(post) {
   const perspective = getArticlePerspective(post.title);
   const sources = getArticleSources(post.title);
   const topic = post.title.replace(/^사우디아람코\s*/, "");
+  const maturity = /수소|암모니아|메타버스|나노|블록체인|탄소 가격/.test(post.title)
+    ? "상용화 조건 확인 필요"
+    : /윤활유|선박유|터빈|화학|촉매|물류|폐열/.test(post.title)
+      ? "현장 적용성이 비교적 높은 영역"
+      : "운영 데이터와 설비 연계가 중요한 영역";
+  const risk = /수소|암모니아|탄소|바이오|태양광/.test(post.title)
+    ? "정책, 인프라, 수요처 확보 여부"
+    : /AI|디지털|데이터|보안|블록체인|무선|센서/.test(post.title)
+      ? "데이터 품질, 보안, 현장 적용성"
+      : "유가, 설비 투자, 공급망 변화";
 
   return [
     ["핵심 주제", topic],
-    ["산업적 의미", perspective.why],
-    ["확인할 변수", perspective.check],
+    ["적용 산업", post.category || "에너지 산업"],
+    ["기술 성숙도", maturity],
+    ["산업 영향", perspective.why],
+    ["주의할 리스크", risk],
     ["함께 볼 자료", sources.slice(0, 2).map((source) => source.label).join(", ")],
   ];
 }
@@ -1066,6 +1161,15 @@ function renderArticleSummaryTable(post) {
       </table>
     </div>
   </section>`;
+}
+
+function renderArticleVisual(post) {
+  if (!post.image) return "";
+
+  return `<figure class="article-visual">
+    <img src="${post.image}" alt="${escapeHtml(imageAlt(post))}" loading="lazy">
+    <figcaption>${escapeHtml(post.title)}의 핵심 개념을 시각적으로 이해하기 위한 참고 이미지입니다. 본문에서는 기술 적용 범위와 산업적 의미를 함께 설명합니다.</figcaption>
+  </figure>`;
 }
 
 function escapeHtml(value = "") {
@@ -1157,6 +1261,7 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
         ${navLink("/category/energy/", "에너지 산업")}
         ${navLink("/topics/", "주제별")}
         ${navLink("/research/", "리서치")}
+        ${navLink("/checklist/energy-company-analysis/", "체크리스트")}
         ${navLink("/sources/", "출처")}
         ${navLink("/about/", "소개")}
         ${navLink("/editorial-policy/", "편집 기준")}
@@ -1173,6 +1278,7 @@ ${body}
       ${navLink("/author/", "작성자")}
       ${navLink("/topics/", "주제별 허브")}
       ${navLink("/research/", "리서치 가이드")}
+      ${navLink("/checklist/energy-company-analysis/", "분석 체크리스트")}
       ${navLink("/sources/", "참고자료")}
       ${navLink("/corrections/", "정정 기준")}
       ${navLink("/faq/", "FAQ")}
@@ -1225,6 +1331,16 @@ function researchCard(page) {
   </article>`;
 }
 
+function checklistCard(page) {
+  return `<article class="topic-card">
+    <a href="${encodeURI(page.routePath)}">
+      <span>체크리스트</span>
+      <h2>${escapeHtml(page.title)}</h2>
+      <p>${escapeHtml(page.description)}</p>
+    </a>
+  </article>`;
+}
+
 function renderIndex(filteredPosts = posts, title = site.title, routePath = "/") {
   const body = `  <section class="intro">
     <p class="eyebrow">Middle East Business Archive</p>
@@ -1263,6 +1379,15 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
     </div>
     <div class="topic-grid research-grid">
       ${researchPages.map(researchCard).join("\n")}
+    </div>
+  </section>
+  <section class="topic-section" aria-label="분석 체크리스트">
+    <div class="section-heading">
+      <h2>분석 체크리스트</h2>
+      <a href="/checklist/energy-company-analysis/">바로 열기</a>
+    </div>
+    <div class="topic-grid research-grid">
+      ${checklistPages.map(checklistCard).join("\n")}
     </div>
   </section>
   <section class="trust-links" aria-label="운영 신뢰 정보">
@@ -1406,6 +1531,7 @@ function renderPost(post, index) {
       <p>이 글은 중동 비즈니스와 에너지 산업 흐름을 이해하기 쉽도록 정리한 정보 콘텐츠입니다. 광고와 본문은 분리해 운영하며, 오류가 확인되면 보완합니다.</p>
     </aside>
     ${renderArticleSummaryTable(post)}
+    ${renderArticleVisual(post)}
     <div class="entry-content">
       ${post.content}
     </div>
@@ -1452,6 +1578,7 @@ function renderSitemap() {
     ...topicHubs.map((hub) => ({ ...hub, modifiedAt: reviewUpdatedAt })),
     { routePath: "/research/", modifiedAt: reviewUpdatedAt },
     ...researchPages,
+    ...checklistPages,
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -1522,6 +1649,10 @@ for (const hub of topicHubs) {
 }
 
 for (const page of researchPages) {
+  await writeRoute(page.routePath, renderPage(page));
+}
+
+for (const page of checklistPages) {
   await writeRoute(page.routePath, renderPage(page));
 }
 

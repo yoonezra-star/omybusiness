@@ -435,6 +435,31 @@ a:hover {
   line-height: 1.62;
 }
 
+.article-visual {
+  margin: 0 0 30px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.article-visual img {
+  display: block;
+  width: 100%;
+  max-height: 520px;
+  object-fit: cover;
+  background: var(--soft);
+}
+
+.article-visual figcaption {
+  margin: 0;
+  padding: 13px 16px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+  text-align: left;
+}
+
 .entry-content h2 {
   margin: 40px 0 12px;
   font-size: 28px;
@@ -480,6 +505,10 @@ a:hover {
   width: 100%;
   overflow-x: auto;
   border-collapse: collapse;
+}
+
+.source-matrix {
+  min-width: 720px;
 }
 
 .entry-content th,
