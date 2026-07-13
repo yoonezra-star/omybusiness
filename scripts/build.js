@@ -54,6 +54,58 @@ function sanitizeContent(html = "") {
 }
 
 const posts = rawPosts.map(normalizePost);
+const reviewUpdatedAt = "2026-07-13T09:45:00+09:00";
+
+const topicHubs = [
+  {
+    title: "디지털 전환과 에너지 AI",
+    routePath: "/topics/digital-energy-ai/",
+    description:
+      "사우디아람코의 AI, 디지털 트윈, 데이터 인프라, 자동화 기술을 에너지 산업 운영 관점에서 묶어 읽는 주제 허브입니다.",
+    keywords: /AI|언어모델|디지털|데이터|알고리즘|자동화|센서|블록체인|보안|무선|가스 감지/,
+    points: [
+      "탐사와 생산 영역에서 데이터 해석 속도가 어떤 경쟁력으로 이어지는지 살펴봅니다.",
+      "디지털 전환이 비용 절감뿐 아니라 안전, 정비, 공급망 안정성과 어떻게 연결되는지 정리합니다.",
+      "개별 기술 뉴스를 기업 운영 전략과 산업 표준 변화라는 큰 흐름 안에서 읽도록 돕습니다.",
+    ],
+  },
+  {
+    title: "저탄소 전환과 지속가능 에너지",
+    routePath: "/topics/low-carbon-transition/",
+    description:
+      "수소, 블루 암모니아, 바이오 연료, 탄소포집, 환경 복원 등 에너지 전환 관련 글을 모은 분석 허브입니다.",
+    keywords: /수소|암모니아|바이오|탄소|친환경|지속|재생|태양광|망그로브|해양|복원|연료 혼합/,
+    points: [
+      "에너지 전환 기술을 선언이 아니라 생산, 운송, 수요처, 정책 리스크의 조합으로 해석합니다.",
+      "저탄소 프로젝트가 실제 사업성이 생기기 위해 필요한 인프라와 파트너십을 함께 봅니다.",
+      "환경·사회적 성과와 기업 경쟁력 사이의 연결 지점을 독자가 판단할 수 있도록 정리합니다.",
+    ],
+  },
+  {
+    title: "석유화학과 소재 밸류체인",
+    routePath: "/topics/chemicals-materials/",
+    description:
+      "석유화학, 윤활유, 탄소섬유, 비금속 소재, 정제·화학 전환 전략을 공급망 관점에서 묶은 주제 허브입니다.",
+    keywords: /화학|석유화학|윤활유|탄소 섬유|비금속|소재|정제|항공유|액체 연료|촉매|폴리머/,
+    points: [
+      "원유 생산 기업이 왜 화학·소재 영역으로 확장하는지 수요 구조와 마진 관점에서 설명합니다.",
+      "다운스트림 투자가 단기 시황보다 장기 밸류체인 장악력과 어떻게 연결되는지 살펴봅니다.",
+      "소재 기술, 정제 효율, 제품 품질 관리가 산업 경쟁력에 주는 영향을 비교해 읽습니다.",
+    ],
+  },
+  {
+    title: "탐사·생산과 공급망 전략",
+    routePath: "/topics/upstream-supply-chain/",
+    description:
+      "탐사, 생산 비용, 셰일 가스, 공급망 국산화, 아시아 수출 전략 등 에너지 기업의 운영 기반을 다루는 글 모음입니다.",
+    keywords: /탐사|생산|셰일|가스전|원유|시추|공급망|국산화|수출|아시아|유전|저류|비용/,
+    points: [
+      "상류부문 기술과 생산 효율이 에너지 안보와 기업 수익성에 주는 의미를 연결합니다.",
+      "공급망 현지화와 해외 수출 전략을 단순 지역 뉴스가 아닌 산업 정책 흐름으로 해석합니다.",
+      "원가, 설비, 파트너십, 장기 수요라는 네 가지 축에서 운영 전략을 비교할 수 있게 구성합니다.",
+    ],
+  },
+];
 
 const trustPages = [
   {
@@ -221,18 +273,68 @@ function getArticleSources(title = "") {
   return [...sources.values()].filter(Boolean).slice(0, 5);
 }
 
-function renderArticleEnhancement(post, index) {
-  if (index >= 20) return "";
+function getArticlePerspective(title = "") {
+  if (/AI|언어모델|디지털|데이터|알고리즘|자동화|센서|블록체인|보안|무선|감지/.test(title)) {
+    return {
+      why: "이 주제는 에너지 기업이 보유한 현장 데이터와 운영 노하우를 어떻게 생산성, 안전, 비용 관리로 전환하는지를 보여줍니다.",
+      check: "기술 명칭보다 실제 적용 위치, 데이터 품질, 현장 운영자의 의사결정 변화가 함께 설명되는지 확인하면 글의 가치를 더 잘 판단할 수 있습니다.",
+      signal: "디지털 기술은 단독 제품보다 기존 설비와 결합될 때 효과가 커지므로, 관련 투자와 파트너십 흐름을 함께 보는 것이 좋습니다.",
+    };
+  }
 
+  if (/수소|암모니아|바이오|탄소|친환경|지속|재생|태양광|망그로브|해양|복원/.test(title)) {
+    return {
+      why: "이 주제는 전통 에너지 기업이 탄소 배출, 규제, 장기 수요 변화에 대응하는 방식을 읽는 데 도움이 됩니다.",
+      check: "프로젝트 발표만 볼 것이 아니라 생산 단가, 운송 인프라, 수요처 확보, 정책 지원 여부를 함께 확인해야 합니다.",
+      signal: "저탄소 전환은 기술 개발과 시장 형성이 동시에 진행되는 영역이라 단기 성과보다 반복 투자와 공급망 구축 여부가 중요합니다.",
+    };
+  }
+
+  if (/화학|석유화학|윤활유|탄소 섬유|비금속|소재|정제|항공유|액체 연료|촉매|폴리머/.test(title)) {
+    return {
+      why: "이 주제는 원유 중심 기업이 고부가가치 제품과 소재 밸류체인으로 확장하는 이유를 이해하는 데 유용합니다.",
+      check: "제품 수요, 정제·화학 통합도, 원료 조달, 브랜드·유통망이 함께 연결되어 있는지 살펴보면 산업적 의미가 분명해집니다.",
+      signal: "석유화학과 소재 전략은 경기 변동의 영향을 받지만, 장기적으로는 자동차·항공·제조업의 소재 전환과 맞물립니다.",
+    };
+  }
+
+  return {
+    why: "이 주제는 사우디아람코의 운영 방식과 중동 에너지 산업의 구조 변화를 함께 이해하는 데 필요한 배경을 제공합니다.",
+    check: "개별 사례를 볼 때는 기업 발표, 연차보고서, 기술 적용 범위, 시장 수요를 함께 확인하는 것이 좋습니다.",
+    signal: "에너지 산업은 유가, 규제, 기술 상용화 속도에 따라 해석이 달라지므로 최신 공개 자료와 함께 읽어야 합니다.",
+  };
+}
+
+function getRelatedPosts(post) {
+  const tokens = new Set(
+    post.title
+      .replace(/[^\p{L}\p{N}\s]/gu, " ")
+      .split(/\s+/)
+      .filter((token) => token.length >= 2),
+  );
+
+  return posts
+    .filter((candidate) => candidate.routePath !== post.routePath)
+    .map((candidate) => {
+      const score = candidate.title
+        .replace(/[^\p{L}\p{N}\s]/gu, " ")
+        .split(/\s+/)
+        .filter((token) => tokens.has(token)).length;
+      return { candidate, score };
+    })
+    .sort((a, b) => b.score - a.score || new Date(b.candidate.publishedAt) - new Date(a.candidate.publishedAt))
+    .slice(0, 3)
+    .map(({ candidate }) => candidate);
+}
+
+function renderArticleEnhancement(post) {
   const summaryItems = summarizeDescription(post.description);
   const sources = getArticleSources(post.title);
-  const perspective = [
-    "본문의 주장과 수치는 기업 발표, 공식 보고서, 산업 기관 자료와 함께 교차 확인하는 것이 좋습니다.",
-    "에너지·화학 산업은 유가, 규제, 기술 상용화 속도에 따라 해석이 달라질 수 있으므로 최신 자료 확인이 필요합니다.",
-  ];
+  const perspective = getArticlePerspective(post.title);
+  const relatedPosts = getRelatedPosts(post);
 
   return `<section class="content-enhancement" aria-label="콘텐츠 검토 정보">
-      <h2>핵심 요약과 참고자료</h2>
+      <h2>핵심 요약과 독자 가치</h2>
       <div class="enhancement-grid">
         <div>
           <h3>핵심 요약</h3>
@@ -243,9 +345,15 @@ function renderArticleEnhancement(post, index) {
         <div>
           <h3>검토 관점</h3>
           <ul>
-            ${perspective.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+            <li>${escapeHtml(perspective.why)}</li>
+            <li>${escapeHtml(perspective.check)}</li>
+            <li>${escapeHtml(perspective.signal)}</li>
           </ul>
         </div>
+      </div>
+      <div class="reader-value">
+        <h3>이 글을 읽을 때 볼 지점</h3>
+        <p>단일 기업 뉴스로만 보기보다 기술 적용 범위, 투자 지속성, 공급망 변화, 규제 환경을 함께 보면 중동 에너지 산업의 구조적 변화를 더 명확하게 읽을 수 있습니다.</p>
       </div>
       <h3>공개 참고자료</h3>
       <ul class="source-list">
@@ -253,6 +361,12 @@ function renderArticleEnhancement(post, index) {
           .map(
             (source) => `<li><a href="${source.url}" rel="nofollow noopener" target="_blank">${escapeHtml(source.label)}</a><span>${escapeHtml(source.note)}</span></li>`,
           )
+          .join("")}
+      </ul>
+      <h3>함께 읽으면 좋은 글</h3>
+      <ul class="source-list related-list">
+        ${relatedPosts
+          .map((related) => `<li><a href="${encodeURI(related.routePath)}">${escapeHtml(related.title)}</a><span>${escapeHtml(related.description)}</span></li>`)
           .join("")}
       </ul>
     </section>`;
@@ -340,6 +454,7 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
       <nav class="nav" aria-label="주요 메뉴">
         ${navLink("/", "홈")}
         ${navLink("/category/energy/", "에너지 산업")}
+        ${navLink("/topics/", "주제별")}
         ${navLink("/about/", "소개")}
         ${navLink("/editorial-policy/", "편집 기준")}
         ${navLink("/contact/", "문의")}
@@ -352,6 +467,7 @@ ${body}
   <footer class="site-footer">
     <div class="footer-links">
       ${navLink("/about/", "사이트 소개")}
+      ${navLink("/topics/", "주제별 허브")}
       ${navLink("/privacy-policy/", "개인정보처리방침")}
       ${navLink("/terms/", "이용약관")}
       ${navLink("/editorial-policy/", "편집 기준")}
@@ -376,6 +492,21 @@ function postCard(post) {
 </article>`;
 }
 
+function getHubPosts(hub) {
+  return posts.filter((post) => hub.keywords.test(post.title)).slice(0, 18);
+}
+
+function topicCard(hub) {
+  const hubPosts = getHubPosts(hub);
+  return `<article class="topic-card">
+    <a href="${encodeURI(hub.routePath)}">
+      <span>${hubPosts.length}개 글</span>
+      <h2>${escapeHtml(hub.title)}</h2>
+      <p>${escapeHtml(hub.description)}</p>
+    </a>
+  </article>`;
+}
+
 function renderIndex(filteredPosts = posts, title = site.title, routePath = "/") {
   const body = `  <section class="intro">
     <p class="eyebrow">Middle East Business Archive</p>
@@ -384,8 +515,28 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
   </section>
   <section class="trust-strip" aria-label="사이트 운영 기준">
     <div><strong>${posts.length}</strong><span>분석 글</span></div>
-    <div><strong>광고 정리</strong><span>승인 전 광고 잔재 제거</span></div>
-    <div><strong>출처 중심</strong><span>산업 자료 기반 정리</span></div>
+    <div><strong>광고·본문 분리</strong><span>독자가 먼저 읽는 정보 구조</span></div>
+    <div><strong>출처 중심</strong><span>공식 자료와 산업 맥락 기반 정리</span></div>
+  </section>
+  <section class="value-panel" aria-label="사이트 가치">
+    <div>
+      <h2>왜 이 사이트를 따로 읽을 만한가</h2>
+      <p>omybusiness는 사우디아람코와 중동 에너지 산업 이슈를 단순 뉴스 요약으로 처리하지 않고, 기술 적용 범위·공급망 변화·저탄소 전환·시장 전략이라는 네 가지 관점으로 다시 묶어 설명합니다.</p>
+    </div>
+    <ul>
+      <li>전문 용어를 그대로 나열하지 않고 산업 의사결정에 주는 의미를 함께 정리합니다.</li>
+      <li>각 글 하단에 검토 관점, 공개 참고자료, 관련 글을 배치해 추가 탐색이 가능하게 구성했습니다.</li>
+      <li>광고 배치보다 본문 가독성, 신뢰 페이지, 명확한 연락 경로를 우선합니다.</li>
+    </ul>
+  </section>
+  <section class="topic-section" aria-label="주제별 탐색">
+    <div class="section-heading">
+      <h2>주제별로 이어 읽기</h2>
+      <a href="/topics/">전체 주제 보기</a>
+    </div>
+    <div class="topic-grid">
+      ${topicHubs.map(topicCard).join("\n")}
+    </div>
   </section>
   <section>
     <div class="toolbar">
@@ -408,6 +559,58 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
   </script>`;
 
   return layout({ title, description: site.description, routePath, body });
+}
+
+function renderTopicsIndex() {
+  const body = `  <section class="intro">
+    <p class="eyebrow">Topic Guide</p>
+    <h1>주제별 분석 허브</h1>
+    <p>비슷한 글을 단순 목록으로 두지 않고, 에너지 AI, 저탄소 전환, 석유화학·소재, 탐사·공급망이라는 흐름으로 묶어 읽을 수 있도록 정리했습니다.</p>
+  </section>
+  <section class="topic-grid">
+    ${topicHubs.map(topicCard).join("\n")}
+  </section>`;
+
+  return layout({
+    title: "주제별 분석 허브",
+    description: "omybusiness의 사우디아람코 및 중동 에너지 산업 글을 주제별로 묶은 탐색 페이지입니다.",
+    routePath: "/topics/",
+    body,
+  });
+}
+
+function renderTopicHub(hub) {
+  const hubPosts = getHubPosts(hub);
+  const body = `  <section class="intro">
+    <p class="eyebrow">Topic Guide</p>
+    <h1>${escapeHtml(hub.title)}</h1>
+    <p>${escapeHtml(hub.description)}</p>
+  </section>
+  <section class="value-panel">
+    <div>
+      <h2>이 주제를 보는 기준</h2>
+      <p>아래 글들은 같은 기업을 다루더라도 기술, 시장, 공급망, 정책 리스크가 서로 다르게 연결됩니다. 먼저 기준을 잡고 읽으면 단편적인 뉴스보다 산업 구조를 파악하는 데 도움이 됩니다.</p>
+    </div>
+    <ul>
+      ${hub.points.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}
+    </ul>
+  </section>
+  <section>
+    <div class="section-heading">
+      <h2>관련 글</h2>
+      <span>${hubPosts.length}개 글</span>
+    </div>
+    <div class="post-grid">
+      ${hubPosts.map(postCard).join("\n")}
+    </div>
+  </section>`;
+
+  return layout({
+    title: hub.title,
+    description: hub.description,
+    routePath: hub.routePath,
+    body,
+  });
 }
 
 function renderPost(post, index) {
@@ -473,11 +676,13 @@ function renderPage(page) {
 
 function renderSitemap() {
   const items = [
-    { routePath: "/", modifiedAt: site.migratedAt },
+    { routePath: "/", modifiedAt: reviewUpdatedAt },
     ...trustPages,
-    ...posts,
-    { routePath: "/category/energy/", modifiedAt: site.migratedAt },
-    { routePath: "/tag/", modifiedAt: site.migratedAt },
+    ...posts.map((post) => ({ ...post, modifiedAt: reviewUpdatedAt })),
+    { routePath: "/category/energy/", modifiedAt: reviewUpdatedAt },
+    { routePath: "/tag/", modifiedAt: reviewUpdatedAt },
+    { routePath: "/topics/", modifiedAt: reviewUpdatedAt },
+    ...topicHubs.map((hub) => ({ ...hub, modifiedAt: reviewUpdatedAt })),
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -540,6 +745,11 @@ await cp(path.join(root, "src", "styles.css"), path.join(dist, "assets", "style.
 await writeRoute("/", renderIndex());
 await writeRoute("/category/energy/", renderIndex(posts, "에너지 산업", "/category/energy/"));
 await writeRoute("/tag/", renderIndex(posts, "태그", "/tag/"));
+await writeRoute("/topics/", renderTopicsIndex());
+
+for (const hub of topicHubs) {
+  await writeRoute(hub.routePath, renderTopicHub(hub));
+}
 
 for (const [index, post] of posts.entries()) {
   await writeRoute(post.routePath, renderPost(post, index));
