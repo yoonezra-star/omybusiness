@@ -43,7 +43,7 @@ function normalizePost(post) {
 }
 
 function sanitizeContent(html = "") {
-  return String(html)
+  const cleaned = String(html)
     .replace(/<!--\s*inventory\s*-->/gi, "")
     .replace(/<!--\s*System\s*-\s*START\s*-->[\s\S]*?<!--\s*System\s*-\s*END\s*-->/gi, "")
     .replace(/<ins\b[^>]*class=["'][^"']*adsbygoogle[^"']*["'][^>]*>[\s\S]*?<\/ins>/gi, "")
@@ -52,6 +52,16 @@ function sanitizeContent(html = "") {
     .replace(/<p>\s*<\/p>/gi, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+
+  const $ = cheerio.load(cleaned, { decodeEntities: false });
+  $("figure.imageblock, div.imageblock, span[data-phocus], span[data-url]").remove();
+  $("p, figure").each((_, element) => {
+    const $element = $(element);
+    if (!$element.text().trim() && !$element.find("img, table, iframe").length) {
+      $element.remove();
+    }
+  });
+  return $("body").html() || $.root().html();
 }
 
 function slugifyHeading(text = "", index = 0) {
@@ -80,7 +90,7 @@ function enhanceContentHeadings(html = "") {
 }
 
 const posts = rawPosts.map(normalizePost);
-const reviewUpdatedAt = "2026-07-13T14:45:00+09:00";
+const reviewUpdatedAt = "2026-07-13T15:25:00+09:00";
 
 const topicHubs = [
   {
@@ -1341,10 +1351,11 @@ function renderArticleSummaryTable(post) {
 }
 
 function renderArticleVisual(post) {
-  if (!post.image) return "";
+  const image = displayImage(post);
+  if (!image) return "";
 
   return `<figure class="article-visual">
-    <img src="${post.image}" alt="${escapeHtml(imageAlt(post))}" loading="lazy">
+    <img src="${image}" alt="${escapeHtml(imageAlt(post))}" loading="lazy">
     <figcaption>${escapeHtml(post.title)}의 핵심 개념을 시각적으로 이해하기 위한 참고 이미지입니다. 본문에서는 기술 적용 범위와 산업적 의미를 함께 설명합니다.</figcaption>
   </figure>`;
 }
@@ -1403,6 +1414,14 @@ function navLink(routePath, label) {
 function imageAlt(post) {
   const title = post.title.replace(/^사우디아람코\s*/, "");
   return `${title} 주제를 설명하는 에너지 산업 분석 이미지`;
+}
+
+function displayImage(post) {
+  if (/지진파/.test(post.title)) return "/assets/img/83-01.webp";
+  if (/화학 시장 경쟁력|석유화학 산업/.test(post.title)) return "/assets/img/84-01.webp";
+  if (/유망 기술 발굴|미래 에너지 패러다임/.test(post.title)) return "/assets/img/82-01.webp";
+  if (/산업 특화 언어모델|AI 혁신/.test(post.title)) return "/assets/img/81-01.webp";
+  return post.image;
 }
 
 function breadcrumbTrail(routePath = "/", title = site.title) {
@@ -1561,9 +1580,10 @@ ${body}
 }
 
 function postCard(post) {
+  const image = displayImage(post);
   return `<article class="post-card" data-title="${escapeHtml(post.title.toLowerCase())}">
   <a href="${encodeURI(post.routePath)}">
-    ${post.image ? `<img src="${post.image}" alt="${escapeHtml(imageAlt(post))}" loading="lazy">` : ""}
+    ${image ? `<img src="${image}" alt="${escapeHtml(imageAlt(post))}" loading="lazy">` : ""}
     <div class="post-card-body">
       <div class="meta"><span>${escapeHtml(formatDate(post.publishedAt))}</span><span class="pill">${escapeHtml(post.category)}</span></div>
       <h2>${escapeHtml(post.title)}</h2>
@@ -1628,6 +1648,116 @@ function compareCard(page) {
   </article>`;
 }
 
+function shortPostTitle(post) {
+  return post.title.replace(/^사우디아람코\s*/, "");
+}
+
+function renderHomeVisualLead() {
+  const visualPosts = [
+    posts.find((post) => /화학 시장 경쟁력/.test(post.title)),
+    posts.find((post) => /지진파/.test(post.title)),
+    posts.find((post) => /산업 특화 언어모델/.test(post.title)),
+    posts.find((post) => /유망 기술 발굴/.test(post.title)),
+  ].filter(Boolean);
+  const [lead, ...supporting] = visualPosts.length ? visualPosts : posts.filter((post) => displayImage(post)).slice(0, 4);
+  if (!lead) return "";
+  const leadImage = displayImage(lead);
+
+  return `<section class="visual-lead" aria-label="대표 분석 글">
+    <a class="lead-card" href="${encodeURI(lead.routePath)}">
+      <img src="${leadImage}" alt="${escapeHtml(imageAlt(lead))}" loading="eager">
+      <div>
+        <span>대표 분석</span>
+        <h2>${escapeHtml(shortPostTitle(lead))}</h2>
+        <p>${escapeHtml(lead.description)}</p>
+      </div>
+    </a>
+    <div class="lead-side">
+      ${supporting
+        .map(
+          (post) => `<a href="${encodeURI(post.routePath)}">
+            <img src="${displayImage(post)}" alt="${escapeHtml(imageAlt(post))}" loading="eager">
+            <span>${escapeHtml(shortPostTitle(post))}</span>
+          </a>`,
+        )
+        .join("")}
+    </div>
+  </section>`;
+}
+
+function renderHomeHubMatrix() {
+  return `<section class="topic-section" aria-label="허브 빠른 비교">
+    <div class="section-heading">
+      <h2>허브 빠른 비교</h2>
+      <a href="/topics/">전체 허브 보기</a>
+    </div>
+    <div class="table-wrap">
+      <table class="source-matrix hub-matrix">
+        <thead>
+          <tr><th>허브</th><th>읽는 이유</th><th>먼저 볼 글</th><th>확인할 질문</th></tr>
+        </thead>
+        <tbody>
+          ${topicHubs
+            .map((hub) => {
+              const firstPost = getHubPosts(hub)[0];
+              return `<tr>
+                <td><a href="${encodeURI(hub.routePath)}">${escapeHtml(hub.title)}</a></td>
+                <td>${escapeHtml(hub.points[0] || hub.description)}</td>
+                <td>${firstPost ? `<a href="${encodeURI(firstPost.routePath)}">${escapeHtml(shortPostTitle(firstPost))}</a>` : "관련 글 준비 중"}</td>
+                <td>${escapeHtml(hub.points[1] || "기술, 시장, 정책 조건을 함께 확인합니다.")}</td>
+              </tr>`;
+            })
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
+function renderTopicVisualStrip(hub, hubPosts) {
+  const visualPosts = hubPosts.filter((post) => displayImage(post)).slice(0, 3);
+  if (!visualPosts.length) return "";
+  return `<section class="hub-visual-strip" aria-label="${escapeHtml(hub.title)} 대표 이미지">
+    ${visualPosts
+      .map(
+        (post) => `<a href="${encodeURI(post.routePath)}">
+          <img src="${displayImage(post)}" alt="${escapeHtml(imageAlt(post))}" loading="lazy">
+          <span>${escapeHtml(shortPostTitle(post))}</span>
+        </a>`,
+      )
+      .join("")}
+  </section>`;
+}
+
+function renderHubGuideTable(hub, hubPosts) {
+  const rows = hub.points.map((point, index) => {
+    const post = hubPosts[index] || hubPosts[0];
+    const labels = ["핵심 관점", "사업성 관점", "리스크 관점"];
+    return `<tr>
+      <th scope="row">${labels[index] || "추가 관점"}</th>
+      <td>${escapeHtml(point)}</td>
+      <td>${post ? `<a href="${encodeURI(post.routePath)}">${escapeHtml(shortPostTitle(post))}</a>` : "관련 글 준비 중"}</td>
+    </tr>`;
+  });
+
+  return `<section class="hub-guide-table" aria-label="${escapeHtml(hub.title)} 요약 표">
+    <div class="section-heading">
+      <h2>허브 요약 표</h2>
+      <span>${hubPosts.length}개 글 기반</span>
+    </div>
+    <div class="table-wrap">
+      <table class="source-matrix">
+        <thead>
+          <tr><th>관점</th><th>읽을 때 볼 내용</th><th>추천 시작 글</th></tr>
+        </thead>
+        <tbody>
+          ${rows.join("")}
+        </tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
 function renderReadingPaths() {
   const paths = [
     {
@@ -1685,6 +1815,7 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
     <h1>${escapeHtml(site.title)}</h1>
     <p>${escapeHtml(site.description)}</p>
   </section>
+  ${renderHomeVisualLead()}
   <section class="trust-strip" aria-label="사이트 운영 기준">
     <div><strong>${posts.length}</strong><span>분석 글</span></div>
     <div><strong>광고·본문 분리</strong><span>독자가 먼저 읽는 정보 구조</span></div>
@@ -1710,6 +1841,7 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
       ${topicHubs.map(topicCard).join("\n")}
     </div>
   </section>
+  ${renderHomeHubMatrix()}
   <section class="topic-section" aria-label="리서치 가이드">
     <div class="section-heading">
       <h2>리서치 가이드</h2>
@@ -1786,6 +1918,7 @@ function renderTopicsIndex() {
     <h1>주제별 분석 허브</h1>
     <p>비슷한 글을 단순 목록으로 두지 않고, 에너지 AI, 저탄소 전환, 석유화학·소재, 탐사·공급망이라는 흐름으로 묶어 읽을 수 있도록 정리했습니다.</p>
   </section>
+  ${renderHomeHubMatrix()}
   <section class="topic-grid">
     ${topicHubs.map(topicCard).join("\n")}
   </section>`;
@@ -1805,6 +1938,7 @@ function renderTopicHub(hub) {
     <h1>${escapeHtml(hub.title)}</h1>
     <p>${escapeHtml(hub.description)}</p>
   </section>
+  ${renderTopicVisualStrip(hub, hubPosts)}
   <section class="value-panel">
     <div>
       <h2>이 주제를 보는 기준</h2>
@@ -1814,6 +1948,7 @@ function renderTopicHub(hub) {
       ${hub.points.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}
     </ul>
   </section>
+  ${renderHubGuideTable(hub, hubPosts)}
   <section>
     <div class="section-heading">
       <h2>관련 글</h2>
@@ -1866,6 +2001,7 @@ function renderPost(post, index) {
   const next = posts[index - 1];
   const enhancedContent = enhanceContentHeadings(post.content);
   const wordCount = stripHtml(enhancedContent.html).split(/\s+/).filter(Boolean).length;
+  const image = displayImage(post);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -1877,7 +2013,7 @@ function renderPost(post, index) {
     dateModified: post.modifiedAt || post.publishedAt,
     author: { "@id": `${site.url}/#organization` },
     publisher: { "@id": `${site.url}/#organization` },
-    image: post.image ? absoluteUrl(post.image) : undefined,
+    image: image ? absoluteUrl(image) : undefined,
     articleSection: post.category || "에너지 산업",
     wordCount,
     isAccessibleForFree: true,
@@ -1912,7 +2048,7 @@ function renderPost(post, index) {
     title: post.title,
     description: post.description,
     routePath: post.routePath,
-    image: post.image,
+    image,
     type: "article",
     body,
     extraHead: `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`,
