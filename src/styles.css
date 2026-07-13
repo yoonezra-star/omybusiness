@@ -418,6 +418,33 @@ a:hover {
   padding-top: 28px;
 }
 
+.deep-analysis {
+  margin-top: 38px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 28px 0;
+}
+
+.deep-analysis h2 {
+  margin: 0 0 16px;
+  font-size: 27px;
+  line-height: 1.35;
+}
+
+.deep-analysis h3 {
+  margin: 24px 0 10px;
+  font-size: 20px;
+}
+
+.deep-analysis p,
+.deep-analysis ul {
+  margin: 14px 0;
+}
+
+.deep-analysis ul {
+  padding-left: 20px;
+}
+
 .content-enhancement h2 {
   margin: 0 0 18px;
   font-size: 25px;
