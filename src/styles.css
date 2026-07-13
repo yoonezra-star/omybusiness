@@ -645,6 +645,37 @@ a:hover {
   color: var(--muted);
 }
 
+.reader-checkpoints {
+  margin-bottom: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: var(--paper);
+}
+
+.reader-checkpoints ol {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding-left: 22px;
+}
+
+.checkpoint-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.checkpoint-links a {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--soft);
+  color: var(--accent-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .enhancement-grid ul,
 .source-list {
   margin: 0;

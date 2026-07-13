@@ -80,7 +80,7 @@ function enhanceContentHeadings(html = "") {
 }
 
 const posts = rawPosts.map(normalizePost);
-const reviewUpdatedAt = "2026-07-13T14:05:00+09:00";
+const reviewUpdatedAt = "2026-07-13T14:45:00+09:00";
 
 const topicHubs = [
   {
@@ -289,6 +289,23 @@ const trustPages = [
       <p>공식 자료는 기업의 관점을 담고 있으므로 장점만 받아들이지 않고, 비용 구조, 상용화 조건, 인프라, 수요처, 정책 변수와 함께 해석합니다. 블로그 글에서는 독자가 더 찾아볼 수 있도록 관련 공식 자료를 하단에 배치합니다.</p>
       <h2>주의 사항</h2>
       <p>공개 자료는 발표 시점의 정보이므로 이후 정책, 가격, 기술 일정이 바뀔 수 있습니다. 중요한 판단에는 최신 원문을 함께 확인하는 것이 좋습니다.</p>
+    `,
+  },
+  {
+    title: "분석 방법론",
+    routePath: "/methodology/",
+    description: "omybusiness가 에너지 산업 글을 분석하고 보강하는 기준을 설명합니다.",
+    modifiedAt: reviewUpdatedAt,
+    content: `
+      <p>omybusiness는 사우디아람코와 중동 에너지 산업 글을 단순 뉴스 요약으로 다루지 않고, 기술이 실제 산업 구조 안에서 어떤 의미를 갖는지 설명하는 방식으로 정리합니다. 같은 기업 발표라도 탐사, 생산, 정제, 화학, 디지털 운영, 저탄소 전환 중 어느 영역에 연결되는지에 따라 해석이 달라지기 때문입니다.</p>
+      <h2>1. 주제 분류</h2>
+      <p>각 글은 먼저 산업 단계별로 분류합니다. 탐사·생산 기술은 생산 안정성과 비용 구조를 중심으로 보고, 화학·소재 주제는 원유 이후의 고부가가치 확장 가능성을 봅니다. 디지털 기술은 현장 데이터와 운영 효율의 연결성을, 저탄소 주제는 기술성뿐 아니라 인프라와 수요 조건을 함께 확인합니다.</p>
+      <h2>2. 공개 자료 확인</h2>
+      <p>공식 홈페이지, 연차보고서, 지속가능성 보고서, 연구센터 소개, 투자자 자료처럼 독자가 직접 확인할 수 있는 공개 자료를 우선 참고합니다. 자료가 기업 관점을 담고 있을 수 있으므로 장점만 옮기지 않고 비용, 일정, 정책, 공급망 조건을 함께 검토합니다.</p>
+      <h2>3. 독자 가치 보강</h2>
+      <p>글마다 빠른 요약 표, 목차, 시각 자료, 관련 글, 참고자료, 확인 질문을 배치해 독자가 한 페이지 안에서 핵심을 파악하고 다음 글로 이동할 수 있게 구성합니다. 이는 광고보다 본문 이해를 우선하는 사이트 구조를 만들기 위한 기준입니다.</p>
+      <h2>4. 한계와 업데이트</h2>
+      <p>에너지 산업은 정책, 가격, 기술 상용화 일정이 계속 바뀝니다. 따라서 글은 발행 시점의 공개 정보를 바탕으로 한 설명이며, 중요한 판단에는 최신 원문과 전문가 검토가 함께 필요합니다. 오류나 보완할 내용이 확인되면 정정 기준에 따라 업데이트합니다.</p>
     `,
   },
   {
@@ -1194,6 +1211,28 @@ function getRelatedPosts(post) {
     .map(({ candidate }) => candidate);
 }
 
+function getArticleHubLinks(post) {
+  const matchingHubs = topicHubs.filter((hub) => hub.keywords.test(post.title));
+  return (matchingHubs.length ? matchingHubs : topicHubs).slice(0, 2);
+}
+
+function renderReaderCheckpoints(post) {
+  const hubs = getArticleHubLinks(post);
+  return `<div class="reader-checkpoints">
+        <h3>읽은 뒤 확인할 질문</h3>
+        <ol>
+          <li>이 주제가 비용, 안전, 공급망, 저탄소 전환 중 어떤 문제를 해결하는지 구분할 수 있나요?</li>
+          <li>기술 가능성과 실제 상용화 조건을 따로 설명할 수 있나요?</li>
+          <li>관련 공식 자료나 같은 주제의 글을 하나 이상 이어서 확인했나요?</li>
+        </ol>
+        <div class="checkpoint-links">
+          <a href="/methodology/">분석 방법론</a>
+          <a href="/sources/">출처 기준</a>
+          ${hubs.map((hub) => `<a href="${encodeURI(hub.routePath)}">${escapeHtml(hub.title)}</a>`).join("")}
+        </div>
+      </div>`;
+}
+
 function renderArticleEnhancement(post) {
   const summaryItems = summarizeDescription(post.description);
   const sources = getArticleSources(post.title);
@@ -1222,6 +1261,7 @@ function renderArticleEnhancement(post) {
         <h3>이 글을 읽을 때 볼 지점</h3>
         <p>단일 기업 뉴스로만 보기보다 기술 적용 범위, 투자 지속성, 공급망 변화, 규제 환경을 함께 보면 중동 에너지 산업의 구조적 변화를 더 명확하게 읽을 수 있습니다.</p>
       </div>
+      ${renderReaderCheckpoints(post)}
       <h3>공개 참고자료</h3>
       <ul class="source-list">
         ${sources
@@ -1365,21 +1405,90 @@ function imageAlt(post) {
   return `${title} 주제를 설명하는 에너지 산업 분석 이미지`;
 }
 
+function breadcrumbTrail(routePath = "/", title = site.title) {
+  const trail = [{ name: "홈", routePath: "/" }];
+  const segment = routePath.split("/").filter(Boolean)[0];
+  const parents = {
+    category: { name: "에너지 산업", routePath: "/category/energy/" },
+    entry: { name: "에너지 산업", routePath: "/category/energy/" },
+    topics: { name: "주제별 허브", routePath: "/topics/" },
+    research: { name: "리서치 가이드", routePath: "/research/" },
+    checklist: { name: "분석 체크리스트", routePath: "/checklist/energy-company-analysis/" },
+    tools: { name: "도구", routePath: "/tools/energy-risk-matrix/" },
+    compare: { name: "비교", routePath: "/compare/energy-strategy-map/" },
+  };
+  const parent = parents[segment];
+  if (parent && parent.routePath !== routePath) trail.push(parent);
+  if (routePath !== "/") trail.push({ name: title, routePath });
+  return trail;
+}
+
+function baseJsonLd({ title, routePath }) {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${site.url}/#organization`,
+        name: site.title,
+        url: site.url,
+        contactPoint: {
+          "@type": "ContactPoint",
+          email: "yoonezra@gmail.com",
+          contactType: "editorial inquiries",
+        },
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${site.url}/#website`,
+        name: site.title,
+        url: site.url,
+        inLanguage: "ko-KR",
+        publisher: { "@id": `${site.url}/#organization` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumbTrail(routePath, title).map((item, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: item.name,
+          item: absoluteUrl(item.routePath),
+        })),
+      },
+    ],
+  };
+}
+
+function faqJsonLd(page) {
+  const $ = cheerio.load(page.content);
+  const mainEntity = [];
+  $("h2").each((_, heading) => {
+    const question = $(heading).text().trim();
+    const answer = $(heading).next("p").text().trim();
+    if (question && answer) {
+      mainEntity.push({
+        "@type": "Question",
+        name: question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: answer,
+        },
+      });
+    }
+  });
+  if (!mainEntity.length) return "";
+  return `<script type="application/ld+json">${JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity,
+  })}</script>`;
+}
+
 function layout({ title, description, routePath = "/", image = "", body, type = "website", extraHead = "" }) {
   const pageTitle = title === site.title ? site.title : `${title} | ${site.title}`;
   const canonical = absoluteUrl(routePath);
   const socialImage = image ? absoluteUrl(image) : "";
-  const organizationJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: site.title,
-    url: site.url,
-    contactPoint: {
-      "@type": "ContactPoint",
-      email: "yoonezra@gmail.com",
-      contactType: "editorial inquiries",
-    },
-  };
+  const commonJsonLd = baseJsonLd({ title, routePath });
 
   return `<!doctype html>
 <html lang="ko">
@@ -1397,7 +1506,7 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
   ${socialImage ? `<meta property="og:image" content="${socialImage}">` : ""}
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="/assets/style.css">
-  <script type="application/ld+json">${JSON.stringify(organizationJsonLd)}</script>
+  <script type="application/ld+json">${JSON.stringify(commonJsonLd)}</script>
   ${extraHead}
 </head>
 <body>
@@ -1416,6 +1525,7 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
         ${navLink("/start-here/", "길잡이")}
         ${navLink("/compare/energy-strategy-map/", "비교")}
         ${navLink("/sources/", "출처")}
+        ${navLink("/methodology/", "방법론")}
         ${navLink("/about/", "소개")}
         ${navLink("/editorial-policy/", "편집 기준")}
         ${navLink("/contact/", "문의")}
@@ -1436,6 +1546,7 @@ ${body}
       ${navLink("/glossary/", "용어집")}
       ${navLink("/compare/energy-strategy-map/", "전략 비교 지도")}
       ${navLink("/sources/", "참고자료")}
+      ${navLink("/methodology/", "분석 방법론")}
       ${navLink("/corrections/", "정정 기준")}
       ${navLink("/faq/", "FAQ")}
       ${navLink("/privacy-policy/", "개인정보처리방침")}
@@ -1640,6 +1751,7 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
     <h2>운영 정보와 신뢰 기준</h2>
     <div>
       ${navLink("/author/", "작성자와 운영자")}
+      ${navLink("/methodology/", "분석 방법론")}
       ${navLink("/sources/", "참고자료와 출처 기준")}
       ${navLink("/corrections/", "정정 및 업데이트 기록")}
       ${navLink("/faq/", "자주 묻는 질문")}
@@ -1753,17 +1865,22 @@ function renderPost(post, index) {
   const previous = posts[index + 1];
   const next = posts[index - 1];
   const enhancedContent = enhanceContentHeadings(post.content);
+  const wordCount = stripHtml(enhancedContent.html).split(/\s+/).filter(Boolean).length;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
+    mainEntityOfPage: absoluteUrl(post.routePath),
     headline: post.title,
     description: post.description,
     url: absoluteUrl(post.routePath),
     datePublished: post.publishedAt,
     dateModified: post.modifiedAt || post.publishedAt,
-    author: { "@type": "Organization", name: site.title, url: site.url },
-    publisher: { "@type": "Organization", name: site.title, url: site.url },
+    author: { "@id": `${site.url}/#organization` },
+    publisher: { "@id": `${site.url}/#organization` },
     image: post.image ? absoluteUrl(post.image) : undefined,
+    articleSection: post.category || "에너지 산업",
+    wordCount,
+    isAccessibleForFree: true,
     inLanguage: "ko-KR",
   };
 
@@ -1812,7 +1929,13 @@ function renderPage(page) {
       ${page.content}
     </div>
   </article>`;
-  return layout({ title: page.title, description: page.description, routePath: page.routePath, body });
+  return layout({
+    title: page.title,
+    description: page.description,
+    routePath: page.routePath,
+    body,
+    extraHead: page.routePath === "/faq/" ? faqJsonLd(page) : "",
+  });
 }
 
 function renderSitemap() {
