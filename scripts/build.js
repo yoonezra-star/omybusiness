@@ -80,7 +80,7 @@ function enhanceContentHeadings(html = "") {
 }
 
 const posts = rawPosts.map(normalizePost);
-const reviewUpdatedAt = "2026-07-13T13:25:00+09:00";
+const reviewUpdatedAt = "2026-07-13T14:05:00+09:00";
 
 const topicHubs = [
   {
@@ -493,6 +493,41 @@ const toolPages = [
         </tbody>
       </table>
       <p>이 매트릭스는 글을 빨리 읽기 위한 보조 도구입니다. 실제 투자나 사업 판단에는 최신 공식 자료와 전문가 검토가 필요합니다.</p>
+    `,
+  },
+];
+
+const comparePages = [
+  {
+    title: "에너지 전략 비교 지도",
+    routePath: "/compare/energy-strategy-map/",
+    description:
+      "사우디아람코 관련 기술과 전략을 생산, 화학, 디지털, 저탄소, 공급망 축으로 비교하는 한눈에 보는 전략 지도입니다.",
+    modifiedAt: reviewUpdatedAt,
+    content: `
+      <p>omybusiness의 글은 개별 기술을 다루지만, 실제 산업에서는 여러 전략 축이 동시에 움직입니다. 이 비교 지도는 글을 읽기 전에 각 주제가 어느 위치에 있는지 빠르게 파악할 수 있도록 만든 페이지입니다.</p>
+      <h2>전략 축별 비교표</h2>
+      <table class="source-matrix checklist-table">
+        <thead>
+          <tr><th>전략 축</th><th>대표 주제</th><th>핵심 질문</th><th>관련 페이지</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>탐사·생산</td><td>지진파 알고리즘, 원격 시추, 수층 분석</td><td>생산 비용과 장기 운영 안정성을 낮추는가?</td><td><a href="/topics/upstream-supply-chain/">탐사·생산 허브</a></td></tr>
+          <tr><td>화학·소재</td><td>화학 시장, 촉매 재생, 탄소 섬유, 윤활유</td><td>원유 중심 수익 구조를 고부가 제품으로 넓히는가?</td><td><a href="/topics/chemicals-materials/">소재 밸류체인 허브</a></td></tr>
+          <tr><td>디지털 전환</td><td>산업 특화 AI, 블록체인, 드론, 물류 자동화</td><td>현장 데이터를 운영 효율과 안전으로 바꾸는가?</td><td><a href="/topics/digital-energy-ai/">에너지 AI 허브</a></td></tr>
+          <tr><td>저탄소 전환</td><td>수소, 암모니아, 바이오 연료, 탄소 가격제</td><td>기술뿐 아니라 수요, 인프라, 정책 조건이 갖춰졌는가?</td><td><a href="/topics/low-carbon-transition/">저탄소 전환 허브</a></td></tr>
+          <tr><td>공급망·시장</td><td>트레이딩, 선박유, 유조선 배출, 공급망 국산화</td><td>가격 변동과 지역별 수요 변화에 대응할 수 있는가?</td><td><a href="/checklist/energy-company-analysis/">분석 체크리스트</a></td></tr>
+        </tbody>
+      </table>
+      <h2>읽는 방법</h2>
+      <p>처음에는 관심 주제를 하나 고른 뒤 같은 전략 축의 글을 3개 이상 이어 읽어보는 것이 좋습니다. 예를 들어 수소 글만 읽으면 기술 가능성만 보이지만, 암모니아 크래킹, 수소 탱크 안전, 태양광 연계 전략까지 함께 보면 생산·저장·전력 조달 조건을 더 입체적으로 이해할 수 있습니다.</p>
+      <h2>추천 비교 조합</h2>
+      <ul>
+        <li>지진파 알고리즘 + 원격 시추 + 수층 정밀 분석: 탐사와 생산 효율 비교</li>
+        <li>화학 시장 + 촉매 재생 + 탄소 섬유: 다운스트림 확장 비교</li>
+        <li>산업 특화 AI + 물류 자동화 + 드론 감시: 디지털 운영 개선 비교</li>
+        <li>바이오 연료 + 암모니아 크래킹 + 탄소 가격제: 저탄소 전환 조건 비교</li>
+      </ul>
     `,
   },
 ];
@@ -1379,6 +1414,7 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
         ${navLink("/research/", "리서치")}
         ${navLink("/checklist/energy-company-analysis/", "체크리스트")}
         ${navLink("/start-here/", "길잡이")}
+        ${navLink("/compare/energy-strategy-map/", "비교")}
         ${navLink("/sources/", "출처")}
         ${navLink("/about/", "소개")}
         ${navLink("/editorial-policy/", "편집 기준")}
@@ -1398,6 +1434,7 @@ ${body}
       ${navLink("/checklist/energy-company-analysis/", "분석 체크리스트")}
       ${navLink("/start-here/", "처음 읽는 길잡이")}
       ${navLink("/glossary/", "용어집")}
+      ${navLink("/compare/energy-strategy-map/", "전략 비교 지도")}
       ${navLink("/sources/", "참고자료")}
       ${navLink("/corrections/", "정정 기준")}
       ${navLink("/faq/", "FAQ")}
@@ -1470,6 +1507,67 @@ function toolCard(page) {
   </article>`;
 }
 
+function compareCard(page) {
+  return `<article class="topic-card">
+    <a href="${encodeURI(page.routePath)}">
+      <span>비교 지도</span>
+      <h2>${escapeHtml(page.title)}</h2>
+      <p>${escapeHtml(page.description)}</p>
+    </a>
+  </article>`;
+}
+
+function renderReadingPaths() {
+  const paths = [
+    {
+      title: "탐사와 생산 효율",
+      links: [
+        posts.find((post) => /지진파/.test(post.title)),
+        posts.find((post) => /원격 시추/.test(post.title)),
+        posts.find((post) => /유전 수층/.test(post.title)),
+      ],
+    },
+    {
+      title: "저탄소 전환",
+      links: [
+        posts.find((post) => /바이오 연료/.test(post.title)),
+        posts.find((post) => /암모니아 크래킹/.test(post.title)),
+        posts.find((post) => /탄소 가격/.test(post.title)),
+      ],
+    },
+    {
+      title: "디지털 운영",
+      links: [
+        posts.find((post) => /언어모델/.test(post.title)),
+        posts.find((post) => /물류 자동화/.test(post.title)),
+        posts.find((post) => /드론 감시/.test(post.title)),
+      ],
+    },
+  ];
+
+  return `<section class="reading-paths" aria-label="추천 읽기 경로">
+    <div class="section-heading">
+      <h2>추천 읽기 경로</h2>
+      <a href="/compare/energy-strategy-map/">전략 비교 지도</a>
+    </div>
+    <div class="path-grid">
+      ${paths
+        .map(
+          (path) => `<article>
+            <h3>${escapeHtml(path.title)}</h3>
+            <ol>
+              ${path.links
+                .filter(Boolean)
+                .map((post) => `<li><a href="${encodeURI(post.routePath)}">${escapeHtml(post.title)}</a></li>`)
+                .join("")}
+            </ol>
+          </article>`,
+        )
+        .join("")}
+    </div>
+  </section>`;
+}
+
 function renderIndex(filteredPosts = posts, title = site.title, routePath = "/") {
   const body = `  <section class="intro">
     <p class="eyebrow">Middle East Business Archive</p>
@@ -1526,6 +1624,16 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
     </div>
     <div class="topic-grid">
       ${toolPages.map(toolCard).join("\n")}
+    </div>
+  </section>
+  ${renderReadingPaths()}
+  <section class="topic-section" aria-label="전략 비교 지도">
+    <div class="section-heading">
+      <h2>비교해서 읽기</h2>
+      <a href="/compare/energy-strategy-map/">전체 비교 보기</a>
+    </div>
+    <div class="topic-grid research-grid">
+      ${comparePages.map(compareCard).join("\n")}
     </div>
   </section>
   <section class="trust-links" aria-label="운영 신뢰 정보">
@@ -1720,6 +1828,7 @@ function renderSitemap() {
     ...researchPages,
     ...checklistPages,
     ...toolPages,
+    ...comparePages,
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -1798,6 +1907,10 @@ for (const page of checklistPages) {
 }
 
 for (const page of toolPages) {
+  await writeRoute(page.routePath, renderPage(page));
+}
+
+for (const page of comparePages) {
   await writeRoute(page.routePath, renderPage(page));
 }
 
