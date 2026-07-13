@@ -1,6 +1,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import * as cheerio from "cheerio";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -53,8 +54,33 @@ function sanitizeContent(html = "") {
     .trim();
 }
 
+function slugifyHeading(text = "", index = 0) {
+  const slug = String(text)
+    .trim()
+    .replace(/[^\p{L}\p{N}\s-]/gu, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 64);
+  return slug ? `section-${slug}-${index}` : `section-${index}`;
+}
+
+function enhanceContentHeadings(html = "") {
+  const $ = cheerio.load(html, { decodeEntities: false });
+  const headings = [];
+
+  $("h2, h3").each((index, element) => {
+    const $heading = $(element);
+    const text = $heading.text().replace(/\s+/g, " ").trim();
+    if (!text) return;
+    const id = $heading.attr("id") || slugifyHeading(text, index);
+    $heading.attr("id", id);
+    headings.push({ id, text, level: element.tagName.toLowerCase() });
+  });
+
+  return { html: $("body").html() || $.root().html(), headings };
+}
+
 const posts = rawPosts.map(normalizePost);
-const reviewUpdatedAt = "2026-07-13T12:40:00+09:00";
+const reviewUpdatedAt = "2026-07-13T13:25:00+09:00";
 
 const topicHubs = [
   {
@@ -391,6 +417,82 @@ const checklistPages = [
         <li>단기 뉴스인지 장기 구조 변화인지 구분해 판단합니다.</li>
       </ol>
       <p>이 체크리스트는 투자 권유가 아니라 산업 이해를 돕는 참고 도구입니다. 중요한 판단에는 최신 공시와 전문가 검토가 필요합니다.</p>
+    `,
+  },
+];
+
+const toolPages = [
+  {
+    title: "처음 읽는 에너지 산업 길잡이",
+    routePath: "/start-here/",
+    description:
+      "omybusiness의 에너지 산업 글을 처음 읽는 독자를 위해 추천 읽기 순서와 핵심 배경을 정리한 시작 페이지입니다.",
+    modifiedAt: reviewUpdatedAt,
+    content: `
+      <p>처음 방문한 독자는 글이 많아 어디서 시작해야 할지 막막할 수 있습니다. 이 페이지는 사우디아람코와 중동 에너지 산업 글을 생산, 화학, 디지털, 저탄소, 공급망 순서로 읽을 수 있도록 안내합니다.</p>
+      <h2>추천 읽기 순서</h2>
+      <ol>
+        <li><strong>탐사·생산:</strong> 지진파 데이터, 유전 수층, 원격 시추, 증산 잠재력 글로 운영 기반을 봅니다.</li>
+        <li><strong>정제·화학:</strong> 화학 시장, 촉매 재생, 윤활유 기유, 탄소 섬유 글로 수익 구조 확장을 봅니다.</li>
+        <li><strong>디지털 전환:</strong> 산업 특화 AI, 블록체인, 물류 자동화, 드론 감시 글로 운영 효율을 봅니다.</li>
+        <li><strong>저탄소 전환:</strong> 수소, 암모니아, 바이오 연료, 탄소 가격제 글로 장기 규제와 시장 변화를 봅니다.</li>
+        <li><strong>공급망:</strong> 트레이딩, 유조선 배출, 저유황 선박유 글로 시장 연결 구조를 봅니다.</li>
+      </ol>
+      <h2>먼저 보면 좋은 고정 페이지</h2>
+      <ul>
+        <li><a href="/research/aramco-business-model/">사우디아람코 비즈니스 모델 읽는 법</a></li>
+        <li><a href="/checklist/energy-company-analysis/">에너지 기업 분석 체크리스트</a></li>
+        <li><a href="/glossary/">에너지 산업 용어집</a></li>
+        <li><a href="/tools/energy-risk-matrix/">에너지 산업 리스크 매트릭스</a></li>
+      </ul>
+    `,
+  },
+  {
+    title: "에너지 산업 용어집",
+    routePath: "/glossary/",
+    description:
+      "사우디아람코와 에너지 산업 글에서 자주 등장하는 탐사, 정제, 화학, 저탄소, 디지털 전환 용어를 쉽게 정리합니다.",
+    modifiedAt: reviewUpdatedAt,
+    content: `
+      <p>에너지 산업 글은 전문 용어가 많아 같은 문장을 읽어도 배경지식에 따라 이해도가 달라집니다. 아래 용어집은 omybusiness 글을 읽을 때 자주 나오는 개념을 짧게 확인할 수 있도록 정리했습니다.</p>
+      <table class="source-matrix">
+        <thead>
+          <tr><th>용어</th><th>뜻</th><th>글에서 보는 포인트</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Upstream</td><td>탐사와 생산을 포함하는 상류부문</td><td>매장량, 생산비용, 시추, 저류층 관리와 연결됩니다.</td></tr>
+          <tr><td>Downstream</td><td>정제, 화학, 유통을 포함하는 하류부문</td><td>원유를 고부가 제품으로 전환하는 수익 구조를 봅니다.</td></tr>
+          <tr><td>저류층</td><td>석유와 가스가 지하에 저장된 암석층</td><td>탐사 정확도와 장기 생산 안정성을 판단하는 기준입니다.</td></tr>
+          <tr><td>촉매</td><td>화학 반응 속도와 효율을 높이는 물질</td><td>정제·화학 공정 효율, 원가, 제품 품질에 영향을 줍니다.</td></tr>
+          <tr><td>블루 암모니아</td><td>탄소포집과 결합해 생산한 암모니아</td><td>수소 운송과 저탄소 연료 시장의 연결고리로 봅니다.</td></tr>
+          <tr><td>탄소 가격제</td><td>탄소 배출에 비용을 부여하는 정책</td><td>저탄소 기술의 경제성과 기업 투자 우선순위를 바꿉니다.</td></tr>
+          <tr><td>디지털 트윈</td><td>현장 설비를 가상 모델로 복제해 분석하는 기술</td><td>정비, 안전, 운영 최적화에서 가치가 커집니다.</td></tr>
+          <tr><td>수요 예측</td><td>시장 수요를 데이터로 예측하는 모델</td><td>생산·재고·물류·트레이딩 계획의 정확도와 연결됩니다.</td></tr>
+        </tbody>
+      </table>
+    `,
+  },
+  {
+    title: "에너지 산업 리스크 매트릭스",
+    routePath: "/tools/energy-risk-matrix/",
+    description:
+      "에너지 기업과 기술 이슈를 정책, 시장, 기술, 공급망, 환경 리스크로 나누어 점검하는 도구형 페이지입니다.",
+    modifiedAt: reviewUpdatedAt,
+    content: `
+      <p>에너지 산업의 리스크는 한 가지 원인으로만 생기지 않습니다. 기술은 가능해도 정책이 늦을 수 있고, 수요는 있어도 인프라가 부족할 수 있습니다. 아래 매트릭스는 글을 읽을 때 어떤 리스크를 함께 확인해야 하는지 정리한 표입니다.</p>
+      <table class="source-matrix checklist-table">
+        <thead>
+          <tr><th>리스크 영역</th><th>확인 질문</th><th>관련 글 주제</th><th>완화 신호</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>정책</td><td>규제나 보조금 변화가 수익성을 바꾸는가?</td><td>탄소 가격제, 저유황 선박유, 저탄소 전환</td><td>명확한 기준, 장기 정책, 국제 인증</td></tr>
+          <tr><td>시장</td><td>실제 구매자와 장기 수요가 있는가?</td><td>수소, 암모니아, 화학 시장, 트레이딩</td><td>장기 계약, 반복 수요, 다변화된 고객</td></tr>
+          <tr><td>기술</td><td>실험 단계인지 현장 적용 단계인지 구분되는가?</td><td>AI, 촉매, 수소 탱크, 탄소 나노 튜브</td><td>운영 사례, 안전 기준, 유지보수 체계</td></tr>
+          <tr><td>공급망</td><td>원료, 물류, 운송, 부품 조달이 안정적인가?</td><td>물류 자동화, 유조선 배출, 공급망 국산화</td><td>다중 공급처, 자동화, 재고·운송 최적화</td></tr>
+          <tr><td>환경·안전</td><td>배출, 물, 누출, 작업자 안전 문제가 관리되는가?</td><td>폐수 재활용, 가스 검지, 담수화, 폐열 회수</td><td>모니터링, 정정 체계, 예방 정비, 공개 보고</td></tr>
+        </tbody>
+      </table>
+      <p>이 매트릭스는 글을 빨리 읽기 위한 보조 도구입니다. 실제 투자나 사업 판단에는 최신 공식 자료와 전문가 검토가 필요합니다.</p>
     `,
   },
 ];
@@ -1172,6 +1274,20 @@ function renderArticleVisual(post) {
   </figure>`;
 }
 
+function renderArticleToc(headings = []) {
+  const visibleHeadings = headings
+    .filter((heading) => heading.level === "h2" && !/^목차$/i.test(heading.text))
+    .slice(0, 8);
+  if (!visibleHeadings.length) return "";
+
+  return `<nav class="article-toc" aria-label="글 목차">
+    <h2>글 목차</h2>
+    <ol>
+      ${visibleHeadings.map((heading) => `<li><a href="#${escapeHtml(heading.id)}">${escapeHtml(heading.text)}</a></li>`).join("")}
+    </ol>
+  </nav>`;
+}
+
 function escapeHtml(value = "") {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -1262,6 +1378,7 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
         ${navLink("/topics/", "주제별")}
         ${navLink("/research/", "리서치")}
         ${navLink("/checklist/energy-company-analysis/", "체크리스트")}
+        ${navLink("/start-here/", "길잡이")}
         ${navLink("/sources/", "출처")}
         ${navLink("/about/", "소개")}
         ${navLink("/editorial-policy/", "편집 기준")}
@@ -1279,6 +1396,8 @@ ${body}
       ${navLink("/topics/", "주제별 허브")}
       ${navLink("/research/", "리서치 가이드")}
       ${navLink("/checklist/energy-company-analysis/", "분석 체크리스트")}
+      ${navLink("/start-here/", "처음 읽는 길잡이")}
+      ${navLink("/glossary/", "용어집")}
       ${navLink("/sources/", "참고자료")}
       ${navLink("/corrections/", "정정 기준")}
       ${navLink("/faq/", "FAQ")}
@@ -1341,6 +1460,16 @@ function checklistCard(page) {
   </article>`;
 }
 
+function toolCard(page) {
+  return `<article class="topic-card">
+    <a href="${encodeURI(page.routePath)}">
+      <span>도구형 가이드</span>
+      <h2>${escapeHtml(page.title)}</h2>
+      <p>${escapeHtml(page.description)}</p>
+    </a>
+  </article>`;
+}
+
 function renderIndex(filteredPosts = posts, title = site.title, routePath = "/") {
   const body = `  <section class="intro">
     <p class="eyebrow">Middle East Business Archive</p>
@@ -1388,6 +1517,15 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
     </div>
     <div class="topic-grid research-grid">
       ${checklistPages.map(checklistCard).join("\n")}
+    </div>
+  </section>
+  <section class="topic-section" aria-label="도구형 가이드">
+    <div class="section-heading">
+      <h2>처음 읽는 길잡이와 도구</h2>
+      <a href="/start-here/">시작하기</a>
+    </div>
+    <div class="topic-grid">
+      ${toolPages.map(toolCard).join("\n")}
     </div>
   </section>
   <section class="trust-links" aria-label="운영 신뢰 정보">
@@ -1506,6 +1644,7 @@ function renderResearchIndex() {
 function renderPost(post, index) {
   const previous = posts[index + 1];
   const next = posts[index - 1];
+  const enhancedContent = enhanceContentHeadings(post.content);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -1532,8 +1671,9 @@ function renderPost(post, index) {
     </aside>
     ${renderArticleSummaryTable(post)}
     ${renderArticleVisual(post)}
+    ${renderArticleToc(enhancedContent.headings)}
     <div class="entry-content">
-      ${post.content}
+      ${enhancedContent.html}
     </div>
     ${renderFeaturedAnalysis(post)}
     ${renderArticleEnhancement(post, index)}
@@ -1579,6 +1719,7 @@ function renderSitemap() {
     { routePath: "/research/", modifiedAt: reviewUpdatedAt },
     ...researchPages,
     ...checklistPages,
+    ...toolPages,
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -1653,6 +1794,10 @@ for (const page of researchPages) {
 }
 
 for (const page of checklistPages) {
+  await writeRoute(page.routePath, renderPage(page));
+}
+
+for (const page of toolPages) {
   await writeRoute(page.routePath, renderPage(page));
 }
 
