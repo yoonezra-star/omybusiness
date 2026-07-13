@@ -1034,6 +1034,40 @@ function renderFeaturedAnalysis(post) {
   </section>`;
 }
 
+function articleTableRows(post) {
+  const perspective = getArticlePerspective(post.title);
+  const sources = getArticleSources(post.title);
+  const topic = post.title.replace(/^사우디아람코\s*/, "");
+
+  return [
+    ["핵심 주제", topic],
+    ["산업적 의미", perspective.why],
+    ["확인할 변수", perspective.check],
+    ["함께 볼 자료", sources.slice(0, 2).map((source) => source.label).join(", ")],
+  ];
+}
+
+function renderArticleSummaryTable(post) {
+  const rows = articleTableRows(post);
+  return `<section class="article-brief" aria-label="글 빠른 요약">
+    <h2>빠른 요약 표</h2>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          ${rows
+            .map(
+              ([label, value]) => `<tr>
+                <th scope="row">${escapeHtml(label)}</th>
+                <td>${escapeHtml(value)}</td>
+              </tr>`,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
 function escapeHtml(value = "") {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -1371,6 +1405,7 @@ function renderPost(post, index) {
       <strong>편집 기준</strong>
       <p>이 글은 중동 비즈니스와 에너지 산업 흐름을 이해하기 쉽도록 정리한 정보 콘텐츠입니다. 광고와 본문은 분리해 운영하며, 오류가 확인되면 보완합니다.</p>
     </aside>
+    ${renderArticleSummaryTable(post)}
     <div class="entry-content">
       ${post.content}
     </div>
