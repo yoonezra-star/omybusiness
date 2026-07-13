@@ -255,6 +255,30 @@ a:hover {
   line-height: 1.62;
 }
 
+.trust-links {
+  margin: 34px 0 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+  background: var(--paper);
+}
+
+.trust-links h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+
+.trust-links div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.trust-links a {
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
 .post-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
