@@ -138,6 +138,31 @@ a:hover {
   white-space: nowrap;
 }
 
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 22px;
+}
+
+.filter-row button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: var(--paper);
+  color: var(--accent-ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.filter-row button.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
 .start-panel {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -631,6 +656,48 @@ a:hover {
   line-height: 1.65;
 }
 
+.article-takeaways {
+  margin: 0 0 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.article-takeaways h2 {
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 16px 18px;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.article-takeaways > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+}
+
+.article-takeaways article {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  background: var(--paper);
+}
+
+.article-takeaways span {
+  color: var(--accent-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.article-takeaways p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .page-summary {
   margin: 0 0 26px;
   padding: 18px;
@@ -1002,6 +1069,10 @@ a:hover {
   }
 
   .enhancement-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .article-takeaways > div {
     grid-template-columns: 1fr;
   }
 

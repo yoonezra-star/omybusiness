@@ -1458,6 +1458,27 @@ function renderArticleSummaryTable(post) {
   </section>`;
 }
 
+function renderArticleTakeaways(post) {
+  const perspective = getArticlePerspective(post.title);
+  return `<section class="article-takeaways" aria-label="이 글에서 알 수 있는 것">
+    <h2>이 글에서 알 수 있는 것</h2>
+    <div>
+      <article>
+        <span>핵심 주제</span>
+        <p>${escapeHtml(shortPostTitle(post))}가 에너지 산업의 어느 단계와 연결되는지 파악할 수 있습니다.</p>
+      </article>
+      <article>
+        <span>판단 기준</span>
+        <p>${escapeHtml(perspective.check)}</p>
+      </article>
+      <article>
+        <span>비교 관점</span>
+        <p>${escapeHtml(perspective.signal)}</p>
+      </article>
+    </div>
+  </section>`;
+}
+
 function renderArticleVisual(post) {
   const image = displayImage(post);
   if (!image) return "";
@@ -1692,7 +1713,8 @@ ${body}
 
 function postCard(post) {
   const image = displayImage(post);
-  return `<article class="post-card" data-title="${escapeHtml(post.title.toLowerCase())}">
+  const topic = postTopicKey(post);
+  return `<article class="post-card" data-title="${escapeHtml(post.title.toLowerCase())}" data-topic="${escapeHtml(topic)}">
   <a href="${encodeURI(post.routePath)}">
     ${image ? `<img src="${image}" alt="${escapeHtml(imageAlt(post))}" loading="lazy">` : ""}
     <div class="post-card-body">
@@ -1702,6 +1724,58 @@ function postCard(post) {
     </div>
   </a>
 </article>`;
+}
+
+function postTopicKey(post) {
+  const hub = topicHubs.find((item) => item.keywords.test(post.title));
+  if (!hub) return "general";
+  return hub.routePath.split("/").filter(Boolean).pop();
+}
+
+function renderPostFilters() {
+  const filters = [
+    { key: "all", label: "전체" },
+    ...topicHubs.map((hub) => ({ key: hub.routePath.split("/").filter(Boolean).pop(), label: hub.title })),
+    { key: "general", label: "기타 산업 주제" },
+  ];
+
+  return `<div class="filter-row" aria-label="글 주제 필터">
+    ${filters
+      .map((filter, index) => `<button type="button" class="${index === 0 ? "active" : ""}" data-filter="${escapeHtml(filter.key)}">${escapeHtml(filter.label)}</button>`)
+      .join("")}
+  </div>`;
+}
+
+function renderPostFilterScript() {
+  return `<script>
+    const input = document.getElementById("postSearch");
+    const cards = [...document.querySelectorAll(".post-card")];
+    const buttons = [...document.querySelectorAll("[data-filter]")];
+    const count = document.querySelector("[data-count]");
+    let activeFilter = "all";
+
+    function updateCards() {
+      const query = input?.value.trim().toLowerCase() || "";
+      let visible = 0;
+      cards.forEach((card) => {
+        const topicMatch = activeFilter === "all" || card.dataset.topic === activeFilter;
+        const queryMatch = !query || card.dataset.title.includes(query);
+        const show = topicMatch && queryMatch;
+        card.hidden = !show;
+        if (show) visible += 1;
+      });
+      if (count) count.textContent = visible + "개 표시";
+    }
+
+    input?.addEventListener("input", updateCards);
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter || "all";
+        buttons.forEach((item) => item.classList.toggle("active", item === button));
+        updateCards();
+      });
+    });
+  </script>`;
 }
 
 function getHubPosts(hub) {
@@ -2102,23 +2176,15 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
   <section>
     <div class="toolbar">
       <input class="search" id="postSearch" type="search" placeholder="글 검색" aria-label="글 검색">
-      <span class="count">${isHome ? `추천 ${visiblePosts.length}개 / 전체 ${posts.length}개` : `전체 ${visiblePosts.length}개 글`}</span>
+      <span class="count" data-count>${isHome ? `추천 ${visiblePosts.length}개 / 전체 ${posts.length}개` : `전체 ${visiblePosts.length}개 글`}</span>
     </div>
+    ${renderPostFilters()}
     <div class="post-grid" id="postGrid">
       ${visiblePosts.map(postCard).join("\n")}
     </div>
   </section>
   ${isHome ? renderArchiveNotice() : ""}
-  <script>
-    const input = document.getElementById("postSearch");
-    const cards = [...document.querySelectorAll(".post-card")];
-    input?.addEventListener("input", () => {
-      const query = input.value.trim().toLowerCase();
-      cards.forEach((card) => {
-        card.hidden = query && !card.dataset.title.includes(query);
-      });
-    });
-  </script>`;
+  ${renderPostFilterScript()}`;
 
   return layout({ title, description: site.description, routePath, body });
 }
@@ -2143,22 +2209,14 @@ function renderArchivePage() {
   <section>
     <div class="toolbar">
       <input class="search" id="postSearch" type="search" placeholder="전체 글 검색" aria-label="전체 글 검색">
-      <span class="count">전체 ${posts.length}개 글</span>
+      <span class="count" data-count>전체 ${posts.length}개 글</span>
     </div>
+    ${renderPostFilters()}
     <div class="post-grid" id="postGrid">
       ${posts.map(postCard).join("\n")}
     </div>
   </section>
-  <script>
-    const input = document.getElementById("postSearch");
-    const cards = [...document.querySelectorAll(".post-card")];
-    input?.addEventListener("input", () => {
-      const query = input.value.trim().toLowerCase();
-      cards.forEach((card) => {
-        card.hidden = query && !card.dataset.title.includes(query);
-      });
-    });
-  </script>`;
+  ${renderPostFilterScript()}`;
 
   return layout({
     title: "전체 글 아카이브",
@@ -2287,6 +2345,7 @@ function renderPost(post, index) {
       <strong>편집 기준</strong>
       <p>이 글은 중동 비즈니스와 에너지 산업 흐름을 이해하기 쉽도록 정리한 정보 콘텐츠입니다. 광고와 본문은 분리해 운영하며, 오류가 확인되면 보완합니다.</p>
     </aside>
+    ${renderArticleTakeaways(post)}
     ${renderArticleSummaryTable(post)}
     ${renderArticleVisual(post)}
     ${renderArticleToc(enhancedContent.headings)}
