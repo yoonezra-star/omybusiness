@@ -90,7 +90,7 @@ function enhanceContentHeadings(html = "") {
 }
 
 const posts = rawPosts.map(normalizePost);
-const reviewUpdatedAt = "2026-07-13T16:10:00+09:00";
+const reviewUpdatedAt = "2026-07-14T10:30:00+09:00";
 
 const topicHubs = [
   {
@@ -1647,6 +1647,7 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
         ${navLink("/", "홈")}
         ${navLink("/category/energy/", "에너지 산업")}
         ${navLink("/topics/", "주제별")}
+        ${navLink("/archive/", "아카이브")}
         ${navLink("/research/", "리서치")}
         ${navLink("/checklist/energy-company-analysis/", "체크리스트")}
         ${navLink("/start-here/", "길잡이")}
@@ -1667,6 +1668,7 @@ ${body}
       ${navLink("/about/", "사이트 소개")}
       ${navLink("/author/", "작성자")}
       ${navLink("/topics/", "주제별 허브")}
+      ${navLink("/archive/", "전체 아카이브")}
       ${navLink("/research/", "리서치 가이드")}
       ${navLink("/checklist/energy-company-analysis/", "분석 체크리스트")}
       ${navLink("/start-here/", "처음 읽는 길잡이")}
@@ -1761,6 +1763,64 @@ function shortPostTitle(post) {
   return post.title.replace(/^사우디아람코\s*/, "");
 }
 
+function uniquePosts(items) {
+  const seen = new Set();
+  return items.filter((post) => {
+    if (!post || seen.has(post.routePath)) return false;
+    seen.add(post.routePath);
+    return true;
+  });
+}
+
+function getHomePosts() {
+  const priority = [
+    /화학 시장 경쟁력/,
+    /지진파/,
+    /산업 특화 언어모델/,
+    /바이오 연료/,
+    /탄소 가격/,
+    /블록체인/,
+    /웰헤드/,
+    /그린 수소/,
+  ].map((pattern) => posts.find((post) => pattern.test(post.title)));
+  return uniquePosts([...priority, ...posts]).slice(0, 24);
+}
+
+function renderStartPanel() {
+  const cards = [
+    {
+      title: "처음 읽는 순서",
+      text: "산업 배경이 낯설다면 길잡이와 용어집을 먼저 열어 흐름을 잡는 것이 좋습니다.",
+      href: "/start-here/",
+      label: "길잡이 열기",
+    },
+    {
+      title: "주제별로 읽기",
+      text: "디지털 전환, 저탄소 전환, 화학·소재, 탐사·공급망을 허브로 묶었습니다.",
+      href: "/topics/",
+      label: "허브 보기",
+    },
+    {
+      title: "전체 글 찾기",
+      text: "전체 82개 글은 아카이브에서 검색과 목록으로 확인할 수 있습니다.",
+      href: "/archive/",
+      label: "아카이브 보기",
+    },
+  ];
+
+  return `<section class="start-panel" aria-label="처음 방문자를 위한 안내">
+    ${cards
+      .map(
+        (card) => `<article>
+          <h2>${escapeHtml(card.title)}</h2>
+          <p>${escapeHtml(card.text)}</p>
+          <a href="${encodeURI(card.href)}">${escapeHtml(card.label)}</a>
+        </article>`,
+      )
+      .join("")}
+  </section>`;
+}
+
 function renderHomeVisualLead() {
   const visualPosts = [
     posts.find((post) => /화학 시장 경쟁력/.test(post.title)),
@@ -1794,6 +1854,16 @@ function renderHomeVisualLead() {
   </section>`;
 }
 
+function renderArchiveNotice() {
+  return `<section class="archive-notice" aria-label="전체 글 아카이브 안내">
+    <div>
+      <h2>전체 글은 아카이브에서 더 편하게 찾을 수 있습니다</h2>
+      <p>홈에는 대표 글과 최신 추천 글만 남겨 첫 화면을 가볍게 유지하고, 전체 ${posts.length}개 글은 별도 아카이브에서 검색하도록 정리했습니다.</p>
+    </div>
+    <a href="/archive/">전체 아카이브 열기</a>
+  </section>`;
+}
+
 function renderHomeHubMatrix() {
   return `<section class="topic-section" aria-label="허브 빠른 비교">
     <div class="section-heading">
@@ -1820,6 +1890,33 @@ function renderHomeHubMatrix() {
         </tbody>
       </table>
     </div>
+  </section>`;
+}
+
+function renderHubReadingOrder(hub, hubPosts) {
+  const selected = uniquePosts([
+    hubPosts[0],
+    hubPosts[Math.min(1, hubPosts.length - 1)],
+    hubPosts[Math.min(2, hubPosts.length - 1)],
+  ]);
+  if (!selected.length) return "";
+
+  return `<section class="reading-order" aria-label="${escapeHtml(hub.title)} 읽기 순서">
+    <div class="section-heading">
+      <h2>추천 읽기 순서</h2>
+      <span>초급에서 심화로</span>
+    </div>
+    <ol>
+      ${selected
+        .map(
+          (post, index) => `<li>
+            <span>${index === 0 ? "배경 이해" : index === 1 ? "사업성 확인" : "비교 심화"}</span>
+            <a href="${encodeURI(post.routePath)}">${escapeHtml(shortPostTitle(post))}</a>
+            <p>${escapeHtml(post.description)}</p>
+          </li>`,
+        )
+        .join("")}
+    </ol>
   </section>`;
 }
 
@@ -1919,12 +2016,15 @@ function renderReadingPaths() {
 }
 
 function renderIndex(filteredPosts = posts, title = site.title, routePath = "/") {
+  const isHome = routePath === "/";
+  const visiblePosts = isHome ? getHomePosts() : filteredPosts;
   const body = `  <section class="intro">
     <p class="eyebrow">Middle East Business Archive</p>
     <h1>${escapeHtml(site.title)}</h1>
     <p>${escapeHtml(site.description)}</p>
   </section>
-  ${renderHomeVisualLead()}
+  ${isHome ? renderStartPanel() : ""}
+  ${isHome ? renderHomeVisualLead() : ""}
   <section class="trust-strip" aria-label="사이트 운영 기준">
     <div><strong>${posts.length}</strong><span>분석 글</span></div>
     <div><strong>광고·본문 분리</strong><span>독자가 먼저 읽는 정보 구조</span></div>
@@ -2002,10 +2102,51 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
   <section>
     <div class="toolbar">
       <input class="search" id="postSearch" type="search" placeholder="글 검색" aria-label="글 검색">
-      <span class="count">전체 ${filteredPosts.length}개 글</span>
+      <span class="count">${isHome ? `추천 ${visiblePosts.length}개 / 전체 ${posts.length}개` : `전체 ${visiblePosts.length}개 글`}</span>
     </div>
     <div class="post-grid" id="postGrid">
-      ${filteredPosts.map(postCard).join("\n")}
+      ${visiblePosts.map(postCard).join("\n")}
+    </div>
+  </section>
+  ${isHome ? renderArchiveNotice() : ""}
+  <script>
+    const input = document.getElementById("postSearch");
+    const cards = [...document.querySelectorAll(".post-card")];
+    input?.addEventListener("input", () => {
+      const query = input.value.trim().toLowerCase();
+      cards.forEach((card) => {
+        card.hidden = query && !card.dataset.title.includes(query);
+      });
+    });
+  </script>`;
+
+  return layout({ title, description: site.description, routePath, body });
+}
+
+function renderArchivePage() {
+  const body = `  <section class="intro">
+    <p class="eyebrow">Archive</p>
+    <h1>전체 글 아카이브</h1>
+    <p>omybusiness의 에너지 산업 분석 글 ${posts.length}개를 한곳에 모았습니다. 특정 기술명, 소재, 공급망, 저탄소 전환 키워드로 검색해 필요한 글을 찾을 수 있습니다.</p>
+  </section>
+  <section class="value-panel">
+    <div>
+      <h2>아카이브를 따로 둔 이유</h2>
+      <p>홈은 처음 방문한 독자가 방향을 잡는 공간으로 가볍게 유지하고, 전체 글 탐색은 이 페이지에서 처리합니다. 글이 많아도 첫 화면이 복잡해지지 않도록 분리한 구조입니다.</p>
+    </div>
+    <ul>
+      <li>전체 글을 한 번에 검색할 수 있습니다.</li>
+      <li>주제 허브와 함께 보면 글의 맥락을 더 빨리 잡을 수 있습니다.</li>
+      <li>대표 글만 보는 홈보다 넓은 탐색이 필요할 때 사용하는 페이지입니다.</li>
+    </ul>
+  </section>
+  <section>
+    <div class="toolbar">
+      <input class="search" id="postSearch" type="search" placeholder="전체 글 검색" aria-label="전체 글 검색">
+      <span class="count">전체 ${posts.length}개 글</span>
+    </div>
+    <div class="post-grid" id="postGrid">
+      ${posts.map(postCard).join("\n")}
     </div>
   </section>
   <script>
@@ -2019,7 +2160,12 @@ function renderIndex(filteredPosts = posts, title = site.title, routePath = "/")
     });
   </script>`;
 
-  return layout({ title, description: site.description, routePath, body });
+  return layout({
+    title: "전체 글 아카이브",
+    description: "omybusiness의 에너지 산업 분석 글 전체를 검색하고 찾아볼 수 있는 아카이브입니다.",
+    routePath: "/archive/",
+    body,
+  });
 }
 
 function renderTopicsIndex() {
@@ -2049,6 +2195,7 @@ function renderTopicHub(hub) {
     <p>${escapeHtml(hub.description)}</p>
   </section>
   ${renderTopicVisualStrip(hub, hubPosts)}
+  ${renderHubReadingOrder(hub, hubPosts)}
   <section class="value-panel">
     <div>
       <h2>이 주제를 보는 기준</h2>
@@ -2165,12 +2312,37 @@ function renderPost(post, index) {
   });
 }
 
+function pageSummaryItems(page) {
+  const summaries = {
+    "/about/": ["운영 목적", "다루는 주제", "독자 가치"],
+    "/contact/": ["공식 연락처", "정정 요청", "제휴 문의"],
+    "/privacy-policy/": ["쿠키 안내", "광고 데이터", "문의 창구"],
+    "/terms/": ["정보 제공 목적", "저작권", "외부 링크 책임"],
+    "/editorial-policy/": ["작성 원칙", "검토 절차", "광고 분리"],
+    "/author/": ["운영 역할", "전문성 범위", "연락 방법"],
+    "/corrections/": ["오류 확인", "정정 단계", "업데이트 기록"],
+    "/sources/": ["자료 우선순위", "공식 자료", "교차 검토"],
+    "/methodology/": ["주제 분류", "독자 가치", "이미지와 표"],
+    "/faq/": ["사이트 성격", "광고 정책", "개인정보"],
+    "/advertising-policy/": ["광고 표시", "편집 독립성", "제휴 기준"],
+  };
+  const items = summaries[page.routePath];
+  if (!items) return "";
+  return `<aside class="page-summary" aria-label="${escapeHtml(page.title)} 핵심 요약">
+    <strong>핵심 요약</strong>
+    <ul>
+      ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+    </ul>
+  </aside>`;
+}
+
 function renderPage(page) {
   const body = `  <article class="page">
     <header class="page-header">
       <h1>${escapeHtml(page.title)}</h1>
       <p class="article-description">${escapeHtml(page.description)}</p>
     </header>
+    ${pageSummaryItems(page)}
     <div class="entry-content">
       ${page.content}
     </div>
@@ -2191,6 +2363,7 @@ function renderSitemap() {
     ...posts.map((post) => ({ ...post, modifiedAt: reviewUpdatedAt })),
     { routePath: "/category/energy/", modifiedAt: reviewUpdatedAt },
     { routePath: "/tag/", modifiedAt: reviewUpdatedAt },
+    { routePath: "/archive/", modifiedAt: reviewUpdatedAt },
     { routePath: "/topics/", modifiedAt: reviewUpdatedAt },
     ...topicHubs.map((hub) => ({ ...hub, modifiedAt: reviewUpdatedAt })),
     { routePath: "/research/", modifiedAt: reviewUpdatedAt },
@@ -2260,6 +2433,7 @@ await cp(path.join(root, "src", "styles.css"), path.join(dist, "assets", "style.
 await writeRoute("/", renderIndex());
 await writeRoute("/category/energy/", renderIndex(posts, "에너지 산업", "/category/energy/"));
 await writeRoute("/tag/", renderIndex(posts, "태그", "/tag/"));
+await writeRoute("/archive/", renderArchivePage());
 await writeRoute("/topics/", renderTopicsIndex());
 await writeRoute("/research/", renderResearchIndex());
 
