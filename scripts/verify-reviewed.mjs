@@ -38,6 +38,7 @@ for (const post of posts) {
     continue;
   }
   const review = reviews.find((item) => item.id === post.id);
+  assert.ok(new Date(review.reviewedAt).getTime() <= Date.now(), "Review timestamp must not be in the future");
   assert.equal(dom("article h1").text().trim(), review.title || post.title, "Reviewed title");
   assert.equal(articleData.headline, review.title || post.title, "Structured data title");
   assert.equal(dom("[data-review-id]").attr("data-review-id"), post.id);
