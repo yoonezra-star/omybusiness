@@ -137,6 +137,8 @@ for (const original of rawPosts) {
 }
 const contentUpdatedAt = articleReviews.reduce((latest, review) => review.reviewedAt > latest ? review.reviewedAt : latest, reviewUpdatedAt);
 const navigationUpdatedAt = "2026-10-12T07:54:36+09:00";
+const authorUpdatedAt = "2026-10-12T08:18:52+09:00";
+const authorPageUpdatedAt = new Date(contentUpdatedAt) > new Date(authorUpdatedAt) ? contentUpdatedAt : authorUpdatedAt;
 
 const topicHubs = [
   {
@@ -339,22 +341,40 @@ const trustPages = [
   {
     title: "작성자와 운영자",
     routePath: "/author/",
-    description: "omybusiness의 작성자 관점과 운영 책임 범위를 안내합니다.",
-    modifiedAt: reviewUpdatedAt,
+    description: "omybusiness라는 표시명으로 발행하는 공개자료 기반 해설의 작성 방식, 개정 현황과 책임 범위를 공개합니다.",
+    modifiedAt: authorPageUpdatedAt,
     content: `
-      <p>omybusiness는 중동 비즈니스와 에너지 산업 흐름을 독자가 이해하기 쉽게 정리하는 독립 정보 사이트입니다. 작성자는 특정 기업의 투자 권유나 홍보가 아니라, 공개 자료와 산업 맥락을 바탕으로 기술과 전략의 의미를 풀어 설명하는 데 초점을 둡니다.</p>
-      <h2>작성 관점</h2>
-      <p>사우디아람코와 에너지 산업 관련 글은 기술명이나 기업 발표를 그대로 반복하지 않고, 그 기술이 탐사, 생산, 정제, 화학, 공급망, 저탄소 전환 중 어느 지점에 영향을 주는지 설명하는 방식으로 작성합니다.</p>
-      <h2>운영 역할</h2>
-      <p>운영자는 사이트 구조, 글 분류, 이미지와 표 구성, 출처 정리, 정정 요청 검토를 담당합니다. 글의 주제가 넓어질수록 독자가 길을 잃지 않도록 주제 허브, 비교 지도, 방법론 페이지, 관련 글 링크를 함께 관리합니다.</p>
-      <h2>전문성의 범위</h2>
-      <p>이 사이트는 에너지 산업과 중동 비즈니스 흐름을 일반 독자가 이해할 수 있도록 설명하는 데 초점을 둡니다. 특정 기업 내부 정보나 비공개 투자 자문을 제공하지 않으며, 공개 자료에 기반한 해설과 비교 관점을 제공합니다.</p>
-      <h2>책임 범위</h2>
-      <p>사이트의 글은 일반 정보 제공 목적이며 투자, 법률, 세무, 사업 의사결정의 직접 조언이 아닙니다. 중요한 판단은 독자의 상황과 최신 공식 자료, 전문가 검토를 함께 확인해 진행해야 합니다.</p>
-      <h2>독자와의 관계</h2>
-      <p>독자의 정정 요청과 보완 의견은 콘텐츠 품질을 높이는 중요한 신호로 봅니다. 다만 모든 제안이 그대로 반영되는 것은 아니며, 공개 자료와 사이트의 편집 기준에 맞는지 검토한 뒤 반영 여부를 판단합니다.</p>
-      <h2>연락</h2>
-      <p>작성자에게 전달할 정정 요청, 보완 의견, 제휴 문의는 <a href="mailto:yoonezra@gmail.com">yoonezra@gmail.com</a>으로 보내주세요.</p>
+      <dl class="author-profile" aria-label="발행 주체">
+        <div><dt>공개 표시명</dt><dd data-author-name>${escapeHtml(site.title)}</dd></div>
+        <div><dt>역할</dt><dd>사이트 운영 · 공개자료 기반 해설 발행</dd></div>
+        <div><dt>주요 주제</dt><dd>중동 에너지 산업, 산업 AI, 탐사·공급망, 화학·소재, 저탄소 전환</dd></div>
+      </dl>
+      <p>omybusiness는 사이트 브랜드이자 글에 사용하는 공개 표시명입니다. 실명이나 전문 자격을 뜻하지 않습니다. 이 사이트는 사우디아람코와 관련 산업을 다루지만, 해당 기업의 공식 채널이나 임직원 명의의 발행물로 운영하지 않습니다.</p>
+      <h2>자료를 읽고 설명하는 방식</h2>
+      <p>개정한 글은 기업 발표, 공공기관 자료, 기술 문서 등 독자가 확인할 수 있는 공개 자료를 근거로 작성합니다. 회사가 발표한 성과와 독립적인 검증 결과를 구분하고, 계획·계약·완료 실적이 같은 의미로 읽히지 않도록 비교합니다. 확인하지 못한 수치와 개인 경험처럼 읽힐 수 있는 서술은 개정 과정에서 삭제하거나 한계를 명시합니다.</p>
+      <p>이번에 개정한 글에는 <strong>AI 보조 작성</strong>을 활용했습니다. 자료 정리와 초안, 비교표·계산 예시 작성에 AI를 사용하며, AI가 생성한 문장 자체를 근거 자료로 제시하지 않습니다. 계산 예시는 가상 조건임을 표시하고 식을 함께 공개합니다. 작성 방식의 공개가 내용의 정확성을 보증하는 것은 아닙니다.</p>
+      <h2>개정 현황과 남은 검토</h2>
+      <p class="author-review-status">전체 <strong data-author-total-count>${posts.length}</strong>편 중 <strong data-author-review-count>${articleReviews.length}</strong>편에 근거·본문 개정 기록이 있으며, <strong data-author-pending-count>${posts.length - articleReviews.length}</strong>편은 추가 본문 검토가 남아 있습니다.</p>
+      <p>개정 기록은 해당 시점에 출처와 표현, 비교·계산 예시를 보강했다는 뜻입니다. 모든 사실에 대한 외부 검증이나 모든 글의 검토 완료를 뜻하지 않습니다. 아직 개정하지 않은 글은 문장·수치·출처 확인이 남아 있으며, 새롭게 분류하거나 화면을 개선한 것만으로 검토된 글로 표시하지 않습니다.</p>
+      <p>개별 변경 내용과 날짜는 <a href="/corrections/">정정 및 업데이트 기록</a>에서 공개합니다.</p>
+      <h2>실제 개정 사례</h2>
+      <ul class="author-work-list">
+        ${[
+          ["84", "연산 성능과 탐사 성공률을 구분하고, 전체 작업 시간의 가상 계산을 추가했습니다."],
+          ["81", "언어모델과 설비 데이터 모델을 나누고, 답변 검증 시간을 포함한 업무 효과를 비교했습니다."],
+          ["83", "지분·공정·판매의 통합을 구분하고, 사업 일정과 완료 실적을 따로 설명했습니다."],
+        ].map(([id, note]) => {
+          const post = posts.find((item) => item.id === id && item.review);
+          if (!post) throw new Error(`Author example must be a reviewed article: ${id}`);
+          return `<li data-author-example="${id}"><a href="${encodeURI(post.routePath)}">${escapeHtml(post.title)}</a><p>${escapeHtml(note)}</p></li>`;
+        }).join("")}
+      </ul>
+      <h2>해설의 범위와 한계</h2>
+      <p>공개자료 기반 해설을 현장 취재, 기업 내부 정보, 직접 수행한 설비 시험이나 독립적인 성능 검증으로 제시하지 않습니다. 확인되지 않은 학력·자격·근무 경력도 전문성의 근거로 내세우지 않습니다.</p>
+      <p>글은 일반 정보 제공 목적이며, 개별 투자 판단이나 현장 운전·안전 절차를 대신하지 않습니다. 중요한 판단에는 해당 시점의 원문과 자신의 상황에 맞는 전문 검토가 필요합니다. 자료의 선택 기준은 <a href="/sources/">참고자료와 출처 기준</a>, 글의 구성 기준은 <a href="/methodology/">분석 방법론</a>에 정리했습니다.</p>
+      <h2>운영 책임과 정정 연락처</h2>
+      <p>운영 범위는 글 발행과 분류, 출처·내부 링크 관리, 개정 기록 공개와 정정 요청 확인입니다. 잘못된 내용이나 빠진 근거는 <a href="mailto:yoonezra@gmail.com">yoonezra@gmail.com</a>으로 알려주세요. 해당 글 주소, 문제가 되는 문장, 확인 가능한 원문을 함께 보내주시면 검토할 수 있습니다.</p>
+      <p>처리 기준은 <a href="/editorial-policy/">편집 정책</a>과 <a href="/corrections/">정정 기록</a>, 문의 범위는 <a href="/contact/">문의 페이지</a>에서 확인할 수 있습니다.</p>
     `,
   },
   {
@@ -2347,7 +2367,6 @@ function pageSummaryItems(page) {
     "/privacy-policy/": ["쿠키 안내", "광고 데이터", "문의 창구"],
     "/terms/": ["정보 제공 목적", "저작권", "외부 링크 책임"],
     "/editorial-policy/": ["작성 원칙", "검토 절차", "광고 분리"],
-    "/author/": ["운영 역할", "전문성 범위", "연락 방법"],
     "/corrections/": ["오류 확인", "정정 단계", "업데이트 기록"],
     "/sources/": ["자료 우선순위", "공식 자료", "교차 검토"],
     "/methodology/": ["주제 분류", "독자 가치", "이미지와 표"],
@@ -2365,10 +2384,12 @@ function pageSummaryItems(page) {
 }
 
 function renderPage(page) {
-  const body = `  <article class="page">
+  const isAuthorPage = page.routePath === "/author/";
+  const body = `  <article class="page${isAuthorPage ? " author-page" : ""}">
     <header class="page-header">
       <h1>${escapeHtml(page.title)}</h1>
       <p class="article-description">${escapeHtml(page.description)}</p>
+      ${isAuthorPage ? `<p class="article-byline">소개 갱신 <time datetime="${escapeHtml(page.modifiedAt)}">${escapeHtml(formatDate(page.modifiedAt))}</time></p>` : ""}
     </header>
     ${pageSummaryItems(page)}
     <div class="entry-content">

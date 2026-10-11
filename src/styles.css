@@ -656,6 +656,58 @@ a:hover {
   font-weight: 700;
 }
 
+.author-page {
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.author-page h1 {
+  font-size: 32px;
+}
+
+.author-page .article-byline {
+  margin: 0;
+}
+
+.author-page .entry-content {
+  border: 0;
+  padding: 0;
+}
+
+.author-profile {
+  margin: 0 0 24px;
+  border-top: 1px solid var(--line);
+}
+
+.author-profile > div {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.author-profile dt {
+  color: var(--muted);
+}
+
+.author-profile dd {
+  margin: 0;
+}
+
+.author-work-list li + li {
+  margin-top: 20px;
+}
+
+.author-work-list a {
+  font-weight: 700;
+}
+
+.author-work-list li p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
 .article-disclosure,
 .evidence-note {
   margin: 0;

@@ -8,7 +8,7 @@
     "migrate": "node scripts/migrate.js",
     "build": "node scripts/build.js",
     "preview": "node scripts/serve.js",
-    "test": "npm run build && node scripts/verify-reviewed.mjs && node scripts/verify-directory.mjs"
+    "test": "npm run build && node scripts/verify-reviewed.mjs && node scripts/verify-directory.mjs && node scripts/verify-author.mjs"
   },
   "engines": {
     "node": ">=20"
