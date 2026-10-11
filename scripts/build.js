@@ -1,6 +1,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 import * as cheerio from "cheerio";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -9,6 +10,8 @@ const dist = path.join(root, "dist");
 
 const rawSite = JSON.parse(await readFile(path.join(root, "data", "site.json"), "utf8"));
 const rawPosts = JSON.parse(await readFile(path.join(root, "data", "posts.json"), "utf8"));
+const stylesheet = await readFile(path.join(root, "src", "styles.css"), "utf8");
+const stylesheetName = `style.${createHash("sha256").update(stylesheet).digest("hex").slice(0, 12)}.css`;
 
 const site = {
   ...rawSite,
@@ -1679,7 +1682,7 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
   <meta property="og:url" content="${canonical}">
   ${socialImage ? `<meta property="og:image" content="${socialImage}">` : ""}
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/${stylesheetName}">
   <script type="application/ld+json">${JSON.stringify(commonJsonLd)}</script>
   ${extraHead}
 </head>
@@ -2542,6 +2545,7 @@ await rm(dist, { recursive: true, force: true });
 await mkdir(path.join(dist, "assets"), { recursive: true });
 await cp(path.join(root, "public"), dist, { recursive: true, force: true });
 await cp(path.join(root, "src", "styles.css"), path.join(dist, "assets", "style.css"));
+await writeFile(path.join(dist, "assets", stylesheetName), stylesheet);
 
 await writeRoute("/", renderIndex());
 await writeRoute("/category/energy/", renderIndex(posts, "에너지 산업", "/category/energy/"));

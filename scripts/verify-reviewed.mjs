@@ -19,6 +19,9 @@ assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 for (const post of posts) {
   const html = await readFile(path.join(dist, post.routePath, "index.html"), "utf8");
   const dom = cheerio.load(html);
+  const stylePath = dom('link[rel="stylesheet"]').attr("href");
+  assert.match(stylePath, /^\/assets\/style\.[a-f0-9]{12}\.css$/, "Content-versioned stylesheet");
+  assert.ok((await stat(path.join(dist, stylePath))).isFile(), "Referenced stylesheet exists");
   const canonical = `${site.url}${encodeURI(post.routePath)}`;
   assert.equal(dom('link[rel="canonical"]').attr("href"), canonical, `Preserve route: ${post.id}`);
   const articleData = dom('script[type="application/ld+json"]').toArray()
