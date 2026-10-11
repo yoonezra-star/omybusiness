@@ -637,6 +637,7 @@ a:hover {
 
 .reviewed-article {
   overflow-wrap: anywhere;
+  word-break: keep-all;
 }
 
 .reviewed-article h1 {

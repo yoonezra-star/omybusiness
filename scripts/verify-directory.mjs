@@ -10,6 +10,18 @@ const dist = path.join(root, "dist");
 const posts = JSON.parse(await readFile(path.join(root, "data/posts.json"), "utf8"));
 const catalog = JSON.parse(await readFile(path.join(root, "data/article-catalog.json"), "utf8"));
 const reviews = JSON.parse(await readFile(path.join(root, "data/article-reviews.json"), "utf8"));
+const site = JSON.parse(await readFile(path.join(root, "data/site.json"), "utf8"));
+const sitemap = cheerio.load(await readFile(path.join(dist, "sitemap.xml"), "utf8"), { xmlMode: true });
+for (const entry of sitemap("url").toArray()) {
+  const route = sitemap(entry).find("loc").text().slice(site.url.length);
+  const isDirectory = ["/", "/archive/", "/category/energy/", "/tag/", "/topics/"].includes(route);
+  const topic = route.match(/^\/topics\/([^/]+)\/$/)?.[1];
+  if (!isDirectory && !topic) continue;
+  const includedReviews = reviews.filter(review => isDirectory || catalog.find(item => item.id === review.id)?.topic === topic);
+  const modified = new Date(sitemap(entry).find("lastmod").text());
+  assert.ok(Number.isFinite(modified.getTime()), `Valid directory update date: ${route}`);
+  for (const review of includedReviews) assert.ok(modified >= new Date(review.reviewedAt), `Directory date includes article updates: ${route}`);
+}
 assert.ok((await stat(path.join(dist, "assets/lucide-license.txt"))).isFile(), "Redistributed icon license");
 assert.equal(catalog.length, posts.length);
 assert.equal(new Set(catalog.map(entry => entry.id)).size, posts.length);

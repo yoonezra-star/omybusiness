@@ -18,6 +18,7 @@ const primaryDomains = [
   "aramco.com", "slb.com", "s-oil.com", "worldbank.org", "api.org",
   "eurecat.com", "gs1.org", "dupont.com", "who.int", "nist.gov",
   "cdc.gov", "airliquide.com", "iea.org",
+  "energy.gov", "osha.gov", "epa.gov", "usgs.gov",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -99,6 +100,8 @@ const calculationExamples = [
   ["67", /55 - 50/, "10%", (55 - 50) / 50 * 100, 10],
   ["62", /176\.5 × 0\.95 × 0\.90/, "150.9kg", Math.round(176.5 * 0.95 * 0.9 * 10) / 10, 150.9],
   ["2", /140 - 50/, "64.3%", Math.round((140 - 50) / 140 * 1000) / 10, 64.3],
+  ["66", /9 ÷ 19/, "47.4%", Math.round(9 / 19 * 1000) / 10, 47.4],
+  ["47", /40 × 235 × 0\.001/, "9.4kg", 40 * 235 * 0.001, 9.4],
 ];
 for (const [id, expression, displayed, result, expected] of calculationExamples) {
   if (!reviewIds.has(id)) continue;
@@ -108,4 +111,18 @@ for (const [id, expression, displayed, result, expected] of calculationExamples)
   assert.equal(result, expected, `Calculation arithmetic: ${id}`);
   assert.match(content, /가상/, `Illustrative data disclosure: ${id}`);
 }
+const safetyReviews = {
+  "56": [/현장 적용 경험은 확인 가능한 근거가 없어/, /2026년의 적용 규격이나 인증 요건으로 재게시하지 않는다/, /설비 운전·점검 매뉴얼이 아니다/],
+  "66": [/측정 정확도를 평가하는 시험은 아니/, /경보 농도를 제시하지 않는다/, /미검출 1건/, /98\.9%/],
+  "47": [/62억 갤런/, /같은 성과로 합산하지 않는다/, /음용 적합성은 별도의 평가 영역/, /0\.6 \+ 9\.4 = 10kg/],
+};
+for (const [id, claims] of Object.entries(safetyReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Safety and evidence boundary: ${id}`);
+  assert.doesNotMatch(content, /제가 (?:처음|확인|직접)|지난 프로젝트 당시|직접 현장에 적용|원천 봉쇄|무결점의 안전망/, `No unverified experience or safety guarantee: ${id}`);
+}
+assert.equal((9 + 980) / 1000 * 100, 98.9, "Gas example accuracy");
+assert.equal(9 + 1 + 10 + 980, 1000, "Gas example totals");
+assert.equal(100 * 100 * 0.001, 60 * 10 * 0.001 + 40 * 235 * 0.001, "Water example mass balance");
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));

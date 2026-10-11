@@ -2406,15 +2406,18 @@ function renderPage(page) {
 }
 
 function renderSitemap() {
+  const directoryModifiedAt = (postList = posts) => postList.reduce((latest, post) =>
+    post.review && new Date(post.review.reviewedAt) > new Date(latest) ? post.review.reviewedAt : latest,
+  navigationUpdatedAt);
   const items = [
-    { routePath: "/", modifiedAt: navigationUpdatedAt },
+    { routePath: "/", modifiedAt: directoryModifiedAt() },
     ...trustPages,
     ...posts.map((post) => ({ ...post, modifiedAt: post.review?.reviewedAt || reviewUpdatedAt })),
-    { routePath: "/category/energy/", modifiedAt: navigationUpdatedAt },
-    { routePath: "/tag/", modifiedAt: navigationUpdatedAt },
-    { routePath: "/archive/", modifiedAt: navigationUpdatedAt },
-    { routePath: "/topics/", modifiedAt: navigationUpdatedAt },
-    ...topicHubs.map((hub) => ({ ...hub, modifiedAt: navigationUpdatedAt })),
+    { routePath: "/category/energy/", modifiedAt: directoryModifiedAt() },
+    { routePath: "/tag/", modifiedAt: directoryModifiedAt() },
+    { routePath: "/archive/", modifiedAt: directoryModifiedAt() },
+    { routePath: "/topics/", modifiedAt: directoryModifiedAt() },
+    ...topicHubs.map((hub) => ({ ...hub, modifiedAt: directoryModifiedAt(getHubPosts(hub)) })),
     { routePath: "/research/", modifiedAt: reviewUpdatedAt },
     ...researchPages,
     ...checklistPages,
