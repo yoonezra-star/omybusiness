@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import * as cheerio from "cheerio";
+import { Search, Menu, X, ChevronLeft, ChevronRight, RotateCcw } from "lucide-static";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -12,6 +13,20 @@ const rawSite = JSON.parse(await readFile(path.join(root, "data", "site.json"), 
 const rawPosts = JSON.parse(await readFile(path.join(root, "data", "posts.json"), "utf8"));
 const stylesheet = await readFile(path.join(root, "src", "styles.css"), "utf8");
 const stylesheetName = `style.${createHash("sha256").update(stylesheet).digest("hex").slice(0, 12)}.css`;
+const directoryScript = await readFile(path.join(root, "src", "directory.js"), "utf8");
+const directoryScriptName = `directory.${createHash("sha256").update(directoryScript).digest("hex").slice(0, 12)}.js`;
+const catalog = JSON.parse(await readFile(path.join(root, "data", "article-catalog.json"), "utf8"));
+const catalogById = new Map(catalog.map((entry) => [entry.id, entry]));
+const topicLabels = {
+  "digital-energy-ai": "디지털·AI", "low-carbon-transition": "저탄소·환경",
+  "chemicals-materials": "화학·소재", "upstream-supply-chain": "탐사·공급망", "general": "산업 일반",
+};
+const topicKeys = new Set(Object.keys(topicLabels));
+if (catalogById.size !== catalog.length || catalog.length !== rawPosts.length) throw new Error("Article catalog coverage mismatch");
+for (const post of rawPosts) {
+  const entry = catalogById.get(post.id);
+  if (!entry || !topicKeys.has(entry.topic) || !entry.question?.trim()) throw new Error(`Invalid article catalog entry: ${post.id}`);
+}
 
 const site = {
   ...rawSite,
@@ -38,6 +53,7 @@ function repairMojibake(value = "") {
 function normalizePost(post) {
   return {
     ...post,
+    catalog: catalogById.get(post.id),
     title: repairMojibake(post.title),
     description: repairMojibake(post.description),
     category: "에너지 산업",
@@ -120,6 +136,7 @@ for (const original of rawPosts) {
   } : original));
 }
 const contentUpdatedAt = articleReviews.reduce((latest, review) => review.reviewedAt > latest ? review.reviewedAt : latest, reviewUpdatedAt);
+const navigationUpdatedAt = "2026-10-12T07:54:36+09:00";
 
 const topicHubs = [
   {
@@ -1570,6 +1587,18 @@ function navLink(routePath, label) {
   return `<a href="${encodeURI(routePath)}">${escapeHtml(label)}</a>`;
 }
 
+function icon(svg) {
+  const dom = cheerio.load(svg, { xmlMode: true });
+  dom("svg").attr({ "aria-hidden": "true", focusable: "false", class: "ui-icon" });
+  return dom("svg").toString();
+}
+
+function primaryNavigation(routePath) {
+  return [["/", "홈"], ["/topics/", "주제별"], ["/archive/", "전체 글"],
+    ["/research/", "리서치"], ["/compare/energy-strategy-map/", "비교"]]
+    .map(([href, label]) => `<a href="${href}"${routePath === href ? ' aria-current="page"' : ""}>${label}</a>`).join("");
+}
+
 function imageAlt(post) {
   const title = post.title.replace(/^사우디아람코\s*/, "");
   return `${title} 주제를 설명하는 에너지 산업 분석 이미지`;
@@ -1692,23 +1721,16 @@ function layout({ title, description, routePath = "/", image = "", body, type = 
     <div class="header-inner">
       <a class="brand" href="/">
         <strong>${escapeHtml(site.title)}</strong>
-        <span>Middle East business intelligence</span>
+        <span>중동·에너지 산업 분석</span>
       </a>
-      <nav class="nav" aria-label="주요 메뉴">
-        ${navLink("/", "홈")}
-        ${navLink("/category/energy/", "에너지 산업")}
-        ${navLink("/topics/", "주제별")}
-        ${navLink("/archive/", "아카이브")}
-        ${navLink("/research/", "리서치")}
-        ${navLink("/checklist/energy-company-analysis/", "체크리스트")}
-        ${navLink("/start-here/", "길잡이")}
-        ${navLink("/compare/energy-strategy-map/", "비교")}
-        ${navLink("/sources/", "출처")}
-        ${navLink("/methodology/", "방법론")}
-        ${navLink("/about/", "소개")}
-        ${navLink("/editorial-policy/", "편집 기준")}
-        ${navLink("/contact/", "문의")}
-      </nav>
+      <div class="header-actions">
+        <nav class="nav desktop-nav" aria-label="주요 메뉴">${primaryNavigation(routePath)}</nav>
+        <a class="icon-button header-search" href="${["/", "/archive/", "/category/energy/", "/tag/"].includes(routePath) ? "" : "/archive/"}#postSearch" aria-label="글 검색" title="글 검색">${icon(Search)}</a>
+        <details class="mobile-navigation">
+          <summary class="icon-button" aria-label="주요 메뉴" title="메뉴">${icon(Menu)}</summary>
+          <nav class="nav" aria-label="모바일 주요 메뉴">${primaryNavigation(routePath)}</nav>
+        </details>
+      </div>
     </div>
   </header>
   <main class="main">
@@ -1737,6 +1759,21 @@ ${body}
     </div>
     <p>© ${new Date().getFullYear()} omybusiness. 중동 비즈니스와 에너지 산업 정보를 정리하는 독립 정보 사이트입니다.</p>
   </footer>
+  <script>
+    (() => {
+      const menu = document.querySelector(".mobile-navigation");
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && menu?.open) {
+          menu.open = false;
+          menu.querySelector("summary").focus();
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (menu?.open && !menu.contains(event.target)) menu.open = false;
+      });
+      if (location.hash === "#postSearch") document.getElementById("postSearch")?.focus();
+    })();
+  </script>
 </body>
 </html>`;
 }
@@ -1744,11 +1781,11 @@ ${body}
 function postCard(post) {
   const image = displayImage(post);
   const topic = postTopicKey(post);
-  return `<article class="post-card" data-title="${escapeHtml(post.title.toLowerCase())}" data-topic="${escapeHtml(topic)}">
+  return `<article class="post-card" data-post-id="${post.id}" data-title="${escapeHtml(post.title.toLowerCase())}" data-search="${escapeHtml(`${post.title} ${post.description}`.normalize("NFC").toLowerCase())}" data-topic="${escapeHtml(topic)}" data-published="${post.publishedAt}" data-updated="${post.review?.reviewedAt || post.publishedAt}">
   <a href="${encodeURI(post.routePath)}">
     ${image ? `<img src="${image}" alt="${escapeHtml(imageAlt(post))}" loading="lazy">` : ""}
     <div class="post-card-body">
-      <div class="meta"><span>${escapeHtml(formatDate(post.publishedAt))}</span><span class="pill">${escapeHtml(post.category)}</span></div>
+      <div class="meta"><span>${post.review ? "개정" : "발행"} ${escapeHtml(formatDate(post.review?.reviewedAt || post.publishedAt))}</span><span class="pill">${escapeHtml(topicLabels[topic])}</span></div>
       <h2>${escapeHtml(post.title)}</h2>
       <p>${escapeHtml(post.description)}</p>
     </div>
@@ -1757,59 +1794,21 @@ function postCard(post) {
 }
 
 function postTopicKey(post) {
-  const hub = topicHubs.find((item) => item.keywords.test(post.title));
-  if (!hub) return "general";
-  return hub.routePath.split("/").filter(Boolean).pop();
+  return post.catalog.topic;
 }
 
 function renderPostFilters() {
-  const filters = [
-    { key: "all", label: "전체" },
-    ...topicHubs.map((hub) => ({ key: hub.routePath.split("/").filter(Boolean).pop(), label: hub.title })),
-    { key: "general", label: "기타 산업 주제" },
-  ];
-
-  return `<div class="filter-row" aria-label="글 주제 필터">
-    ${filters
-      .map((filter, index) => `<button type="button" class="${index === 0 ? "active" : ""}" data-filter="${escapeHtml(filter.key)}">${escapeHtml(filter.label)}</button>`)
-      .join("")}
-  </div>`;
+  const filters = [["all", "전체 주제"], ...Object.entries(topicLabels)];
+  return `<label>주제<select id="postTopic" name="topic">${filters.map(([key, label]) => `<option value="${key}">${label}</option>`).join("")}</select></label>`;
 }
 
 function renderPostFilterScript() {
-  return `<script>
-    const input = document.getElementById("postSearch");
-    const cards = [...document.querySelectorAll(".post-card")];
-    const buttons = [...document.querySelectorAll("[data-filter]")];
-    const count = document.querySelector("[data-count]");
-    let activeFilter = "all";
-
-    function updateCards() {
-      const query = input?.value.trim().toLowerCase() || "";
-      let visible = 0;
-      cards.forEach((card) => {
-        const topicMatch = activeFilter === "all" || card.dataset.topic === activeFilter;
-        const queryMatch = !query || card.dataset.title.includes(query);
-        const show = topicMatch && queryMatch;
-        card.hidden = !show;
-        if (show) visible += 1;
-      });
-      if (count) count.textContent = visible + "개 표시";
-    }
-
-    input?.addEventListener("input", updateCards);
-    buttons.forEach((button) => {
-      button.addEventListener("click", () => {
-        activeFilter = button.dataset.filter || "all";
-        buttons.forEach((item) => item.classList.toggle("active", item === button));
-        updateCards();
-      });
-    });
-  </script>`;
+  return `<script src="/assets/${directoryScriptName}" defer></script>`;
 }
 
 function getHubPosts(hub) {
-  return posts.filter((post) => hub.keywords.test(post.title)).slice(0, 18);
+  const key = hub.routePath.split("/").filter(Boolean).pop();
+  return posts.filter((post) => postTopicKey(post) === key);
 }
 
 function topicCard(hub) {
@@ -2121,139 +2120,50 @@ function renderReadingPaths() {
 
 function renderIndex(filteredPosts = posts, title = site.title, routePath = "/") {
   const isHome = routePath === "/";
-  const visiblePosts = isHome ? getHomePosts() : filteredPosts;
-  const body = `  <section class="intro">
-    <p class="eyebrow">Middle East Business Archive</p>
-    <h1>${escapeHtml(site.title)}</h1>
-    <p>${escapeHtml(site.description)}</p>
+  const visiblePosts = [...filteredPosts].sort((left, right) =>
+    new Date(right.review?.reviewedAt || right.publishedAt) - new Date(left.review?.reviewedAt || left.publishedAt));
+  const body = `  <section class="directory-page" data-page-size="12">
+    <header class="directory-heading">
+      <p class="eyebrow">중동 · 에너지 · 산업 기술</p>
+      <h1>${escapeHtml(title)}</h1>
+    </header>
+    <form class="directory-search" role="search" action="${routePath}" method="get">
+      <label class="sr-only" for="postSearch">글 검색</label>
+      <input class="search" id="postSearch" name="q" type="search" maxlength="120" placeholder="찾을 기술·기업·산업 주제" autocomplete="off">
+      <button class="icon-button search-clear" type="button" data-search-clear aria-label="검색어 지우기" title="검색어 지우기" hidden>${icon(X)}</button>
+      <button class="icon-button search-submit" type="submit" aria-label="검색" title="검색">${icon(Search)}</button>
+    </form>
+    <div class="directory-controls">
+      ${renderPostFilters()}
+      <label>정렬<select id="postSort" name="sort"><option value="updated">최근 개정순</option><option value="published">발행일순</option><option value="title">제목순</option></select></label>
+      <button type="button" class="icon-button" data-filter-reset aria-label="필터 초기화" title="필터 초기화">${icon(RotateCcw)}</button>
+    </div>
+    <div class="directory-results-bar">
+      <h2 id="directory-results" tabindex="-1">에너지 산업 분석</h2>
+      <span class="count" data-count role="status" aria-live="polite" aria-atomic="true">${visiblePosts.length}개 글</span>
+    </div>
+    <p class="directory-empty" id="noResults" hidden>일치하는 글이 없습니다.</p>
+    <div class="post-grid" id="postGrid">${visiblePosts.map(postCard).join("\n")}</div>
+    <nav class="directory-pagination" aria-label="글 목록 페이지" data-pagination hidden>
+      <button type="button" class="icon-button" data-page-previous aria-label="이전 페이지" title="이전 페이지">${icon(ChevronLeft)}</button>
+      <span data-page-status aria-live="polite" aria-atomic="true"></span>
+      <button type="button" class="icon-button" data-page-next aria-label="다음 페이지" title="다음 페이지">${icon(ChevronRight)}</button>
+    </nav>
+    ${isHome ? `<section class="directory-topics" aria-label="주제별 분석">
+      <h2>주제별 분석</h2>
+      <ul>${topicHubs.map(hub => `<li><a href="${hub.routePath}"><strong>${escapeHtml(hub.title)}</strong><span>${getHubPosts(hub).length}개 글</span>${icon(ChevronRight)}</a></li>`).join("")}<li><a href="/archive/?topic=general"><strong>산업 일반</strong><span>${posts.filter(post => postTopicKey(post) === "general").length}개 글</span>${icon(ChevronRight)}</a></li></ul>
+    </section>
+    <section class="directory-resources" aria-label="분석 자료">
+      <h2>분석 자료</h2>
+      <div>${navLink("/research/", "리서치 가이드")}${navLink("/compare/energy-strategy-map/", "전략 비교")}${navLink("/checklist/energy-company-analysis/", "기업 분석 체크리스트")}${navLink("/glossary/", "용어집")}</div>
+    </section>` : ""}
   </section>
-  ${isHome ? renderStartPanel() : ""}
-  ${isHome ? renderHomeVisualLead() : ""}
-  <section class="trust-strip" aria-label="사이트 운영 기준">
-    <div><strong>${posts.length}</strong><span>분석 글</span></div>
-    <div><strong>광고·본문 분리</strong><span>독자가 먼저 읽는 정보 구조</span></div>
-    <div><strong>출처 중심</strong><span>공식 자료와 산업 맥락 기반 정리</span></div>
-  </section>
-  <section class="value-panel" aria-label="사이트 가치">
-    <div>
-      <h2>왜 이 사이트를 따로 읽을 만한가</h2>
-      <p>omybusiness는 사우디아람코와 중동 에너지 산업 이슈를 단순 뉴스 요약으로 처리하지 않고, 기술 적용 범위·공급망 변화·저탄소 전환·시장 전략이라는 네 가지 관점으로 다시 묶어 설명합니다.</p>
-    </div>
-    <ul>
-      <li>전문 용어를 그대로 나열하지 않고 산업 의사결정에 주는 의미를 함께 정리합니다.</li>
-      <li>각 글 하단에 검토 관점, 공개 참고자료, 관련 글을 배치해 추가 탐색이 가능하게 구성했습니다.</li>
-      <li>광고 배치보다 본문 가독성, 신뢰 페이지, 명확한 연락 경로를 우선합니다.</li>
-    </ul>
-  </section>
-  <section class="topic-section" aria-label="주제별 탐색">
-    <div class="section-heading">
-      <h2>주제별로 이어 읽기</h2>
-      <a href="/topics/">전체 주제 보기</a>
-    </div>
-    <div class="topic-grid">
-      ${topicHubs.map(topicCard).join("\n")}
-    </div>
-  </section>
-  ${renderHomeHubMatrix()}
-  <section class="topic-section" aria-label="리서치 가이드">
-    <div class="section-heading">
-      <h2>리서치 가이드</h2>
-      <a href="/research/">전체 가이드 보기</a>
-    </div>
-    <div class="topic-grid research-grid">
-      ${researchPages.map(researchCard).join("\n")}
-    </div>
-  </section>
-  <section class="topic-section" aria-label="분석 체크리스트">
-    <div class="section-heading">
-      <h2>분석 체크리스트</h2>
-      <a href="/checklist/energy-company-analysis/">바로 열기</a>
-    </div>
-    <div class="topic-grid research-grid">
-      ${checklistPages.map(checklistCard).join("\n")}
-    </div>
-  </section>
-  <section class="topic-section" aria-label="도구형 가이드">
-    <div class="section-heading">
-      <h2>처음 읽는 길잡이와 도구</h2>
-      <a href="/start-here/">시작하기</a>
-    </div>
-    <div class="topic-grid">
-      ${toolPages.map(toolCard).join("\n")}
-    </div>
-  </section>
-  ${renderReadingPaths()}
-  <section class="topic-section" aria-label="전략 비교 지도">
-    <div class="section-heading">
-      <h2>비교해서 읽기</h2>
-      <a href="/compare/energy-strategy-map/">전체 비교 보기</a>
-    </div>
-    <div class="topic-grid research-grid">
-      ${comparePages.map(compareCard).join("\n")}
-    </div>
-  </section>
-  <section class="trust-links" aria-label="운영 신뢰 정보">
-    <h2>운영 정보와 신뢰 기준</h2>
-    <div>
-      ${navLink("/author/", "작성자와 운영자")}
-      ${navLink("/methodology/", "분석 방법론")}
-      ${navLink("/sources/", "참고자료와 출처 기준")}
-      ${navLink("/corrections/", "정정 및 업데이트 기록")}
-      ${navLink("/faq/", "자주 묻는 질문")}
-      ${navLink("/advertising-policy/", "광고 및 제휴 정책")}
-    </div>
-  </section>
-  <section>
-    <div class="toolbar">
-      <input class="search" id="postSearch" type="search" placeholder="글 검색" aria-label="글 검색">
-      <span class="count" data-count>${isHome ? `추천 ${visiblePosts.length}개 / 전체 ${posts.length}개` : `전체 ${visiblePosts.length}개 글`}</span>
-    </div>
-    ${renderPostFilters()}
-    <div class="post-grid" id="postGrid">
-      ${visiblePosts.map(postCard).join("\n")}
-    </div>
-  </section>
-  ${isHome ? renderArchiveNotice() : ""}
   ${renderPostFilterScript()}`;
-
-  return layout({ title, description: site.description, routePath, body });
+  return layout({ title, description: isHome ? site.description : "omybusiness의 에너지 산업 분석 글을 주제별로 찾아보는 아카이브입니다.", routePath, body });
 }
 
 function renderArchivePage() {
-  const body = `  <section class="intro">
-    <p class="eyebrow">Archive</p>
-    <h1>전체 글 아카이브</h1>
-    <p>omybusiness의 에너지 산업 분석 글 ${posts.length}개를 한곳에 모았습니다. 특정 기술명, 소재, 공급망, 저탄소 전환 키워드로 검색해 필요한 글을 찾을 수 있습니다.</p>
-  </section>
-  <section class="value-panel">
-    <div>
-      <h2>아카이브를 따로 둔 이유</h2>
-      <p>홈은 처음 방문한 독자가 방향을 잡는 공간으로 가볍게 유지하고, 전체 글 탐색은 이 페이지에서 처리합니다. 글이 많아도 첫 화면이 복잡해지지 않도록 분리한 구조입니다.</p>
-    </div>
-    <ul>
-      <li>전체 글을 한 번에 검색할 수 있습니다.</li>
-      <li>주제 허브와 함께 보면 글의 맥락을 더 빨리 잡을 수 있습니다.</li>
-      <li>대표 글만 보는 홈보다 넓은 탐색이 필요할 때 사용하는 페이지입니다.</li>
-    </ul>
-  </section>
-  <section>
-    <div class="toolbar">
-      <input class="search" id="postSearch" type="search" placeholder="전체 글 검색" aria-label="전체 글 검색">
-      <span class="count" data-count>전체 ${posts.length}개 글</span>
-    </div>
-    ${renderPostFilters()}
-    <div class="post-grid" id="postGrid">
-      ${posts.map(postCard).join("\n")}
-    </div>
-  </section>
-  ${renderPostFilterScript()}`;
-
-  return layout({
-    title: "전체 글 아카이브",
-    description: "omybusiness의 에너지 산업 분석 글 전체를 검색하고 찾아볼 수 있는 아카이브입니다.",
-    routePath: "/archive/",
-    body,
-  });
+  return renderIndex(posts, "전체 글 아카이브", "/archive/");
 }
 
 function renderTopicsIndex() {
@@ -2475,14 +2385,14 @@ function renderPage(page) {
 
 function renderSitemap() {
   const items = [
-    { routePath: "/", modifiedAt: contentUpdatedAt },
+    { routePath: "/", modifiedAt: navigationUpdatedAt },
     ...trustPages,
     ...posts.map((post) => ({ ...post, modifiedAt: post.review?.reviewedAt || reviewUpdatedAt })),
-    { routePath: "/category/energy/", modifiedAt: contentUpdatedAt },
-    { routePath: "/tag/", modifiedAt: contentUpdatedAt },
-    { routePath: "/archive/", modifiedAt: contentUpdatedAt },
-    { routePath: "/topics/", modifiedAt: reviewUpdatedAt },
-    ...topicHubs.map((hub) => ({ ...hub, modifiedAt: posts.some((post) => post.review && hub.keywords.test(post.title)) ? contentUpdatedAt : reviewUpdatedAt })),
+    { routePath: "/category/energy/", modifiedAt: navigationUpdatedAt },
+    { routePath: "/tag/", modifiedAt: navigationUpdatedAt },
+    { routePath: "/archive/", modifiedAt: navigationUpdatedAt },
+    { routePath: "/topics/", modifiedAt: navigationUpdatedAt },
+    ...topicHubs.map((hub) => ({ ...hub, modifiedAt: navigationUpdatedAt })),
     { routePath: "/research/", modifiedAt: reviewUpdatedAt },
     ...researchPages,
     ...checklistPages,
@@ -2547,6 +2457,8 @@ await mkdir(path.join(dist, "assets"), { recursive: true });
 await cp(path.join(root, "public"), dist, { recursive: true, force: true });
 await cp(path.join(root, "src", "styles.css"), path.join(dist, "assets", "style.css"));
 await writeFile(path.join(dist, "assets", stylesheetName), stylesheet);
+await writeFile(path.join(dist, "assets", directoryScriptName), directoryScript);
+await cp(path.join(root, "node_modules", "lucide-static", "LICENSE"), path.join(dist, "assets", "lucide-license.txt"));
 
 await writeRoute("/", renderIndex());
 await writeRoute("/category/energy/", renderIndex(posts, "에너지 산업", "/category/energy/"));
