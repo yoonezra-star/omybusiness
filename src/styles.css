@@ -760,6 +760,7 @@ a:hover {
 }
 
 .entry-content .analysis-table {
+  display: table;
   width: 100%;
   min-width: 580px;
   margin: 0;

@@ -112,6 +112,7 @@ for (const original of rawPosts) {
   const review = reviewsById.get(original.id);
   posts.push(normalizePost(review ? {
     ...original,
+    title: review.title || original.title,
     description: review.description,
     content: await readFile(path.join(root, "data", review.contentFile), "utf8"),
     modifiedAt: review.reviewedAt,
