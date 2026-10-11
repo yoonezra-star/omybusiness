@@ -9,6 +9,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
 const posts = JSON.parse(await readFile(path.join(root, "data/posts.json"), "utf8"));
 const catalog = JSON.parse(await readFile(path.join(root, "data/article-catalog.json"), "utf8"));
+const reviews = JSON.parse(await readFile(path.join(root, "data/article-reviews.json"), "utf8"));
 assert.ok((await stat(path.join(dist, "assets/lucide-license.txt"))).isFile(), "Redistributed icon license");
 assert.equal(catalog.length, posts.length);
 assert.equal(new Set(catalog.map(entry => entry.id)).size, posts.length);
@@ -34,6 +35,10 @@ for (const route of ["/", "/archive/", "/category/energy/", "/tag/"]) {
     const entry = catalog.find(item => item.id === dom(card).attr("data-post-id"));
     assert.equal(dom(card).attr("data-topic"), entry.topic, `Explicit topic for ${entry.id}`);
     assert.ok(dom(card).attr("data-search").includes(dom(card).attr("data-title")));
+    const post = posts.find(item => item.id === entry.id);
+    const review = reviews.find(item => item.id === entry.id);
+    const date = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Seoul" }).format(new Date(review?.reviewedAt || post.publishedAt));
+    assert.equal(dom(card).find(".meta span").first().text().trim(), `${review ? "개정" : "발행"} ${date}`, "Visible card date uses Korean time");
   }
 }
 const bodies = [];

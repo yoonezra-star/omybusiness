@@ -78,6 +78,7 @@ for (const post of posts) {
     assert.ok((await stat(path.join(dist, route, "index.html"))).isFile(), `Internal link: ${route}`);
   }
   const reviewDay = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Seoul" }).format(new Date(review.reviewedAt));
+  assert.equal(dom(".article-byline time").text().trim(), reviewDay, "Visible review day uses Korean time on every build host");
   assert.ok(dom(".evidence-note").text().includes(reviewDay), "Visible source check date matches metadata");
   report.push({ id: post.id, bodyCharacters: dom(".entry-content").text().replace(/\s/g, "").length, tables: dom(".analysis-table").length, sources: sources.length });
 }
