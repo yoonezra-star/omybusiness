@@ -89,8 +89,33 @@ function enhanceContentHeadings(html = "") {
   return { html: $("body").html() || $.root().html(), headings };
 }
 
-const posts = rawPosts.map(normalizePost);
 const reviewUpdatedAt = "2026-07-14T10:30:00+09:00";
+const articleReviews = JSON.parse(await readFile(path.join(root, "data", "article-reviews.json"), "utf8"));
+const reviewsById = new Map();
+for (const review of articleReviews) {
+  const original = rawPosts.find((post) => post.id === review.id);
+  if (!original || reviewsById.has(review.id)) throw new Error(`Invalid or duplicate reviewed article: ${review.id}`);
+  if (review.contentFile !== `reviewed/${review.id}.html`) throw new Error(`Invalid review content path: ${review.id}`);
+  const modified = new Date(review.reviewedAt).getTime();
+  if (!Number.isFinite(modified) || modified < new Date(original.publishedAt).getTime()) {
+    throw new Error(`Invalid article review date: ${review.id}`);
+  }
+  reviewsById.set(review.id, review);
+}
+
+// Keep the migration backup intact; only explicitly reviewed articles receive new bodies.
+const posts = [];
+for (const original of rawPosts) {
+  const review = reviewsById.get(original.id);
+  posts.push(normalizePost(review ? {
+    ...original,
+    description: review.description,
+    content: await readFile(path.join(root, "data", review.contentFile), "utf8"),
+    modifiedAt: review.reviewedAt,
+    review,
+  } : original));
+}
+const contentUpdatedAt = articleReviews.reduce((latest, review) => review.reviewedAt > latest ? review.reviewedAt : latest, reviewUpdatedAt);
 
 const topicHubs = [
   {
@@ -315,7 +340,7 @@ const trustPages = [
     title: "정정 및 업데이트 기록",
     routePath: "/corrections/",
     description: "omybusiness의 오류 정정, 보완, 업데이트 처리 기준을 안내합니다.",
-    modifiedAt: reviewUpdatedAt,
+    modifiedAt: contentUpdatedAt,
     content: `
       <p>에너지 산업은 기업 발표, 정책, 기술 상용화 일정이 계속 바뀌기 때문에 콘텐츠를 작성한 뒤에도 보완이 필요할 수 있습니다. omybusiness는 확인 가능한 오류가 발견되면 내용을 수정하거나 문맥을 보완합니다.</p>
       <h2>정정 기준</h2>
@@ -336,7 +361,8 @@ const trustPages = [
       <h2>업데이트와 재발행</h2>
       <p>본문의 핵심 내용이 바뀌는 경우에는 단순 문장 수정이 아니라 업데이트로 봅니다. 예를 들어 정책 발표, 기업 전략 변경, 기술 상용화 일정 변화, 링크 구조 변경, 이미지 오류 수정은 독자의 이해에 영향을 줄 수 있으므로 필요 시 사이트맵과 검색엔진 색인 요청도 함께 진행합니다.</p>
       <h2>최근 보강</h2>
-      <p>2026년 7월 13일에는 AdSense 심사 품질 기준에 맞춰 주제 허브, 리서치 가이드, 대표 글 심화 분석, 참고자료 구조, 필수 운영 페이지, 이미지와 표 구조를 확장했습니다.</p>
+      ${renderReviewHistory()}
+      <p>2026년 7월 13일에는 주제 허브, 리서치 가이드, 참고자료와 운영 안내, 이미지·표 구조를 확장했습니다. 이 구조 보강과 개별 본문의 사실 검증은 별개이며, 모든 글의 검증이 완료됐다는 뜻은 아닙니다.</p>
     `,
   },
   {
@@ -2311,12 +2337,40 @@ function renderResearchIndex() {
   });
 }
 
+function renderReviewHistory() {
+  return `<ul class="review-history">${articleReviews.map((review) => {
+    const post = posts.find((item) => item.id === review.id);
+    return `<li><strong>${escapeHtml(formatDate(review.reviewedAt))}</strong> · <a href="${encodeURI(post.routePath)}">${escapeHtml(post.title)}</a><ul>${review.changes.map((change) => `<li>${escapeHtml(change)}</li>`).join("")}</ul></li>`;
+  }).join("")}</ul>`;
+}
+
+function renderReviewedArticle(post, enhancedContent) {
+  const related = post.review.relatedIds.map((id) => posts.find((item) => item.id === id)).filter(Boolean);
+  return `  <article class="article reviewed-article" data-review-id="${escapeHtml(post.id)}">
+    <header class="article-header">
+      <div class="meta"><span>발행 ${escapeHtml(formatDate(post.publishedAt))}</span><span class="pill">${escapeHtml(post.category)}</span></div>
+      <h1>${escapeHtml(post.title)}</h1>
+      <p class="article-description">${escapeHtml(post.description)}</p>
+      <div class="article-byline"><a href="/author/" rel="author">omybusiness</a><span>본문 개정·자료 확인 <time datetime="${escapeHtml(post.review.reviewedAt)}">${escapeHtml(formatDate(post.review.reviewedAt))}</time></span></div>
+      <p class="article-disclosure">공개자료 기반 해설 · AI 보조 작성. 현장 취재나 독립적인 성능 시험을 수행한 글이 아닙니다.</p>
+    </header>
+    <section class="article-findings" aria-label="핵심 판단">
+      <h2>핵심 판단</h2>
+      <ul>${post.review.takeaways.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+    </section>
+    ${renderArticleToc(enhancedContent.headings)}
+    <div class="entry-content">${enhancedContent.html}</div>
+    <details class="article-changes"><summary>이번 개정에서 바뀐 내용</summary><ul>${post.review.changes.map((change) => `<li>${escapeHtml(change)}</li>`).join("")}</ul><a href="/corrections/">전체 정정 기록</a></details>
+    <section class="reviewed-related" aria-label="함께 읽기"><h2>함께 읽기</h2><ul>${related.map((item) => `<li><a href="${encodeURI(item.routePath)}">${escapeHtml(item.title)}</a><p>${escapeHtml(item.description)}</p></li>`).join("")}</ul></section>
+  </article>`;
+}
+
 function renderPost(post, index) {
   const previous = posts[index + 1];
   const next = posts[index - 1];
   const enhancedContent = enhanceContentHeadings(post.content);
   const wordCount = stripHtml(enhancedContent.html).split(/\s+/).filter(Boolean).length;
-  const image = displayImage(post);
+  const image = post.review ? undefined : displayImage(post);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -2335,7 +2389,7 @@ function renderPost(post, index) {
     inLanguage: "ko-KR",
   };
 
-  const body = `  <article class="article">
+  const body = post.review ? renderReviewedArticle(post, enhancedContent) : `  <article class="article">
     <header class="article-header">
       <div class="meta"><span>${escapeHtml(formatDate(post.publishedAt))}</span><span class="pill">${escapeHtml(post.category)}</span></div>
       <h1>${escapeHtml(post.title)}</h1>
@@ -2417,14 +2471,14 @@ function renderPage(page) {
 
 function renderSitemap() {
   const items = [
-    { routePath: "/", modifiedAt: reviewUpdatedAt },
+    { routePath: "/", modifiedAt: contentUpdatedAt },
     ...trustPages,
-    ...posts.map((post) => ({ ...post, modifiedAt: reviewUpdatedAt })),
-    { routePath: "/category/energy/", modifiedAt: reviewUpdatedAt },
-    { routePath: "/tag/", modifiedAt: reviewUpdatedAt },
-    { routePath: "/archive/", modifiedAt: reviewUpdatedAt },
+    ...posts.map((post) => ({ ...post, modifiedAt: post.review?.reviewedAt || reviewUpdatedAt })),
+    { routePath: "/category/energy/", modifiedAt: contentUpdatedAt },
+    { routePath: "/tag/", modifiedAt: contentUpdatedAt },
+    { routePath: "/archive/", modifiedAt: contentUpdatedAt },
     { routePath: "/topics/", modifiedAt: reviewUpdatedAt },
-    ...topicHubs.map((hub) => ({ ...hub, modifiedAt: reviewUpdatedAt })),
+    ...topicHubs.map((hub) => ({ ...hub, modifiedAt: posts.some((post) => post.review && hub.keywords.test(post.title)) ? contentUpdatedAt : reviewUpdatedAt })),
     { routePath: "/research/", modifiedAt: reviewUpdatedAt },
     ...researchPages,
     ...checklistPages,

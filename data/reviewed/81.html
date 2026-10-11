@@ -1,0 +1,74 @@
+<p>에너지 기업의 AI 발표를 읽을 때 가장 먼저 구분할 것은 “어떤 모델이 어떤 일을 했는가”다. 언어모델의 문서 응답, 센서 데이터의 이상 탐지, 영상 분석을 하나의 성과로 묶으면 실제 효과를 판단하기 어렵다. 아람코의 MetaBrain 관련 발표도 도입 구상, 모델 종류, 활용 규모, 업무 시간의 검증을 나누어 읽을 필요가 있다.</p>
+
+<h2 id="ai-announcements">2024~2026년 발표는 같은 단계의 이야기가 아니다</h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="아람코 산업 AI 발표 비교">
+  <table class="analysis-table">
+    <caption>공식 발표의 변화 · 각 발표 당시의 설명</caption>
+    <thead><tr><th scope="col">발표</th><th scope="col">확인되는 내용</th><th scope="col">읽을 때 남겨둘 질문</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">2024-03 LEAP <a class="source-ref" href="#source-81-1">[1]</a></th><td>시추 계획·지질 자료·과거 작업 시간과 비용을 활용하는 산업 언어모델 소개</td><td>소개된 기능 중 실제 운영과 향후 역량은 어디까지인가?</td></tr>
+      <tr><th scope="row">2024-09 GAIN <a class="source-ref" href="#source-81-2">[2]</a></th><td>AI 계산 인프라와 협력 계획, 설비 모니터링 등 엣지 AI 추진</td><td>인프라·협력 발표를 특정 LLM의 실적과 혼동하지 않았는가?</td></tr>
+      <tr><th scope="row">2025-02 LEAP <a class="source-ref" href="#source-81-3">[3]</a></th><td>MetaBrain 활용 및 설비 시계열을 다루는 MetaBrain for Plants 설명</td><td>언어 자료와 설비 데이터를 다루는 모델의 평가가 분리됐는가?</td></tr>
+      <tr><th scope="row">2026-08 LEAP <a class="source-ref" href="#source-81-4">[4]</a></th><td>수만 명의 직원 활용, 하루 수백만 요청, 연간 수십만 근무시간 절약 추정</td><td>시간 절약의 기준 작업·측정 방법·검증 비용이 공개됐는가?</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>2026년 연설은 활용이 구상에 머물지 않는다는 회사의 설명을 제공한다. 다만 절약 시간은 회사가 추정한 수치이며, 이 글이 독립적으로 측정한 결과가 아니다. 사용자 수나 요청 수가 많다는 사실도 개별 답변의 정확도 또는 안전성을 직접 증명하지 않는다. <a class="source-ref" href="#source-81-4" aria-label="출처 4">[4]</a></p>
+<p>같은 이유로 모델의 파라미터 수를 정확도 순위처럼 읽는 것도 적절하지 않다. 2025년 발표에 등장한 운영 모델과 개발 계획은 그때의 설명이다. 모델 규모만으로 최신 배포 상태, 특정 업무의 정답률, 현장 통제 권한을 추론하지 않는다.</p>
+
+<h2 id="ai-model-types">언어모델과 설비 데이터 모델을 분리해서 보기</h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="산업 AI 모델별 업무와 평가 비교">
+  <table class="analysis-table">
+    <caption>모델의 입력과 평가를 구분하는 해설표 · 제품별 구현을 단정하지 않음</caption>
+    <thead><tr><th scope="col">업무 유형</th><th scope="col">주요 입력</th><th scope="col">확인해야 할 결과</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">문서·언어 업무</th><td>절차서, 보고서, 질문과 검색된 문서</td><td>원문에 맞는 답인지, 문서 버전과 근거를 제시하는지</td></tr>
+      <tr><th scope="row">설비 시계열 분석</th><td>시간 순서가 있는 센서 측정값과 운전 기록</td><td>이상 탐지의 오탐·미탐, 운전 조건이 바뀔 때의 성능</td></tr>
+      <tr><th scope="row">영상·현장 모니터링</th><td>카메라 영상, 설비 이미지와 현장 상태</td><td>조명·가림·촬영 위치가 달라져도 탐지하는지</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>2025년 연설은 MetaBrain for Plants를 시계열 기반 모델로 설명한다. <a class="source-ref" href="#source-81-3" aria-label="출처 3">[3]</a> 따라서 설비 이상 탐지가 개선됐다는 자료가 있더라도, 그것을 곧바로 문서에 답하는 언어모델의 정확도라고 표현할 수 없다. 모델을 묶어 부르는 “산업 AI”라는 이름보다 입력 데이터와 수행 작업을 먼저 적는 편이 명확하다.</p>
+<aside class="analysis-callout"><strong>이 글의 해석</strong><p>산업 특화의 핵심은 에너지 관련 용어를 많이 말하는 데 있지 않다. 해당 업무의 자료를 적절하게 이용하고, 자료에 없는 내용을 구분하며, 권한과 검증 절차 안에서 결과를 사용할 수 있어야 한다.</p></aside>
+
+<h2 id="ai-validation-cost">답변이 빨라져도 확인 비용이 늘면 이익이 작아진다</h2>
+<p>문서에서 정비 관련 정보를 찾는 가상 업무를 생각해 보자. 기존에는 검색에 20분, 검증에 10분이 걸린다고 가정한다. AI가 검색을 5분으로 줄여도 검증과 수정이 얼마나 필요한지에 따라 전체 효과는 달라진다. 아래 수치는 설명을 위해 만든 것이며 아람코 또는 MetaBrain의 성과가 아니다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="AI 업무 시간 가상 계산표">
+  <table class="analysis-table">
+    <caption>가상 문서 업무 · 같은 과업을 완료하는 데 걸리는 시간</caption>
+    <thead><tr><th scope="col">방식</th><th scope="col">검색·초안</th><th scope="col">확인·수정</th><th scope="col">전체</th><th scope="col">기준 대비</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">기존 방식</th><td>20분</td><td>10분</td><td>30분</td><td>기준</td></tr>
+      <tr><th scope="row">AI 사용 · 검증 15분</th><td>5분</td><td>15분</td><td>20분</td><td>시간 33.3% 감소</td></tr>
+      <tr><th scope="row">AI 사용 · 검증 30분</th><td>5분</td><td>30분</td><td>35분</td><td>시간 16.7% 증가</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>첫 사례는 <code>(30 - 20) ÷ 30 × 100 ≈ 33.3%</code>, 두 번째는 <code>(35 - 30) ÷ 30 × 100 ≈ 16.7%</code>다. 답변 생성 시간만 비교하면 두 사례 모두 좋아 보이지만, 완료 시간으로 보면 결론이 반대다. 사용자가 오류를 알아차리지 못해 검증을 생략한 경우는 빠른 완료로 계산하기보다 품질 문제로 따로 기록해야 한다.</p>
+<p>측정할 때에는 같은 난도의 과업 묶음, 같은 완료 기준, 사용하는 문서의 버전을 정해 두어야 한다. 쉬운 질문만 AI에 맡기고 어려운 질문은 기존 방식에 남겨 놓으면 단순 평균 시간이 공정한 비교가 되지 않는다. 재작업·중단·담당자에게 넘긴 사례까지 포함해야 업무 효과를 과대평가하지 않을 수 있다.</p>
+
+<h2 id="ai-evaluation">산업 AI 사례를 읽을 때 사용할 평가 기록표</h2>
+<p>아래 기준은 회사가 공개한 평가 규격이 아니라 이 사이트가 제안하는 독서·비교 기준이다. 시스템에 직접 설비 조작을 맡기는 방법이 아니라, 발표된 효과를 검토하고 부족한 근거를 찾기 위한 표다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="산업 AI 평가 기록표">
+  <table class="analysis-table">
+    <caption>업무별로 남겨야 할 검증 기록</caption>
+    <thead><tr><th scope="col">항목</th><th scope="col">기록할 내용</th><th scope="col">자료가 없을 때의 판단</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">근거 일치</th><td>답변에 연결된 문서, 해당 문장, 적용 버전</td><td>자연스러운 설명만으로 정확성을 인정하지 않는다.</td></tr>
+      <tr><th scope="row">오류와 보류</th><td>틀린 답, 근거 없는 답, 답변을 보류한 과업의 건수</td><td>성공 사례만으로 전체 품질을 추정하지 않는다.</td></tr>
+      <tr><th scope="row">완료 시간</th><td>준비·검색·검증·수정·재작업에 걸린 시간</td><td>초안 생성 속도를 전체 생산성으로 바꾸지 않는다.</td></tr>
+      <tr><th scope="row">권한과 책임</th><td>접근 가능한 자료, 결과 승인자, 변경·감사 기록</td><td>사용자 확대를 곧바로 안전한 운영으로 해석하지 않는다.</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>2026년 연설이 강조하는 신뢰·보안·설명 가능성도 모델 주변의 시스템과 함께 읽을 필요가 있다. <a class="source-ref" href="#source-81-4" aria-label="출처 4">[4]</a> 좋은 답변을 만드는 능력과 그 답변을 산업 현장에서 사용할 수 있는 조건은 다르다. 승인 권한, 자료 접근 범위, 오류 발생 시 책임이 흐릿하면 정확도 수치 하나로 운영 품질을 평가하기 어렵다.</p>
+<p>결론적으로 아람코 발표에서는 활용 범위가 넓어졌다는 회사의 설명을 확인할 수 있다. 그러나 공개된 규모를 특정 업무의 확정적인 절감률로 바꾸거나, 여러 모델의 성과를 한 언어모델의 실적으로 합치는 것은 피해야 한다. “누가 무엇을 얼마나 사용했는가”와 “동일한 품질로 업무를 얼마나 줄였는가”를 분리하는 것이 산업 AI를 이해하는 출발점이다.</p>
+
+<h2 id="ai-sources">출처와 확인 범위</h2>
+<p class="evidence-note">확인 기준일: 2026년 10월 11일. 아래 자료는 아람코의 공개 발표다. 독립적인 제품 시험을 수행하지 않았으며 가상 계산과 평가표는 이 글의 해설이다.</p>
+<ol class="evidence-list">
+  <li id="source-81-1"><a href="https://www.aramco.com/en/news-media/speeches/2024/leap24--remarks-by-amin-h-nasser-saudi-aramco-president-and-ceo">LEAP24 remarks by Amin H. Nasser</a> · Aramco, 2024-03-04. 산업 언어모델의 소개와 활용 분야.</li>
+  <li id="source-81-2"><a href="https://www.aramco.com/en/news-media/news/2024/aramco-unveils-new-initiatives-to-drive-digital-development">Aramco unveils new initiatives to drive digital development</a> · Aramco, 2024-09-10. AI 인프라·파트너십·엣지 AI 발표.</li>
+  <li id="source-81-3"><a href="https://singapore.aramco.com/en/news-media/news/2025/remarks-by-ahmad-al-khowaiter-at-leap-2025">Remarks by Ahmad Al-Khowaiter at LEAP 2025</a> · Aramco, 2025-02-09. MetaBrain 및 MetaBrain for Plants 설명.</li>
+  <li id="source-81-4"><a href="https://www.aramco.com/en/news-media/speeches/2026/remarks-by-ahmad-o-al-khowaiter-at-leap-2026">Remarks by Ahmad O. Al-Khowaiter at LEAP 2026</a> · Aramco, 2026-08-31. 활용 규모, 근무시간 절약 추정, 신뢰와 운영 기반에 관한 회사 설명.</li>
+</ol>
