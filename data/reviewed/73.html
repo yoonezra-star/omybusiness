@@ -1,0 +1,53 @@
+<p>산업 설비의 보안은 공격을 막는 도구만으로 설명하기 어렵다. 보안 기능을 추가하거나 네트워크를 차단하는 조치 자체가 공정에 영향을 줄 수 있기 때문이다. 아람코가 공개한 협력사 보안 제도와 NIST·국제 공동 OT 지침을 분리해 읽고, 무엇을 회사의 실제 내부 구성으로 단정할 수 없는지 살펴본다. 이 글은 현장 네트워크의 설정·격리 지침이 아니다.</p>
+
+<h2 id="ot-public-scope">협력사 보안 제도와 내부 전력망 설계는 다른 자료다</h2>
+<p>아람코의 공개 CCC 안내는 외부 협력사의 사이버보안 준수 평가를 설명하며, 분류 항목에 Operational Technology와 Network Connectivity를 포함한다. 페이지는 2026년 SACS-210 문서도 안내한다. <a class="source-ref" href="#source-73-1">[1]</a> 이 제도가 공개됐다는 사실을 특정 발전·전력망 설비의 실제 방화벽 구성이나 탐지 모델의 성능으로 확대할 수는 없다.</p>
+<p>기존 본문의 독자 제로 트러스트 아키텍처, 모든 패킷의 검사·즉시 격리, 위성 통합 보호와 양자내성 암호 도입 설명은 이번에 확인한 자료로 입증하지 못했다. 직접 공격을 목격했다는 체험담과 회사 공통의 5단계 대응 절차도 사용하지 않았다. 공개된 요구사항, 일반 지침, 실제 구축·시험 결과는 각각 다른 근거다.</p>
+
+<h2 id="ot-it-compare">OT는 물리적 공정과 응답 조건을 함께 본다</h2>
+<p>NIST SP 800-82 Rev. 3은 물리적 환경과 상호작용하는 OT의 성능·신뢰성·안전 요구를 설명한다. 인쇄면 30~31의 IT·OT 비교는 시간 제약, 가용성, 자원과 변경 관리의 차이를 다룬다. <a class="source-ref" href="#source-73-2">[2]</a> 이는 전형적인 차이를 설명한 것으로, 모든 IT 시스템은 중단돼도 괜찮다거나 모든 OT가 동일한 조건이라는 뜻은 아니다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="IT와 OT 보안 판단 비교">
+<table class="analysis-table"><caption>같은 보안 조치도 적용 조건이 다르다 · 일반적인 검토 관점</caption>
+<thead><tr><th scope="col">판단 항목</th><th scope="col">기업 IT에서 살펴볼 것</th><th scope="col">OT에서 추가로 살펴볼 것</th></tr></thead>
+<tbody>
+<tr><th scope="row">서비스 중단</th><td>업무·데이터·고객 서비스에 미치는 영향</td><td>연결된 공정·설비·사람의 안전에 미치는 영향</td></tr>
+<tr><th scope="row">응답 지연</th><td>업무가 요구하는 처리 시간과 사용자 경험</td><td>제어 메시지와 현장 대응의 시간 제약</td></tr>
+<tr><th scope="row">새 보안 소프트웨어</th><td>자원 사용·호환성·운영 지원</td><td>제어 기능·장치 자원·제조사 지원 조건과의 관계</td></tr>
+<tr><th scope="row">변경·업데이트</th><td>취약성·호환성·복구 검토</td><td>공정 영향 시험과 승인된 유지보수 조건</td></tr>
+</tbody></table></div>
+
+<h2 id="ot-change">패치 유무보다 변경 검증과 잔여 위험을 확인한다</h2>
+<p>NIST의 패치 절은 OT에 적용하기 전 운영 기능과 안전에 미치는 영향을 시험·검증하고, 유지보수 일정과 복구 계획을 고려하도록 설명한다. <a class="source-ref" href="#source-73-2">[2]</a> 따라서 “항상 즉시 자동 업데이트”와 “OT는 절대 업데이트하지 않는다”는 모두 설명이 부족하다. 패치할 수 없거나 적용을 미루는 상황도 무위험 상태가 아니다.</p>
+<p>2024년 국제 공동 지침은 안전을 우선하고, 중요한 시스템·공정·연결 관계를 이해하며, 공급망과 사람의 역할을 함께 고려한다. <a class="source-ref" href="#source-73-3">[3]</a> 변경 이유뿐 아니라 변경하지 않을 때 남는 위험도 평가 대상이다. 아래는 관련 설명과 기록을 읽기 위한 질문이며, 현장에서 실행할 작업 순서가 아니다.</p>
+<figure class="analysis-diagram"><ol class="analysis-flow">
+<li><span>01 · 대상</span><strong>공정과 의존성</strong><p>어느 자산과 서비스에 영향을 주는지 구분한다.</p></li>
+<li><span>02 · 검증</span><strong>시험의 범위</strong><p>어떤 구성과 조건에서 호환성·영향을 확인했는지 읽는다.</p></li>
+<li><span>03 · 복구</span><strong>복원 후의 상태</strong><p>데이터뿐 아니라 제어 기능과 안전 상태의 확인 범위를 본다.</p></li>
+<li><span>04 · 결정</span><strong>책임과 잔여 위험</strong><p>누가 승인하고 남은 위험을 어떻게 검토하는지 확인한다.</p></li>
+</ol><figcaption>변경 관리 자료의 확인 경계. 아람코 내부 설계도나 현장 조작 절차가 아니다.</figcaption></figure>
+
+<h2 id="ot-recovery">백업 보유와 안전한 복구 검증은 같은 성과가 아니다</h2>
+<p>국제 공동 지침은 침해된 OT를 백업으로 복원할 때 그 백업과 복구 후 상태를 신뢰할 수 있는지 질문한다. <a class="source-ref" href="#source-73-3">[3]</a> 파일이 복원됐다는 기록과 제어 기능이 의도대로 동작한다는 검증을 분리하면, 복구 완료라는 표현이 어디까지 유효한지 더 정확히 읽을 수 있다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="OT 보안 주장과 검증 근거">
+<table class="analysis-table"><caption>보안 성과에 붙어야 할 근거 · 독자가 자료를 평가하는 질문</caption>
+<thead><tr><th scope="col">표현</th><th scope="col">확인할 근거</th><th scope="col">이름만으로 보장되지 않는 것</th></tr></thead>
+<tbody>
+<tr><th scope="row">네트워크 분리</th><td>필요한 연결·의존성과 허용 범위를 평가한 기록</td><td>모든 위협의 제거 또는 모든 차단의 무해함</td></tr>
+<tr><th scope="row">취약점 조치</th><td>적용 구성·검증 결과·미해결 항목과 책임</td><td>남은 취약성과 공정 위험이 0이라는 결론</td></tr>
+<tr><th scope="row">백업·복구</th><td>복구 대상·검증 조건·제어와 안전 기능의 확인 범위</td><td>백업 파일 존재만으로 안전한 재가동 완료</td></tr>
+<tr><th scope="row">AI 탐지·제로 트러스트</th><td>적용 범위·시험 조건·오탐과 미탐·장애 대응의 검토</td><td>특정 기술명만으로 완벽한 방어나 자동 대응 성능</td></tr>
+</tbody></table></div>
+<p>이 표를 보고 실제 네트워크 연결을 끊거나 방어 설정을 바꾸는 결론을 내려서는 안 된다. 물리적 공정의 영향과 비상 대응은 승인된 현장 절차와 담당자의 판단이 필요하다. 이 글은 회사의 비공개 내부 구성이나 현장의 적합성을 검사한 보고서가 아니다.</p>
+
+<h2 id="ot-version">지침의 판본과 적용 주체도 구분한다</h2>
+<p>NIST의 발행 기록에서 Rev. 3은 2023년 확정판이며, 2026년 9월 안내는 Rev. 4의 초기 공개 초안을 가리킨다. <a class="source-ref" href="#source-73-4">[4]</a> 초안과 확정판을 같은 기준으로 제시하지 않는다. 미국·국제 지침을 참고했다는 사실도 사우디의 법적 요구 충족이나 아람코의 실제 준수 상태를 뜻하지 않는다.</p>
+<p>핵심은 보안 기술의 명칭보다 대상 시스템, 검증 조건, 변경 책임과 잔여 위험을 함께 읽는 것이다. 회사가 공개한 제도와 실제 현장의 구축 자료 사이에 어떤 증거가 더 필요한지 밝히는 편이, “세계 최고 수준”이라는 표현을 반복하는 것보다 유용하다.</p>
+
+<h2 id="ot-sources">출처와 확인 범위</h2>
+<p class="evidence-note">확인 기준일: 2026년 10월 12일. 회사의 공개 협력사 제도와 일반 OT 지침을 확인했다. 회사 내부 전력망의 설계·성능·운전 절차나 개별 인증 준수 상태는 확인하지 않았다.</p>
+<ol class="evidence-list">
+<li id="source-73-1"><a href="https://www.aramco.com/en/what-we-do/suppliers/supplier-resources/cybersecurity-compliance-certificate-program">Third Party Cybersecurity Compliance Certificate</a> · Aramco. 외부 협력사 분류·평가와 2026년 문서 안내.</li>
+<li id="source-73-2"><a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-82r3.pdf">NIST SP 800-82 Rev. 3 · Guide to OT Security</a> · 2023-09. 인쇄면 30~31의 비교, 77~78과 124~125의 패치 관리.</li>
+<li id="source-73-3"><a href="https://www.cyber.gov.au/publication/principles-of-operational-technology-cyber-security">Principles of operational technology cyber security</a> · ASD's ACSC 및 국제 공동 기관, 2024-10. 안전·의존성·공급망·복구 상태의 검토.</li>
+<li id="source-73-4"><a href="https://csrc.nist.gov/pubs/sp/800/82/r3/final">NIST SP 800-82 Rev. 3 발행 기록</a> · 확정판과 2026-09-21의 Rev. 4 초기 초안 안내를 구분했다.</li>
+</ol>

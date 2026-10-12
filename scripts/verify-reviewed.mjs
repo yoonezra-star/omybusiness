@@ -19,6 +19,7 @@ const primaryDomains = [
   "eurecat.com", "gs1.org", "dupont.com", "who.int", "nist.gov",
   "cdc.gov", "airliquide.com", "iea.org",
   "energy.gov", "osha.gov", "epa.gov", "usgs.gov",
+  "cyber.gov.au", "eia.gov",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -102,6 +103,8 @@ const calculationExamples = [
   ["2", /140 - 50/, "64.3%", Math.round((140 - 50) / 140 * 1000) / 10, 64.3],
   ["66", /9 ÷ 19/, "47.4%", Math.round(9 / 19 * 1000) / 10, 47.4],
   ["47", /40 × 235 × 0\.001/, "9.4kg", 40 * 235 * 0.001, 9.4],
+  ["51", /100 - 40 - 25 - 5/, "= 30", 100 - 40 - 25 - 5, 30],
+  ["12", /10억 ÷ 5,000만/, "20년", 1000000000 / 50000000, 20],
 ];
 for (const [id, expression, displayed, result, expected] of calculationExamples) {
   if (!reviewIds.has(id)) continue;
@@ -125,4 +128,18 @@ for (const [id, claims] of Object.entries(safetyReviews)) {
 assert.equal((9 + 980) / 1000 * 100, 98.9, "Gas example accuracy");
 assert.equal(9 + 1 + 10 + 980, 1000, "Gas example totals");
 assert.equal(100 * 100 * 0.001, 60 * 10 * 0.001 + 40 * 235 * 0.001, "Water example mass balance");
+const evidenceReviews = {
+  "73": [/현장 네트워크의 설정·격리 지침이 아니다/, /2026년 9월 안내는 Rev\. 4의 초기 공개 초안/, /실제 내부 구성|실제 방화벽 구성/],
+  "51": [/ISPA를 Integrated Supply and Production Analysis라고 풀어 설명했다/, /가능한 모든 회사 자료에 해당 명칭이 없다는 판정은 아니다/, /60 ÷ 80 = 75%/, /40 - 10 = 30/],
+  "12": [/두 명칭이 같은 유전을 가리킨다는 공식 대응표를 확보한 것은 아니다/, /48,254mmbbl/, /58,319mmboe/, /3\.800mmbpd/, /2018-12-31 기준/, /1억 × 30% = 3,000만 배럴/],
+};
+for (const [id, claims] of Object.entries(evidenceReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Evidence and correction scope: ${id}`);
+  assert.doesNotMatch(content, /제가 (?:직접|지난)|1cm 단위의 오차도 없이|최소 5개 이상의 보안 레이어/, `No unsupported experience or architecture: ${id}`);
+}
+assert.equal((65 - 40) + (100 - 65 - 25 - 5), (80 - 40) + (100 - 80 - 25 - 5), "Internal-price example totals");
+assert.equal(60 / 80 * 100, 75, "Feedstock example denominator");
+assert.equal(100000000 * 0.3, 30000000, "Illustrative recovery arithmetic");
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
