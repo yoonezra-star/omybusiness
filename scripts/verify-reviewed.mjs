@@ -21,6 +21,7 @@ const primaryDomains = [
   "energy.gov", "osha.gov", "epa.gov", "usgs.gov",
   "cyber.gov.au", "eia.gov", "isa100wci.org", "yokogawa.com",
   "astm.org", "imo.org", "aramcotrading.com", "iso.org", "cimac.com", "gao.gov",
+  "totalenergies.com", "iscc-system.org",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -112,6 +113,9 @@ const calculationExamples = [
   ["65", /\(180 \+ 40 \+ 60\) × 3/, "840", (180 + 40 + 60) * 3, 840],
   ["61", /570 ÷ 37\.5/, "15.2달러/GJ", 570 / 37.5, 15.2],
   ["59", /\(26 - 20\) ÷ 26/, "23.1%", Math.round((26 - 20) / 26 * 1000) / 10, 23.1],
+  ["58", /60 ÷ 80 = 75%/, "= 5,000", 60000 + 10000 - 65000, 5000],
+  ["55", /90 ÷ 95/, "94.7%", Math.round(90 / 95 * 1000) / 10, 94.7],
+  ["53", /\(7\.4 - 7\.3\) ÷ 7\.3/, "1.4%", Math.round((7.4 - 7.3) / 7.3 * 1000) / 10, 1.4],
 ];
 for (const [id, expression, displayed, result, expected] of calculationExamples) {
   if (!reviewIds.has(id)) continue;
@@ -194,4 +198,27 @@ assert.equal(4 + 6 + 10 + 2 + 4, 26, "Sequential schedule model");
 assert.equal(4 + Math.max(6, 10) + 2 + 4, 20, "Parallel schedule model");
 assert.equal(4 + Math.max(6, 16) + 2 + 4, 26, "Parallel schedule with delay");
 assert.equal(60 + 50, 110, "Whole-project illustrative waste boundary");
+const circularVirtualTradingReviews = {
+  "58": [/21\.3%포인트/, /현재 배치별 함량/, /80 ÷ 100 = 80%/, /60 ÷ 100 = 60%/, /60 \+ 20 \+ 20 = 100t/, /생산 수율을 변경한 것이 아니다/, /특정 시설이 어떤 방법을 썼는지 임의로 단정하지 않았다/, /공정 운전·폐기물 처리·제품 인증 지침은 아니다/],
+  "55": [/2020년 5월 6일/, /Hasbah 가스전/, /94\.7%를 현장의 사고 예방률로 바꿀 수 없다/, /같은 현실 평가를 포함/, /105,000달러/, /공개 초록/, /현장 작업·밸브 조작·직무 자격 승인 지침은 아니다/],
+  "53": [/mmbpd는 백만 배럴\/일/, /7\.4mmbpd/, /630만 톤/, /6\.3mmbpd/, /보고 주체는 Aramco/, /세계 시장 점유율·유가 상승률·이익 증가율이 아니다/, /-12,000 \+ 10,000 = -2,000달러/, /ATC 단독 성과로 바꾸지 않았다/],
+};
+for (const [id, claims] of Object.entries(circularVirtualTradingReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Circular, virtual and trading evidence boundary: ${id}`);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|지난)|저 역시|위험이 전혀 없|손실이 발생하지 않|완벽한 자급/, `No unverified experience or universal guarantee: ${id}`);
+}
+assert.equal(Math.round((69.1 - 47.8) * 10) / 10, 21.3, "Reported waste recycling percentage points, not chemical yield");
+assert.equal(60 + 20 + 20, 100, "Simplified illustrative material balance");
+assert.equal(80 / 100 * 100, 80, "Illustrative recovery denominator");
+assert.equal(60 / 100 * 100, 60, "Illustrative compliant output denominator");
+assert.equal(60 / 80 * 100, 75, "Illustrative compliant share of recovered output");
+assert.equal(40000 + 10000 - 65000, -15000, "Illustrative lower-sales resource value");
+assert.equal(30000 + 20000 + 20000, 70000, "Illustrative classroom annual cost including assessment");
+assert.equal(60000 / 3 + 10000 + 15000 + 20000, 65000, "Illustrative VR annual cost including assessment");
+assert.equal(60000 + 10000 + 15000 + 20000, 105000, "Illustrative VR cost with one-year content use");
+assert.equal(74000 - 70000 - 3500, 500, "Illustrative physical trading remainder A");
+assert.equal(73000 - 70000 - 3500, -500, "Illustrative physical trading remainder B");
+assert.equal(-12000 + 10000, -2000, "Illustrative imperfect price offset, not a trading strategy");
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
