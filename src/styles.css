@@ -847,6 +847,10 @@ a:hover {
   width: 22%;
 }
 
+.analysis-table .quantity {
+  white-space: nowrap;
+}
+
 .source-ref {
   font-weight: 700;
   white-space: nowrap;

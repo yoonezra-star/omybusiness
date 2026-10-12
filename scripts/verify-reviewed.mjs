@@ -84,6 +84,10 @@ for (const post of posts) {
   const reviewDay = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Seoul" }).format(new Date(review.reviewedAt));
   assert.equal(dom(".article-byline time").text().trim(), reviewDay, "Visible review day uses Korean time on every build host");
   assert.ok(dom(".evidence-note").text().includes(reviewDay), "Visible source check date matches metadata");
+  if (post.id === "53") {
+    assert.deepEqual(dom(".analysis-table .quantity").toArray().map(element => dom(element).text()),
+      ["7.3mmbpd", "7.4mmbpd", "6.0mmbpd", "6.3mmbpd"], "Keep reported number and unit together");
+  }
   report.push({ id: post.id, bodyCharacters: dom(".entry-content").text().replace(/\s/g, "").length, tables: dom(".analysis-table").length, sources: sources.length });
 }
 
