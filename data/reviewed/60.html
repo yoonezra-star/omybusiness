@@ -1,0 +1,63 @@
+<p>원격 시추를 “본사에서 클릭하면 현장의 모든 장비가 자동으로 안전해진다”로 설명하면 데이터 분석, 명령 권한과 현장 보호 기능이 섞인다. 공개 자료에서 확인되는 원격 지층 해석과 현장 엣지 지원의 차이를 짚고, 의사결정 시간과 비생산시간(NPT)을 어떤 분모로 비교해야 하는지 살펴본다. 이 글은 시추·압력 제어·비상 대응 매뉴얼이 아니다.</p>
+
+<h2 id="drilling-public">원격 분석 센터와 현장 엣지는 같은 역할이 아니다</h2>
+<p>아람코의 2024년 위성 통신 설명은 Dhahran의 Advanced Geosteering Center가 수백 km 떨어진 시추 장비에서 시추·공내 데이터를 받아 전문가가 유정 위치 결정에 활용한다고 소개한다. <a class="source-ref" href="#source-60-1">[1]</a> 이 자료는 원격 분석·판단 지원을 보여주지만 모든 설비를 본사에서 직접 제어한다는 권한표나 전 구간 무지연 통신의 증거는 아니다.</p>
+<p>2021년 회사 발표의 Safe Seal은 카메라 영상과 엣지 컴퓨팅으로 현장 작업자에게 빠른 자문 경보를 제공하는 파일럿으로 설명된다. <a class="source-ref" href="#source-60-2">[2]</a> 원격 전문가의 지층 해석과 현장 가까이에서 수행하는 경보 지원을 나누면, 모든 판단을 본사나 클라우드로 보내야 한다는 오해를 줄일 수 있다. 당시 파일럿 발표를 2026년 모든 장비의 공통 구성으로 확대하지 않는다.</p>
+
+<h2 id="drilling-authority">보는 권한·권고하는 권한·조작하는 권한을 구분한다</h2>
+<p>아래 표는 공개 설명을 평가하기 위한 일반적인 기능 구분이다. 아람코의 내부 운영 조직이나 실제 승인 체계를 조사한 결과는 아니다. “원격 제어”라는 표현을 읽을 때 어떤 행위가 실제로 허용되는지 확인하면, 단순 화면 공유를 자동 운전과 혼동하지 않을 수 있다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="원격 시추 역할과 권한 비교">
+<table class="analysis-table"><caption>원격이라는 위치보다 중요한 기능과 권한</caption>
+<thead><tr><th scope="col">역할</th><th scope="col">하는 일</th><th scope="col">추가로 확인할 자료</th></tr></thead>
+<tbody>
+<tr><th scope="row">관측</th><td>수신한 공내·시추 자료와 품질 상태를 읽음</td><td>측정 시각·누락·전송 지연의 표시</td></tr>
+<tr><th scope="row">판단 지원</th><td>지층 해석·경로·성능에 대한 권고를 제공</td><td>모델의 근거·불확실성과 권고 검토 책임</td></tr>
+<tr><th scope="row">운전 명령</th><td>허용된 범위의 장치 상태를 변경</td><td>명령 권한·승인 범위·결과 확인 기록</td></tr>
+<tr><th scope="row">현장 보호</th><td>설계된 위험을 다루는 별도 보호 기능</td><td>전체 기능의 검증과 현장 비상 절차</td></tr>
+</tbody></table></div>
+<p>NIST Rev. 3의 원격 접근 절은 업무상 필요한 범위로 접근을 제한하고 안전·보안 통제를 우회하지 않도록 설명한다. <a class="source-ref" href="#source-60-3">[3]</a> 이는 회사의 현재 권한 설정을 입증하는 자료가 아니다. 원격으로 자료를 볼 수 있다는 사실만으로 밸브·펌프·시추 장비의 설정 변경 권한까지 있다고 추정해서는 안 된다.</p>
+
+<h2 id="drilling-time">통신 지연만 줄여도 전체 판단 시간이 같은 비율로 줄지는 않는다</h2>
+<p>“실시간”은 모든 값이 같은 순간의 상태라는 뜻이 아니다. 센서 측정 시각, 원격 화면의 수신 시각, 전문가의 검토 완료와 현장 확인 시각을 구분해야 한다. 아래는 각 구간이 순서대로 진행된다고 가정한 설명용 시간 예시이며 실제 시추 성능이나 허용 지연 기준이 아니다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="원격 의사결정 시간의 가상 계산">
+<table class="analysis-table"><caption>순차 작업을 가정한 전체 판단 시간 · 모두 가상 자료</caption>
+<thead><tr><th scope="col">구간</th><th scope="col">비교 전</th><th scope="col">전송만 개선 후</th></tr></thead>
+<tbody>
+<tr><th scope="row">자료 수집·정리</th><td>8초</td><td>8초</td></tr>
+<tr><th scope="row">전송</th><td>2초</td><td>1초</td></tr>
+<tr><th scope="row">해석·검토</th><td>20초</td><td>20초</td></tr>
+<tr><th scope="row">허용된 결정의 확인</th><td>10초</td><td>10초</td></tr>
+<tr><th scope="row">합계</th><td>40초</td><td>39초</td></tr>
+</tbody></table></div>
+<p><strong>전송 시간 감소율은 (2 - 1) ÷ 2 = 50%지만, 전체 시간 감소율은 (40 - 39) ÷ 40 = 2.5%다.</strong> 실제 작업은 병렬 처리·대기·재전송이 있을 수 있어 로그의 동일한 시작·종료 사건을 비교해야 한다. 측정 시각이 오래됐거나 자료 품질이 나쁘면 더 빨리 전달된 값도 판단에 적합하지 않을 수 있다. 이 예시는 빠른 통신과 빠른 전체 업무가 다른 지표임을 보여준다.</p>
+<figure class="analysis-diagram"><ol class="analysis-flow">
+<li><span>01 · 관측</span><strong>측정과 시간</strong><p>원래 측정 시각과 데이터 품질을 구분한다.</p></li>
+<li><span>02 · 해석</span><strong>모델과 판단</strong><p>권고의 근거·검토 범위와 불확실성을 본다.</p></li>
+<li><span>03 · 결정</span><strong>허용 범위</strong><p>권고와 실제 변경 명령의 권한을 나눈다.</p></li>
+<li><span>04 · 확인</span><strong>현장 결과</strong><p>명령 수신과 실제 결과의 확인을 구분한다.</p></li>
+</ol><figcaption>분석 자료의 확인 경계. 회사의 실제 자동 운전 프로세스나 비상 조작 절차가 아니다.</figcaption></figure>
+
+<h2 id="drilling-npt">NPT의 시간과 비율, 원인별 성과를 나눠 본다</h2>
+<p>NPT를 같은 정의로 집계했다고 가정하자. 비교 전에는 전체 작업 1,000시간 중 NPT 100시간, 비교 후에는 전체 800시간 중 NPT 70시간이다. 이는 회사 실적이 아닌 가상 예시다. 전체 기간에 포함한 작업과 NPT 분류가 같다는 조건 아래에서만 아래의 산술 비교가 유효하다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="비생산시간 분모의 가상 비교">
+<table class="analysis-table"><caption>같은 숫자에서 나온 서로 다른 개선 지표 · 가상 자료</caption>
+<thead><tr><th scope="col">지표</th><th scope="col">비교 전</th><th scope="col">비교 후</th></tr></thead>
+<tbody>
+<tr><th scope="row">전체 작업 시간</th><td>1,000시간</td><td>800시간</td></tr>
+<tr><th scope="row">NPT 시간</th><td>100시간</td><td>70시간</td></tr>
+<tr><th scope="row">NPT 비율</th><td>100 ÷ 1,000 = 10%</td><td>70 ÷ 800 = 8.75%</td></tr>
+<tr><th scope="row">비율 변화</th><td colspan="2">10% - 8.75% = 1.25%포인트 감소</td></tr>
+</tbody></table></div>
+<p>NPT 시간 자체는 <strong>(100 - 70) ÷ 100 = 30%</strong> 줄었지만, NPT 비율의 상대 감소는 <strong>(10 - 8.75) ÷ 10 = 12.5%</strong>다. 세 표현은 바꿔 쓸 수 없다. 지층·유정 길이·장비·작업 범위와 고장·대기 등 원인 구성이 다르면 원격 운영만의 효과도 분리하기 어렵다. 비용 비교에는 통신·지원 인력·정비와 재작업 범위를 함께 맞춰야 한다.</p>
+
+<h2 id="drilling-limits">통신 장애를 모든 장비의 같은 안전 동작으로 설명하지 않는다</h2>
+<p>연결이 끊겼을 때 계속·유지·정지 중 무엇이 적절한지는 공정 위험, 장치와 보호 기능의 설계에 달려 있다. 마지막 명령을 유지하는 것이 항상 안전한 것도 아니고 모든 장비를 즉시 정지시키는 것이 항상 안전한 것도 아니다. 현장 동작은 승인된 설계·절차와 담당자에게 확인할 영역이며 이 글에서는 공통 조작 순서를 제시하지 않는다.</p>
+<p>기존 본문의 북부 유전 사고 방지 일화, 전사 NPT 30% 감소, 초당 수천 번의 공내 데이터 전송, 내부 5단계 자동 제어와 해킹 불가능 주장은 확인한 자료로 입증하지 못해 삭제했다. 센터 방문과 수동 밸브 조작 경험도 검증 가능한 기록이 없어 유지하지 않았다. 독자는 원격화 여부보다 실제 허용 기능, 데이터의 시점과 성과 비교의 조건을 먼저 확인하는 편이 유용하다.</p>
+
+<h2 id="drilling-sources">출처와 확인 범위</h2>
+<p class="evidence-note">확인 기준일: 2026년 10월 12일. 공개된 원격 지층 해석·현장 엣지 파일럿과 일반 원격 접근 지침을 대조했다. 비공개 제어 권한·장애 동작·현장 운전 조건과 전사 성능을 검증한 보고서는 아니다.</p>
+<ol class="evidence-list">
+<li id="source-60-1"><a href="https://americas.aramco.com/en/news-media/elements-magazine/2024/charting-new-orbits-in-space">Charting new orbits in space</a> · Aramco, 2024-08-27. Advanced Geosteering Center의 위성 데이터 수신과 전문가의 위치 결정 지원.</li>
+<li id="source-60-2"><a href="https://europe.aramco.com/en/news-media/news/2021/aramco-pioneers-camera-based-well-technology-through-aberdeen-technology-office">Aramco pioneers camera-based well technology through Aberdeen Technology Office</a> · Aramco Europe, 2021-04-08. Safe Seal의 영상·엣지 기반 자문 경보와 당시 파일럿 범위.</li>
+<li id="source-60-3"><a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-82r3.pdf">NIST SP 800-82 Rev. 3 · Guide to OT Security</a> · 2023-09 확정판, 6.2.10절·인쇄면 122~123. 원격 접근의 업무 범위와 안전·보안 통제의 경계. 아람코의 실제 내부 구현 증거로 사용하지 않았다.</li>
+</ol>

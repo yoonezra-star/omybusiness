@@ -19,7 +19,7 @@ const primaryDomains = [
   "eurecat.com", "gs1.org", "dupont.com", "who.int", "nist.gov",
   "cdc.gov", "airliquide.com", "iea.org",
   "energy.gov", "osha.gov", "epa.gov", "usgs.gov",
-  "cyber.gov.au", "eia.gov",
+  "cyber.gov.au", "eia.gov", "isa100wci.org", "yokogawa.com",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -105,6 +105,9 @@ const calculationExamples = [
   ["47", /40 × 235 × 0\.001/, "9.4kg", 40 * 235 * 0.001, 9.4],
   ["51", /100 - 40 - 25 - 5/, "= 30", 100 - 40 - 25 - 5, 30],
   ["12", /10억 ÷ 5,000만/, "20년", 1000000000 / 50000000, 20],
+  ["80", /\(990 - 20\) ÷ 1,000/, "97%", (990 - 20) / 1000 * 100, 97],
+  ["60", /\(40 - 39\) ÷ 40/, "2.5%", (40 - 39) / 40 * 100, 2.5],
+  ["69", /100 - 70 = 30/, "70%", 70 / 100 * 100, 70],
 ];
 for (const [id, expression, displayed, result, expected] of calculationExamples) {
   if (!reviewIds.has(id)) continue;
@@ -142,4 +145,26 @@ for (const [id, claims] of Object.entries(evidenceReviews)) {
 assert.equal((65 - 40) + (100 - 65 - 25 - 5), (80 - 40) + (100 - 80 - 25 - 5), "Internal-price example totals");
 assert.equal(60 / 80 * 100, 75, "Feedstock example denominator");
 assert.equal(100000000 * 0.3, 30000000, "Illustrative recovery arithmetic");
+const controlCapacityReviews = {
+  "80": [/Fadhili 가스플랜트/, /2021년 원격 유전/, /23±2°C/, /IO 모드/, /아람코 전체 웰헤드의 실사용 수명 보장이 아니다/, /밸브 조작·안전 기능 변경 지침이 아니다/],
+  "60": [/자문 경보/, /모든 설비를 본사에서 직접 제어한다는 권한표/, /8\.75%/, /1\.25%포인트/, /12\.5%/, /공통 조작 순서를 제시하지 않는다/],
+  "69": [/운영 조정에 3개월/, /1년 동안/, /AGOC의 원유 생산능력은 제외/, /30일 이내 가동하고 최소 90일 유지/, /7,566mbpd/, /9,055mbpd/, /9,463mboed/, /11,030mboed/, /물질 범위를 섞는 계산/, /2026년 10월 12일 현재 가동 상태로 해석할 수 없다/],
+};
+for (const [id, claims] of Object.entries(controlCapacityReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Control, units and period boundaries: ${id}`);
+  assert.doesNotMatch(content, /제가 (?:처음|과거|직접)|안심하셔도 좋습니다|지연 없이 본사|안전을 원천적으로|군사 기지 수준/, `No unsupported experience or guarantee: ${id}`);
+}
+assert.equal(990 / 1000 * 100, 99, "Wireless receipt denominator");
+assert.equal((2 - 1) / 2 * 100, 50, "Transmission time improvement");
+assert.equal(8 + 2 + 20 + 10, 40, "Illustrative decision time before");
+assert.equal(8 + 1 + 20 + 10, 39, "Illustrative decision time after");
+assert.equal(70 / 800 * 100, 8.75, "NPT example share");
+assert.equal(10 - 8.75, 1.25, "NPT percentage-point difference");
+assert.equal((10 - 8.75) / 10 * 100, 12.5, "NPT relative share change");
+assert.equal((100 - 70) / 100 * 100, 30, "NPT hour reduction");
+assert.equal(20 + 10, 100 - 70, "Illustrative capacity headroom");
+assert.equal(7566 / 1000, 7.566, "Thousands to millions of liquid barrels per day");
+assert.equal(11030 / 1000, 11.03, "Thousands to millions of oil-equivalent barrels per day");
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
