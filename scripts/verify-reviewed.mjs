@@ -20,6 +20,7 @@ const primaryDomains = [
   "cdc.gov", "airliquide.com", "iea.org",
   "energy.gov", "osha.gov", "epa.gov", "usgs.gov",
   "cyber.gov.au", "eia.gov", "isa100wci.org", "yokogawa.com",
+  "astm.org", "imo.org", "aramcotrading.com", "iso.org", "cimac.com", "gao.gov",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -108,6 +109,9 @@ const calculationExamples = [
   ["80", /\(990 - 20\) ÷ 1,000/, "97%", (990 - 20) / 1000 * 100, 97],
   ["60", /\(40 - 39\) ÷ 40/, "2.5%", (40 - 39) / 40 * 100, 2.5],
   ["69", /100 - 70 = 30/, "70%", 70 / 100 * 100, 70],
+  ["65", /\(180 \+ 40 \+ 60\) × 3/, "840", (180 + 40 + 60) * 3, 840],
+  ["61", /570 ÷ 37\.5/, "15.2달러/GJ", 570 / 37.5, 15.2],
+  ["59", /\(26 - 20\) ÷ 26/, "23.1%", Math.round((26 - 20) / 26 * 1000) / 10, 23.1],
 ];
 for (const [id, expression, displayed, result, expected] of calculationExamples) {
   if (!reviewIds.has(id)) continue;
@@ -167,4 +171,27 @@ assert.equal((100 - 70) / 100 * 100, 30, "NPT hour reduction");
 assert.equal(20 + 10, 100 - 70, "Illustrative capacity headroom");
 assert.equal(7566 / 1000, 7.566, "Thousands to millions of liquid barrels per day");
 assert.equal(11030 / 1000, 11.03, "Thousands to millions of oil-equivalent barrels per day");
+const partsFuelModuleReviews = {
+  "65": [/연구가 초기 단계/, /시험 1,000시간 통과 = 현장 10년/, /임의 환산하지 않는다/, /100,000 × 10,000 = 1건/, /40,000 × 10,000 = 1\.5건/, /시험 절차·합격 기준을 검토한 보고서가 아니다/, /5년 비용 예시/, /라이선스의 범위와 상태/],
+  "61": [/모든 선박에 VLSFO라는 제품 한 종류만 의무화됐다고 설명하지 않는다/, /0\.50% m\/m/, /0\.10% m\/m/, /2025-05-01/, /2026-03-01/, /2027-03-01/, /공통 운전 조건/, /100 × 0\.005 = 0\.5톤/, /CO2 80% 감소로 표시하지 않는다/, /제7판/],
+  "59": [/전체 공기 35% 단축·사고율 50% 감소를 계산할 수 없다/, /20,000톤/, /32개월/, /850만 시간/, /4 \+ max\(6, 16\) \+ 2 \+ 4 = 26개월/, /100 → 60 \+ 50 = 110톤/, /회사 실적이 아니다/, /구조 설계·인양·운송·접합 작업 지침은 아니다/],
+};
+for (const [id, claims] of Object.entries(partsFuelModuleReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Parts, fuel and module evidence boundary: ${id}`);
+  assert.doesNotMatch(content, /제가 (?:직접|현장에서|과거)|저 역시|참여했을 때 저는|안전성을 완벽히|먼지 하나 허용하지|무고장 가동 시스템을 구축/, `No unverified fieldwork or universal guarantee: ${id}`);
+}
+assert.equal(10 / 100000 * 10000, 1, "Parts observed failures per exposure A");
+assert.equal(Math.round(6 / 40000 * 10000 * 10) / 10, 1.5, "Parts observed failures per exposure B to displayed precision");
+assert.equal(100 * 3 + 40 * 3 + 60 * 3, 600, "Illustrative parts period cost A");
+assert.equal(180 * 2 + 40 * 2 + 60 * 2, 560, "Illustrative parts period cost B");
+assert.equal(100 * 0.005, 0.5, "Illustrative sulfur inventory A in tonnes");
+assert.equal(100 * 0.001, 0.1, "Illustrative sulfur inventory B in tonnes");
+assert.equal((0.5 - 0.1) / 0.5 * 100, 80, "Sulfur inventory change, not emissions");
+assert.equal(600 / 40, 15, "Illustrative fuel energy cost A");
+assert.equal(4 + 6 + 10 + 2 + 4, 26, "Sequential schedule model");
+assert.equal(4 + Math.max(6, 10) + 2 + 4, 20, "Parallel schedule model");
+assert.equal(4 + Math.max(6, 16) + 2 + 4, 26, "Parallel schedule with delay");
+assert.equal(60 + 50, 110, "Whole-project illustrative waste boundary");
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
