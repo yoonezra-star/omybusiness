@@ -25,6 +25,7 @@ const primaryDomains = [
   "acwapower.com",
   "opm-project.org",
   "repsol.com", "icao.int", "ascent.aero",
+  "vakt.com", "asmo.com",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -317,5 +318,53 @@ if (reviewIds.has("78")) {
   assert.equal(300 / 0.003, 100000);
   assert.equal(300 - 60000 * 0.003, 120);
   assert.equal(150000 * 0.003 - 300, 150);
+}
+const ledgerAquiferForumReviews = {
+  "77": [/2020년 1월 28일/, /500만 달러/, /향후 플랫폼 사용자/, /오라클 문제/, /미검수 80건의 정확도를 90%로 확정하지 않는다/, /대조 단계는 약 83\.3% 빨라진 것이 아니라/, /20\.8%/],
+  "75": [/모든 유전이 동일한/, /압력 45%·염도 20%·투과율 35%/, /600 ÷ \(900 \+ 600\) = 40%/, /20%포인트/, /12\.5%/, /자연 수층의 유입량이라고 계산하지도 않는다/, /주입량·약품·밸브 설정/],
+  "64": [/2026년 10월 5일/, /2025년 1월 13일/, /2026년 5월 6일/, /새 투자 180억 달러/, /모든 조항이 구속력이 없다고 단정할 수도 없다/, /창고 실내 면적·연간 처리량·현재 가동률이 아니다/, /중복 여부 미확인/],
+};
+for (const [id, claims] of Object.entries(ledgerAquiferForumReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Ledger, aquifer and forum evidence boundaries: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|지난)|저 역시|전문가로서 보기에|실무에서 경험한 바/, `No invented experience: ${id}`);
+}
+if (reviewIds.has("77")) {
+  const content = await readFile(path.join(root, "data/reviewed/77.html"), "utf8");
+  const dom = cheerio.load(content);
+  const counts = dom('div[aria-label="가상 원장 기록과 원자료 검수의 범위 비교"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text()));
+  assert.deepEqual(counts, [100, 18, 2, 80]);
+  assert.equal(counts[1] + counts[2] + counts[3], counts[0]);
+  assert.equal((counts[1] + counts[2]) / counts[0] * 100, 20);
+  assert.equal(counts[1] / (counts[1] + counts[2]) * 100, 90);
+  assert.equal(6 + 3 + 15, 24);
+  assert.equal(1 + 3 + 15, 19);
+  assert.equal(Math.round((24 - 19) / 24 * 1000) / 10, 20.8);
+}
+if (reviewIds.has("75")) {
+  const content = await readFile(path.join(root, "data/reviewed/75.html"), "utf8");
+  const dom = cheerio.load(content);
+  const rows = dom('div[aria-label="가상 원유와 생산수 및 물 비율 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/[,%]/g, ""))));
+  assert.deepEqual(rows, [[800, 200, 1000, 20], [900, 600, 1500, 40], [400, 600, 1000, 60]]);
+  for (const [oil, water, total, cut] of rows) {
+    assert.equal(oil + water, total);
+    assert.equal(water / total * 100, cut);
+  }
+  assert.equal((900 - 800) / 800 * 100, 12.5);
+  assert.equal(600 * 1 - 200 * 1, 400);
+}
+if (reviewIds.has("64")) {
+  const content = await readFile(path.join(root, "data/reviewed/64.html"), "utf8");
+  const dom = cheerio.load(content);
+  const rows = dom('div[aria-label="가상 포럼 발표의 사업별 중복 제거 기록"] tbody tr').toArray().map(row => dom(row).find("td").toArray().slice(0, 2).map(cell => dom(cell).text()));
+  assert.deepEqual(rows, [["1,000", "해당 없음"], ["600", "250"], ["400", "100"]]);
+  const current = rows.slice(1).reduce((sum, row) => sum + Number(row[0]), 0);
+  const paid = rows.slice(1).reduce((sum, row) => sum + Number(row[1]), 0);
+  assert.equal(current, 1000);
+  assert.equal(paid, 350);
+  assert.match(content, /600 \+ 400 = 1,000만 달러/);
+  assert.match(content, /250 \+ 100 = 350만 달러/);
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
