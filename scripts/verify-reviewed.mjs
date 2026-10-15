@@ -24,6 +24,7 @@ const primaryDomains = [
   "totalenergies.com", "iscc-system.org",
   "acwapower.com",
   "opm-project.org",
+  "repsol.com", "icao.int", "ascent.aero",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -279,5 +280,42 @@ if (reviewIds.has("18")) {
   assert.equal(Math.round(5000000 / 35000000 * 1000) / 10, 14.3, "Illustrative ultimate recovery relative difference");
   assert.equal(35000000 - 10000000, 25000000, "Illustrative A remaining forecast");
   assert.equal(40000000 - 10000000, 30000000, "Illustrative B remaining forecast");
+}
+const technologyFuelMaterialReviews = {
+  "82": [/Wa’ed Ventures의 5억 달러/, /향후 4년/, /순제거량 12톤을 독립 검증한 결과가 아니다/, /현재 DAC 실적으로 표시하지 않는다/, /아람코의 공식 단계·TRL 판정·투자 승인 절차가 아니/],
+  "79": [/2026년 3월 10일/, /완전 가동을 2027년/, /2026년 적용 규격의 전체 목록·최신 한도를 검증한 표로 사용하지 않았다/, /D7566/, /D1655/, /79\.66/, /11\.49%/, /실제 연료 배합이나 권장 비율이 아님/],
+  "78": [/일부 등급의 제조비를 50% 낮추려는/, /차량 기준은/, /0\.4%/, /원가 저감 목표 하나로 자동차 가격 인하를 보장할 수 없다/, /위 부품 질량에서 도출한 값이 아니라/, /부품 설계·충돌 안전·수리 승인 지침이 아니다/],
+};
+for (const [id, claims] of Object.entries(technologyFuelMaterialReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Technology, fuel and material evidence boundaries: ${id}`);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|지난)|저 역시|20년 경력의 전문가로서|그냥 넣으셔도|완벽하게 안전/, `No invented experience or universal approval: ${id}`);
+}
+if (reviewIds.has("79")) {
+  const content = await readFile(path.join(root, "data/reviewed/79.html"), "utf8");
+  assert.match(content, /600 ÷ \(2,880 \+ 600\)/);
+  const share = 20 * 30 / (80 * 36 + 20 * 30);
+  assert.equal(Math.round(share * 10000) / 100, 17.24);
+  const intensity = 90 * (1 - share) + 30 * share;
+  assert.equal(Math.round(intensity * 100) / 100, 79.66);
+  assert.equal(Math.round((90 - intensity) / 90 * 10000) / 100, 11.49);
+  assert.equal(90 * 0.8 + 30 * 0.2, 78);
+  const dom = cheerio.load(content);
+  const cells = dom('div[aria-label="가상 연료의 부피와 에너지 기여량 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => dom(cell).text()));
+  assert.deepEqual(cells.slice(0, 3), [["80L", "20L"], ["36MJ/L", "30MJ/L"], ["2,880MJ", "600MJ"]]);
+}
+if (reviewIds.has("78")) {
+  const content = await readFile(path.join(root, "data/reviewed/78.html"), "utf8");
+  assert.match(content, /90,000 ÷ 0\.75 \+ 20,000 = 140,000원/);
+  assert.match(content, /300 ÷ 0\.003 = 100,000km/);
+  assert.equal((20 - (10 + 2)) / 20 * 100, 40);
+  assert.equal(8 / 2000 * 100, 0.4);
+  assert.equal(Math.round(80000 / 0.95 + 10000), 94211);
+  assert.equal(90000 / 0.75 + 20000, 140000);
+  assert.equal(90000 / 0.90 + 20000, 120000);
+  assert.equal(300 / 0.003, 100000);
+  assert.equal(300 - 60000 * 0.003, 120);
+  assert.equal(150000 * 0.003 - 300, 150);
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
