@@ -26,6 +26,7 @@ const primaryDomains = [
   "opm-project.org",
   "repsol.com", "icao.int", "ascent.aero",
   "vakt.com", "asmo.com",
+  "energy.gov.au", "noaa.gov", "tethys-robotics.ch",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -366,5 +367,57 @@ if (reviewIds.has("64")) {
   assert.equal(paid, 350);
   assert.match(content, /600 \+ 400 = 1,000만 달러/);
   assert.match(content, /250 \+ 100 = 350만 달러/);
+}
+const heatSolarSubseaReviews = {
+  "63": [/2022년 1월 6일/, /시설별로 열병합 구성을 맞춘다/, /0\.9 - 0\.15 = 0\.75MWe/, /6\.75MW의 추가 전력이라고 쓰지 않는다/, /발전 가능량.*실측 생산량으로 읽으면 안 된다/, /금융비·세금·열화/],
+  "57": [/2021년 8월 15일/, /2024년 8월 4일/, /계약상 전력 권리/, /1,752 ÷ \(1 × 8,760\) = 20%/, /같은 AC 계량 경계/, /구간 1의 부족을 뒤에 충전한 에너지로 소급해 채울 수는 없다/, /0\.2MWh/, /전 과정 배출/],
+  "54": [/2017년 12월 27일/, /2025년 10월 16일/, /다음 단계가 사우디 실제 시설 시험/, /최대 300m/, /호수에서 300m를 시험했다는 측정 기록/, /별도 독립 시험 증거로 세지 않았다/, /7\.5%포인트/, /실제 비행·잠항·진수·회수·잠수사 작업의 실행 지침은 제공하지 않는다/],
+};
+for (const [id, claims] of Object.entries(heatSolarSubseaReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Heat, solar and subsea evidence boundaries: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|지난)|저 역시|엔지니어는.*라고 말하며|단 1초의 멈춤도 허용하지/, `No invented experience or guarantee: ${id}`);
+}
+if (reviewIds.has("63")) {
+  const content = await readFile(path.join(root, "data/reviewed/63.html"), "utf8");
+  assert.match(content, /0\.75 × 6,000 × 0\.8 = 3,600MWh/);
+  assert.equal(6 / 10 * 100, 60);
+  assert.equal(0.9 - 0.15, 0.75);
+  assert.equal(0.75 / 6 * 100, 12.5);
+  assert.equal(0.75 * 6000 * 0.8, 3600);
+  assert.equal(2400000 / (3600 * 100 - 60000), 8);
+  assert.equal(Math.round(2400000 / (2400 * 100 - 60000) * 10) / 10, 13.3);
+}
+if (reviewIds.has("57")) {
+  const content = await readFile(path.join(root, "data/reviewed/57.html"), "utf8");
+  const dom = cheerio.load(content);
+  const rows = dom('div[aria-label="가상 태양광 발전과 시간대별 부하 일치 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().slice(0, 3).map(cell => Number(dom(cell).text())));
+  assert.deepEqual(rows, [[0.5, 1, 0.5], [2, 1, 1], [0.5, 1, 0.5], [0, 1, 0]]);
+  const solar = rows.reduce((sum, row) => sum + row[0], 0);
+  const demand = rows.reduce((sum, row) => sum + row[1], 0);
+  const direct = rows.reduce((sum, row) => sum + Math.min(row[0], row[1]), 0);
+  const surplus = rows.reduce((sum, row) => sum + Math.max(0, row[0] - row[1]), 0);
+  assert.equal(solar, 3);
+  assert.equal(demand, 4);
+  assert.equal(direct / demand * 100, 50);
+  assert.equal(solar / demand * 100, 75);
+  assert.equal((direct + surplus * 0.8) / demand * 100, 70);
+  assert.equal(Math.round((demand - direct - surplus * 0.8) * 10) / 10, 1.2);
+  assert.equal(1752 / (1 * 8760) * 100, 20);
+}
+if (reviewIds.has("54")) {
+  const content = await readFile(path.join(root, "data/reviewed/54.html"), "utf8");
+  const dom = cheerio.load(content);
+  const distances = dom('div[aria-label="가상 해저 검사 거리와 자료 품질의 범위 비교"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text().replace("km", "")));
+  assert.deepEqual(distances, [3.2, 2.8, 2.1, 0.7, 1.2]);
+  assert.equal(Math.round((3.2 - 0.4 - 0.7) / 4 * 1000) / 10, 52.5);
+  assert.equal(12000 + 6 * 2000 + 8 * 100, 24800);
+  assert.equal(3 * 2000 + 2 * 100, 6200);
+  assert.equal(24800 + 6200, 31000);
+  assert.equal(Math.round(24800 / 2.1), 11810);
+  assert.equal(Math.round(31000 / 2.4), 12917);
+  assert.equal(60 - 52.5, 7.5);
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
