@@ -1,0 +1,72 @@
+<p>저류층 시뮬레이션은 지하를 직접 관찰한 영상이 아니라 지질·유체·생산 자료와 가정으로 거동을 계산하는 모델이다. 격자가 많거나 계산이 빨라도 관측되지 않은 지층의 성질이 자동으로 확정되는 것은 아니다. 아람코의 공개 연산 사례를 확인하고, 이력 일치·미래 예측·계산 자원·회수량의 차이를 자체 수치 예시로 설명한다. 유정 위치·주입량·운전 조건을 결정하는 현장 지침은 아니다.</p>
+
+<h2 id="reservoir-public">1조 격자·10시간은 특정 문제의 공개 실행 기록이다</h2>
+<p>아람코의 2016년 11월 23일 발표는 TeraPOWERS 팀이 10월 28일 수행한 1조 개 활성 계산 셀의 실행을 소개한다. 설명된 문제는 근원암에서 포획 구조까지 원유가 이동하는 과정을 수백만 년의 시간 범위로 모사한 것으로, 실행 시간은 10시간이다. <a class="source-ref" href="#source-18-1">[1]</a> 모든 생산 유전의 압력·생산량을 초 단위로 정확히 예측한 기록과는 다르다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="아람코 저류층 연산 공개 자료의 대상과 한계">
+<table class="analysis-table"><caption>회사 자료의 시점·대상과 확인하지 못한 성과</caption>
+<thead><tr><th scope="col">자료</th><th scope="col">확인한 범위</th><th scope="col">확대하면 안 되는 주장</th></tr></thead>
+<tbody>
+<tr><th scope="row">2016 TeraPOWERS 발표</th><td>원유 이동 문제 · 1조 활성 셀 · 10시간</td><td>모든 유전의 실시간 예측·현재 세계 최고 순위</td></tr>
+<tr><th scope="row">현재 회사 AI 소개</th><td>고성능 계산을 지진파 영상·저류층 모사에 활용한다는 설명</td><td>동일 조건의 예측 오차·새 연산 기록·실제 추가 회수량</td></tr>
+</tbody></table></div>
+<p>현재 회사 AI 페이지도 Dammam-7·Ghawar-1 같은 연산 기반이 지진파 영상화와 저류층 모사를 지원한다고 설명한다. <a class="source-ref" href="#source-18-2">[2]</a> 그러나 일반 활용 소개는 특정 유전의 검증 데이터·계산 조건·대조 시험 성적이 아니다. 격자 수는 계산 영역의 분할 규모이며 독립적으로 측정한 암석 시료 수·검증된 예측 수와 같지 않다.</p>
+
+<h2 id="reservoir-validation">계산 검증·이력 일치·예측 평가·현장 성과는 다른 단계다</h2>
+<p>SLB의 용어집은 이력 일치(history matching)를 과거의 생산·압력 거동에 가깝도록 저류층 모델을 조정하는 과정으로 설명한다. 결과는 모델과 자료의 품질·수량에 달려 있고 알려진 지질 특성의 제약도 중요하다. <a class="source-ref" href="#source-18-3">[3]</a> 과거 자료를 이용해 조정했다는 사실과 아직 보지 않은 기간을 예측했다는 사실은 구분해야 한다.</p>
+<figure class="analysis-diagram"><ol class="analysis-flow">
+<li><span>01 · 계산</span><strong>방법의 검증</strong><p>설정한 문제를 의도대로 계산하는지 비교한다.</p></li>
+<li><span>02 · 보정</span><strong>과거 이력 일치</strong><p>어떤 생산·압력 자료로 조정했는지 기록한다.</p></li>
+<li><span>03 · 예측</span><strong>미사용 기간 평가</strong><p>보정에 쓰지 않은 관측과 오차를 비교한다.</p></li>
+<li><span>04 · 결과</span><strong>현장 성과 확인</strong><p>적용 이후의 생산·비용·제약과 비교 기준을 확인한다.</p></li>
+</ol><figcaption>시뮬레이션의 증거를 읽는 자체 구분도. 회사 내부 절차나 유정 운전·승인 순서가 아니다.</figcaption></figure>
+<p>OPM Flow의 공개 페이지는 Norne 사례에서 Flow와 Eclipse 100의 유정 압력·원유 생산률 계산 곡선을 비교한다. <a class="source-ref" href="#source-18-4">[4]</a> 서로 다른 코드의 결과를 비교하는 예시와, 새 관측에 대한 현장 예측 시험은 다른 질문에 답한다. 두 코드가 비슷해도 같은 입력 가정의 한계를 공유할 수 있다. 아람코가 OPM을 사용한다는 증거로 제시하지 않았다.</p>
+
+<h2 id="reservoir-holdout">과거 오차가 같아도 보정하지 않은 기간의 오차는 다를 수 있다</h2>
+<p>다음은 시간 순서의 의미를 설명하기 위해 만든 가상 기간 평균 생산률이다. 단위는 천 배럴/일이며 모든 값은 임의 예시다. 기간 1·2만 보정에 쓰고 기간 3·4의 관측은 그 뒤에 공개했다고 가정한다. 물리적 저류층 모델이나 POWERS·OPM을 실행해 얻은 결과가 아니다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="이력 일치와 미래 평가의 가상 생산률 비교">
+<table class="analysis-table"><caption>가상 기간 평균 생산률 · 단위 천 배럴/일 · 관측과 두 예측 비교</caption>
+<thead><tr><th scope="col">기간·용도</th><th scope="col">관측</th><th scope="col">모델 A</th><th scope="col">모델 B</th></tr></thead>
+<tbody>
+<tr><th scope="row">1 · 보정에 사용</th><td>90</td><td>90</td><td>90</td></tr>
+<tr><th scope="row">2 · 보정에 사용</th><td>80</td><td>80</td><td>80</td></tr>
+<tr><th scope="row">3 · 보정에 미사용</th><td>70</td><td>72</td><td>80</td></tr>
+<tr><th scope="row">4 · 보정에 미사용</th><td>60</td><td>63</td><td>75</td></tr>
+</tbody></table></div>
+<p>보정 기간의 두 모델 오차는 모두 0이다. 미사용 두 기간의 평균 절대오차(MAE)는 A가 <strong>(|72 - 70| + |63 - 60|) ÷ 2 = 2.5</strong>, B가 <strong>(|80 - 70| + |75 - 60|) ÷ 2 = 12.5</strong>천 배럴/일이다. 같은 과거 일치만으로 같은 미래 성능을 보장할 수 없다는 예시다. 2.5라는 단위 있는 오차를 곧바로 “정확도 97.5%”로 바꾸지 않는다.</p>
+<p>이 두 기간을 보고 모델을 고르거나 다시 보정하면, 그 기간은 더 이상 최종 독립 평가 자료가 아니다. 별도의 미사용 기간·다른 조건에서 재평가할 필요가 있다. 생산률의 평균 오차만 작아도 압력·생산수 비율·시기별 편향은 다를 수 있다. 표본 두 점으로 보편적 예측력이나 지질 모델의 유일성을 입증하지 않는다.</p>
+
+<h2 id="reservoir-compute">실행 시간 단축과 총 계산 자원·전체 업무 시간은 다르다</h2>
+<p>병렬 연산을 비교하려면 문제 크기·격자·모사 기간·시간 간격 정책·허용 오차·하드웨어·입출력 포함 범위를 맞춰야 한다. 격자를 늘린 다른 문제의 실행 시간과 작은 문제를 직접 비교하거나, 코어 수만으로 예측 정확도·전력 소비를 평가할 수 없다. 아래는 같은 문제와 계산 조건에서 동일 계열 코어만 늘렸다고 단순화한 가상 사례다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="병렬 연산의 가상 시간과 코어 시간 비교">
+<table class="analysis-table"><caption>같은 가상 문제 · 실행 경과시간과 자원 사용량의 구분</caption>
+<thead><tr><th scope="col">항목</th><th scope="col">기준 실행</th><th scope="col">병렬 실행</th></tr></thead>
+<tbody>
+<tr><th scope="row">코어 수</th><td>128</td><td>512 · 4배</td></tr>
+<tr><th scope="row">실행 경과시간</th><td>8시간</td><td>2.5시간</td></tr>
+<tr><th scope="row">코어·시간</th><td>128 × 8 = 1,024</td><td>512 × 2.5 = 1,280</td></tr>
+<tr><th scope="row">준비 6·검토 4시간 포함</th><td>6 + 8 + 4 = 18시간</td><td>6 + 2.5 + 4 = 12.5시간</td></tr>
+</tbody></table></div>
+<p>속도 향상은 <strong>8 ÷ 2.5 = 3.2배</strong>, 늘린 코어 비율 대비 병렬 효율은 <strong>3.2 ÷ 4 = 80%</strong>다. 하지만 코어·시간은 <strong>(1,280 - 1,024) ÷ 1,024 = 25%</strong>늘어난다. 코어·시간은 비용·전력량 자체가 아니며 실제 과금·전력에는 별도 조건이 필요하다. 전체 업무 시간의 감소는 <strong>(18 - 12.5) ÷ 18 ≈ 30.6%</strong>로 실행 시간만의 68.75% 감소와 다르다. 회사 성능·가격·소비전력의 실측값이 아니다.</p>
+
+<h2 id="reservoir-recovery">예측 회수율 차이를 실제 추가 생산량으로 발표하지 않는다</h2>
+<p>초기 원시부존량을 같은 1억 배럴로 고정하고, 두 시나리오의 예측 최종 누적 회수량을 각각 3,500만·4,000만 배럴로 가정한다. 같은 시점의 과거 누적 생산 1,000만 배럴도 양쪽에 포함됐다고 하자. 아래 수치는 실제 유전·회사 매장량이나 기술 적용의 비교 시험이 아니다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="예측 최종 회수량과 미래 생산분의 가상 비교">
+<table class="analysis-table"><caption>같은 원시부존량·같은 평가 시점을 가정한 자체 계산</caption>
+<thead><tr><th scope="col">항목</th><th scope="col">시나리오 A</th><th scope="col">시나리오 B</th></tr></thead>
+<tbody>
+<tr><th scope="row">초기 원시부존량 가정</th><td>1억 배럴</td><td>1억 배럴</td></tr>
+<tr><th scope="row">예측 최종 누적 회수량</th><td>3,500만 배럴</td><td>4,000만 배럴</td></tr>
+<tr><th scope="row">예측 회수 비율</th><td>3,500만 ÷ 1억 = 35%</td><td>4,000만 ÷ 1억 = 40%</td></tr>
+<tr><th scope="row">과거 생산분을 뺀 미래 예측분</th><td>3,500만 - 1,000만 = 2,500만 배럴</td><td>4,000만 - 1,000만 = 3,000만 배럴</td></tr>
+</tbody></table></div>
+<p>차이는 500만 배럴, 회수 비율은 <strong>40 - 35 = 5%포인트</strong>다. 3,500만 대비 최종 회수량의 상대 차이는 <strong>500만 ÷ 3,500만 ≈ 14.3%</strong>로 다른 지표다. 이 차이는 가정한 미래 시나리오 사이의 차이이지 이미 더 생산했다는 실적이 아니다. 원시부존량 추정치가 바뀌면 회수 비율의 분모 효과도 구분해야 한다.</p>
+<p>현장 적용의 효과에는 계획·기간·시설 제약·추가 비용과 다른 변화 요인을 함께 비교해야 한다. 모델에서 높은 회수량이 나왔다는 사실만으로 안전성·경제성·실현 가능성을 보장할 수 없다. 기존의 전 유전 초 단위 동기화·세계 최고 성능·오차 없는 채굴 경로·장기 계획의 정확도 보증·실제 회수율 극대화 단정은 삭제했다. 빠른 계산은 더 많은 가정을 검토하는 데 도움이 될 수 있지만 불확실성을 없애는 증거는 아니다.</p>
+
+<h2 id="reservoir-sources">출처와 확인 범위</h2>
+<p class="evidence-note">확인 기준일: 2026년 10월 15일. 2016년 회사 실행 발표·현재 AI 활용 소개, SLB의 이력 일치 정의와 OPM의 공개 코드 비교 설명을 확인했다. 내부 모델·현재 연산 순위·실제 예측 오차·추가 회수량·현장 운전 적합성을 검증하지 않았다.</p>
+<ol class="evidence-list">
+<li id="source-18-1"><a href="https://www.aramco.com/en/news-media/news/2016/saudi-aramco-scientists-achieve-new-world-record">Saudi Aramco scientists achieve new world record</a> · Aramco, 2016-11-23. 10월 28일 원유 이동 문제의 1조 활성 셀·10시간 기록. 현재 모든 생산 유전의 예측 성능이 아니다.</li>
+<li id="source-18-2"><a href="https://www.aramco.com/en/about-us/our-brand/powered-by-how/ai-energy-transformation">Artificial intelligence is transforming the energy sector</a> · Aramco 현재 기술 소개. 고성능 계산의 활용 범위만 사용. 과거 URL의 검색 요약에 남은 별도 수치를 현재 원문 근거로 재사용하지 않았다.</li>
+<li id="source-18-3"><a href="https://glossary.slb.com/en/terms/h/history_matching">history matching · Energy Glossary</a> · SLB. 과거 생산·압력의 보정과 모델·자료 품질의 중요성. 특정 회사 모델의 적합성 심사가 아니다.</li>
+<li id="source-18-4"><a href="https://opm-project.org/?page_id=19">OPM Flow</a> · Open Porous Media. Norne의 Flow·Eclipse 100 계산 곡선 비교 설명. 프로그램을 직접 실행·검증하거나 아람코의 채택을 확인한 것으로 표시하지 않았다.</li>
+</ol>

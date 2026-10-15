@@ -23,6 +23,7 @@ const primaryDomains = [
   "astm.org", "imo.org", "aramcotrading.com", "iso.org", "cimac.com", "gao.gov",
   "totalenergies.com", "iscc-system.org",
   "acwapower.com",
+  "opm-project.org",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -124,6 +125,7 @@ const calculationExamples = [
   ["50", /75 ÷ 90 ≈ 83\.3%/, "12 ÷ 20 = 60%", Math.round(75 / 90 * 1000) / 10, 83.3],
   ["49", /0\.8 ÷ \(0\.20 \+ 0\.05\) = 3\.2시간/, "-6,000달러", 0.8 / (0.2 + 0.05), 3.2],
   ["39", /7,200,000 ÷ \(400,000 × 30\)/, "60%", 7200000 / (400000 * 30) * 100, 60],
+  ["18", /8 ÷ 2\.5 = 3\.2배/, "3.2 ÷ 4 = 80%", 8 / 2.5 / (512 / 128) * 100, 80],
 ];
 for (const [id, expression, displayed, result, expected] of calculationExamples) {
   if (!reviewIds.has(id)) continue;
@@ -255,4 +257,27 @@ assert.equal(7200000 / 25, 288000, "Illustrative operating-day average");
 assert.equal(7200000 / (400000 * 25) * 100, 72, "Illustrative operating-day denominator");
 assert.equal((100 - 15 - 55) * 24, 720, "Illustrative external electricity energy boundary");
 assert.equal(360 + 1320 + 720, 2400, "Illustrative electricity balance");
+if (reviewIds.has("18")) {
+  const content = await readFile(path.join(root, "data/reviewed/18.html"), "utf8");
+  for (const claim of [/원유가 이동하는 과정/, /1조 개 활성 계산 셀/, /현재 세계 최고 순위/, /두 코드가 비슷해도 같은 입력 가정의 한계를 공유/, /POWERS·OPM을 실행해 얻은 결과가 아니다/, /최종 독립 평가 자료가 아니다/, /2\.5라는 단위 있는 오차/, /68\.75%/, /예측 회수량의 상대 차이|최종 회수량의 상대 차이/, /이미 더 생산했다는 실적이 아니다/, /유정 위치·주입량·운전 조건을 결정하는 현장 지침은 아니다/]) {
+    assert.match(content, claim, "Reservoir simulation evidence and scope");
+  }
+  assert.doesNotMatch(content, /제가 (?:직접|과거|지난)|저 역시|성능을 보장합니다|현재 세계 최고입니다/, "No invented experience or universal performance guarantee");
+  const reviewedDom = cheerio.load(content);
+  const table = reviewedDom('div[aria-label="이력 일치와 미래 평가의 가상 생산률 비교"] table');
+  const rows = table.find("tbody tr").toArray().map(row => reviewedDom(row).find("td").toArray().map(cell => Number(reviewedDom(cell).text())));
+  assert.deepEqual(rows, [[90, 90, 90], [80, 80, 80], [70, 72, 80], [60, 63, 75]], "Published illustrative holdout data");
+  const mae = (samples, column) => samples.reduce((sum, row) => sum + Math.abs(row[column] - row[0]), 0) / samples.length;
+  assert.equal(mae(rows.slice(0, 2), 1), 0, "Model A fit MAE");
+  assert.equal(mae(rows.slice(0, 2), 2), 0, "Model B fit MAE");
+  assert.equal(mae(rows.slice(2), 1), 2.5, "Model A holdout MAE");
+  assert.equal(mae(rows.slice(2), 2), 12.5, "Model B holdout MAE");
+  assert.equal((512 * 2.5 - 128 * 8) / (128 * 8) * 100, 25, "Illustrative core-hour increase");
+  assert.equal(Math.round((18 - 12.5) / 18 * 1000) / 10, 30.6, "Illustrative end-to-end time decrease");
+  assert.equal((8 - 2.5) / 8 * 100, 68.75, "Illustrative runtime-only decrease");
+  assert.equal(40 - 35, 5, "Illustrative recovery percentage points");
+  assert.equal(Math.round(5000000 / 35000000 * 1000) / 10, 14.3, "Illustrative ultimate recovery relative difference");
+  assert.equal(35000000 - 10000000, 25000000, "Illustrative A remaining forecast");
+  assert.equal(40000000 - 10000000, 30000000, "Illustrative B remaining forecast");
+}
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
