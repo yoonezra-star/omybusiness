@@ -41,7 +41,15 @@
 
 ## 배포
 
-공개 배포·본문 일치·공개 화면 검사는 확인 후 추가한다.
+- 본문 커밋 `3cf648e1727e272ba778ca4e529ea2dc11fbb3b2`을 GitHub main에 반영했고 Cloudflare Pages check의 completed/success를 확인했다. 배포 ID는 `fb71cb49-5253-402c-8879-a025deed6965`다.
+- `node scripts/verify-live-reviewed.mjs 18` 통과. HTTP 200·제목·본문·canonical·CSS·한국 날짜·JSON-LD의 원래 발행일과 개정 시각이 로컬 빌드와 일치했다.
+- 공개 본문 해시 `44404cc4972f60d0c4d5ffdb6459bbf4e07af0fea1bc6160cc5daae342df4764`.
+- 공개 작성자 현황 82/31/51·대표 작업 3개·소개 날짜와 정정 이력 31건이 로컬과 일치했다. 이메일 보호 마크업을 포함한 전체 HTML 일치라고 주장하지 않는다.
+- 공개 1440·768·390·360px의 4개 조합에서 제목·페이지 가로 넘침 없음. 기존 CSS `/assets/style.0e2f141cf85e.css` 유지.
+- 공개 모바일 도식 단일 열·표 4개 키보드 이동 80px·출처 목차 목적 hash·개정 기록 펼침 확인. `live-layouts.json`·`live-interactions.json`의 assertion 통과. 콘솔 오류 로그 0건.
+- 공개 PC 검증 도식·예측 표와 모바일 제목 캡처를 열어 확인했다. 대표 캡처는 `live-reservoir-holdout.jpg`다. 자료·코드 비교와 실제 현장 예측 시험의 차이, 가상 생산률·오차 설명을 보여 준다.
+- 임시 viewport를 초기화했고 기본 1280px에서도 페이지 넘침이 없었다. 기존 탭을 공개 글의 예측 검증 표로 유지했다.
+- 이번에 시작한 로컬 미리보기 프로세스는 공개 검사 후 종료했다. 공개 사이트는 그대로 이용할 수 있다.
 
 ## 다음 순서
 
