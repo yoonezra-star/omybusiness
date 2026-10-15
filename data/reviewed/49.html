@@ -1,0 +1,63 @@
+<p>저장장치의 크기를 읽을 때는 한 번에 낼 수 있는 출력과 담아 둔 에너지, 그 전기를 어느 용도에 얼마나 오래 쓸 수 있는지를 구분해야 한다. 가스정의 태양광 보조 저장장치와 국가 전력망의 대형 BESS도 같은 사업이 아니다. 아람코의 철-바나듐 발표 범위를 확인하고 자체 지속 시간·전력비 계산으로 성능과 경제성을 나눈다. 배터리 설계·설치·충방전 조작·안전 판정 지침은 아니다.</p>
+
+<h2 id="storage-public">최대 지원·예상 수명을 실적과 보증으로 바꾸지 않는다</h2>
+<p>아람코는 2025년 5월 22일 Rongke Power와 개발한 철-바나듐(Fe/V) 흐름전지를 가스정 운영용 태양광의 보조 전원으로 가동했다고 발표했다. 최대 5개 유정을 지원할 수 있고 수명은 예상 25년이라고 설명한다. <a class="source-ref" href="#source-49-1">[1]</a> “최대”와 “예상”은 실제로 5개 유정에 25년간 공급했다는 기록이나 보증 계약이 아니다.</p>
+<p>발표는 -8°C~60°C 범위와 열 관리 장치가 필요 없다는 기술 설명, 다른 전지 대비 화재 위험 감소도 제시한다. 이는 해당 시스템에 대한 회사 설명이며 모든 흐름전지의 환경 적합성·화재 위험 0·부품 무교체 수명으로 일반화하지 않았다. 이번에 읽은 발표는 사용 조건별 보증서·장기간 독립 시험 성적·교체 이력까지 공개한 자료가 아니다.</p>
+
+<h2 id="storage-units">MW·MWh·MW/h는 같은 단위가 아니다</h2>
+<p>EIA는 저장 에너지(MWh)를 출력(MW)으로 나눈 값으로 지속 시간을 설명한다. <a class="source-ref" href="#source-49-2">[2]</a> 다만 실제 지속 시간에는 사용할 수 있는 에너지·부하·손실·보조 동력·출력 제한이 연결된다. 원래 아람코 영문 발표의 크기 표기는 <strong>1-MW/hour</strong>다. 이를 표준 에너지 단위인 1MWh나 정격 출력 1MW로 임의 교정해 확정 사양으로 사용하지 않았다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="에너지 저장의 출력 에너지 지속 시간 단위 비교">
+<table class="analysis-table"><caption>서로 다른 물리량 · 아래 단위 설명은 회사 사양표가 아님</caption>
+<thead><tr><th scope="col">표기</th><th scope="col">무엇을 나타내나?</th><th scope="col">바꿔 쓸 수 없는 값</th></tr></thead>
+<tbody>
+<tr><th scope="row">MW</th><td>전력 · 순간적으로 공급할 수 있는 출력</td><td>총 저장량·그 자체로 사용 시간</td></tr>
+<tr><th scope="row">MWh</th><td>에너지 · 1MW를 1시간 낸 에너지와 같은 단위</td><td>출력·유정 수·수명</td></tr>
+<tr><th scope="row">MWh ÷ MW</th><td>같은 경계의 조건을 맞춘 지속 시간 h</td><td>모든 부하에서 보장된 백업 시간</td></tr>
+<tr><th scope="row">MW/h</th><td>시간당 출력 변화율의 차원</td><td>MWh·저장 에너지 용량</td></tr>
+</tbody></table></div>
+<p>발표 한 줄의 모호한 단위를 보고 용량·효율을 역산하기보다 출력과 에너지의 별도 사양·측정 경계를 확인해야 한다. 또한 1MWh는 1,000kWh다. 전지 내부의 직류 저장량과 변환 후 외부 부하에 전달된 교류 에너지도 같은 계량값으로 취급하지 않는다.</p>
+
+<h2 id="storage-duration">지속 시간 계산에는 보조 동력과 출력 한계가 남는다</h2>
+<p>아래는 아람코 설비와 무관한 가상 시스템이다. 정격 교류 출력은 0.25MW, 명목 저장량은 1MWh로 가정한다. 운전 범위·예비량·변환 손실을 반영한 사용 가능 에너지는 교류 출력 경계에서 0.8MWh라고 별도로 가정한다. 여기에 손실을 다시 곱하지 않으며, 보조 동력은 그 에너지를 함께 사용하는 부하로 센다.</p>
+<figure class="analysis-diagram"><ol class="analysis-flow">
+<li><span>01 · 용량</span><strong>명목 에너지</strong><p>출력과 저장량을 별도 사양으로 읽는다.</p></li>
+<li><span>02 · 경계</span><strong>사용 가능량</strong><p>계량점·예비량·변환 손실의 포함 여부를 맞춘다.</p></li>
+<li><span>03 · 부하</span><strong>주 부하와 보조 동력</strong><p>펌프·제어 등 시스템 소비도 같은 경계로 센다.</p></li>
+<li><span>04 · 시간</span><strong>출력 제한 확인</strong><p>에너지가 남아도 공급 가능한 전력을 먼저 확인한다.</p></li>
+</ol><figcaption>저장 사양을 읽는 자체 개념도. 실제 설비의 배선·보호·충방전 절차가 아니다.</figcaption></figure>
+<div class="table-wrap" tabindex="0" role="region" aria-label="에너지 저장의 가상 백업 시간 계산">
+<table class="analysis-table"><caption>가상 교류 경계의 에너지와 부하 · 실제 제품의 성능 예측이 아님</caption>
+<thead><tr><th scope="col">상황</th><th scope="col">가상 계산</th><th scope="col">해석</th></tr></thead>
+<tbody>
+<tr><th scope="row">명목 값만 이용</th><td>1 ÷ 0.25 = 4시간</td><td>제약·사용 가능량을 반영하지 않은 단순 비율</td></tr>
+<tr><th scope="row">실제 사용량 가정</th><td>0.8 ÷ (0.20 + 0.05) = 3.2시간</td><td>주 부하 0.20MW와 보조 동력 0.05MW</td></tr>
+<tr><th scope="row">주 부하 증가</th><td>0.30 + 0.05 = 0.35MW</td><td>정격 0.25MW 초과 · 시간 나눗셈만으로 공급 가능 판정 불가</td></tr>
+<tr><th scope="row">단위 변환</th><td>0.8MWh = 800kWh</td><td>같은 에너지의 단위 변환 · 성능 향상이 아님</td></tr>
+</tbody></table></div>
+<p>이 계산은 부하가 일정하고 추가 충전·고장·시간에 따른 성능 변화가 없다고 단순화한다. 실제 가스정의 부하 곡선·기동 요구·현장 조건 없이 “몇 개 유정에 며칠 공급”을 산출할 수 없다. 태양광이 다시 들어온다면 그 충전량과 공급 시각도 별도 조건이다.</p>
+
+<h2 id="storage-services">백업 전원과 계통 서비스는 목적·계약이 다르다</h2>
+<p>EIA의 설명은 단시간의 계통 지원과 시간대별 전력 이동을 서로 다른 활용으로 나눈다. <a class="source-ref" href="#source-49-2">[2]</a> 외딴 가스정의 보조 전원 사례를 국가 전력망 전체의 주파수 조정·피크 감축 계약 실적으로 바꿀 수 없다. 같은 배터리라도 어느 계량점에서 어떤 서비스를 얼마나 제공했는지 기록해야 한다.</p>
+<p>수요가 높은 시간대에 전기를 내보냈다는 사실과 설비 투자비를 회수했다는 판단도 다르다. EIA는 비용을 출력당 달러/kW 또는 에너지당 달러/kWh로 표시할 수 있으며 용도에 따라 비교의 의미가 달라진다고 설명한다. <a class="source-ref" href="#source-49-3">[3]</a> 이 2020년 설명의 과거 미국 가격을 현재 사우디 장비 견적에 사용하지 않았다.</p>
+
+<h2 id="storage-value">충전 손실과 유지비를 빼야 전력비 차액을 읽을 수 있다</h2>
+<p>다음 비용 예시는 앞선 백업 시간 모델과 별개다. 충전 입력 1,000kWh, 보조 동력까지 차감하고 외부 부하에 전달한 순방전량 800kWh를 가정한다. 이 교류 계량 경계의 왕복 효율은 <strong>800 ÷ 1,000 = 80%</strong>다. 차이 200kWh는 손실·소비를 포함하며 모두 특정 부품의 열 손실이라는 뜻은 아니다. 가격·횟수·비용도 모두 가상이다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="저장장치의 가상 전력비 차액과 연간 비용">
+<table class="analysis-table"><caption>가상 가격 · 투자비·세금·금융·열화·다른 수입을 제외한 단순 비교</caption>
+<thead><tr><th scope="col">항목</th><th scope="col">가상 계산</th><th scope="col">결과</th></tr></thead>
+<tbody>
+<tr><th scope="row">회당 충전비</th><td>1,000kWh × 0.08달러/kWh</td><td>80달러</td></tr>
+<tr><th scope="row">회당 구매 전력 회피</th><td>800kWh × 0.20달러/kWh</td><td>160달러 · 판매 매출 아님</td></tr>
+<tr><th scope="row">회당 단순 차액</th><td>160 - 80</td><td>80달러</td></tr>
+<tr><th scope="row">연간 300회 가정</th><td>80 × 300 - 유지비 30,000</td><td>-6,000달러</td></tr>
+</tbody></table></div>
+<p>한 회의 전력비 차액이 양수여도 연간 유지비를 반영하면 이 예시의 잔액은 음수다. 실제로는 서비스별 수입·보조금·설비 투자·교체·이용 횟수와 계약 조건이 달라진다. 이 모델을 실제 수익률·충방전 전략·투자 권유로 사용하지 않는다.</p>
+<p>기존의 국가 BESS·비샤 프로젝트·공장 계획을 모두 아람코 사업으로 귀속한 설명, HUMAIN·특정 제휴의 효율 20% 개선, 미확인 현장 경험·특수 코팅·자동 필터 설계는 삭제했다. 25년 보장·화재 위험 없음·10년 내 투자 회수와 이후 장기 순이익도 확정 사실로 남기지 않았다.</p>
+
+<h2 id="storage-sources">출처와 확인 범위</h2>
+<p class="evidence-note">확인 기준일: 2026년 10월 15일. 2025년 회사 발표와 EIA의 단위·용도·비용 비교 설명을 확인했다. 실제 출력·에너지의 별도 확정 사양, 현재 보증서·시험 성적·계통 계약·가격·수익은 검증하지 않았다.</p>
+<ol class="evidence-list">
+<li id="source-49-1"><a href="https://www.aramco.com/en/news-media/news/2025/renewable-energy-storage-system-for-gas-operations">Aramco achieves world-first by commissioning breakthrough renewable energy storage system for gas operations</a> · Aramco, 2025-05-22. Fe/V 보조 전원·최대 지원·예상 수명·회사 환경 사양. 원문의 1-MW/hour를 임의 교정하지 않았다.</li>
+<li id="source-49-2"><a href="https://www.eia.gov/todayinenergy/detail.php?id=51798">Duration of utility-scale batteries depends on how they’re used</a> · EIA, 2022-03-25. MW·MWh·지속 시간과 활용 목적의 일반 설명. 과거 미국 실적을 현재 아람코 성과로 옮기지 않았다.</li>
+<li id="source-49-3"><a href="https://www.eia.gov/todayinenergy/detail.php?id=45596">Utility-scale battery storage costs decreased nearly 70% between 2015 and 2018</a> · EIA, 2020-10-23. 비용 분모와 용도의 차이만 사용. 현재 장비 가격 자료가 아니다.</li>
+</ol>

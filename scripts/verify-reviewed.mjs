@@ -22,6 +22,7 @@ const primaryDomains = [
   "cyber.gov.au", "eia.gov", "isa100wci.org", "yokogawa.com",
   "astm.org", "imo.org", "aramcotrading.com", "iso.org", "cimac.com", "gao.gov",
   "totalenergies.com", "iscc-system.org",
+  "acwapower.com",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -120,6 +121,9 @@ const calculationExamples = [
   ["58", /60 ÷ 80 = 75%/, "= 5,000", 60000 + 10000 - 65000, 5000],
   ["55", /90 ÷ 95/, "94.7%", Math.round(90 / 95 * 1000) / 10, 94.7],
   ["53", /\(7\.4 - 7\.3\) ÷ 7\.3/, "1.4%", Math.round((7.4 - 7.3) / 7.3 * 1000) / 10, 1.4],
+  ["50", /75 ÷ 90 ≈ 83\.3%/, "12 ÷ 20 = 60%", Math.round(75 / 90 * 1000) / 10, 83.3],
+  ["49", /0\.8 ÷ \(0\.20 \+ 0\.05\) = 3\.2시간/, "-6,000달러", 0.8 / (0.2 + 0.05), 3.2],
+  ["39", /7,200,000 ÷ \(400,000 × 30\)/, "60%", 7200000 / (400000 * 30) * 100, 60],
 ];
 for (const [id, expression, displayed, result, expected] of calculationExamples) {
   if (!reviewIds.has(id)) continue;
@@ -225,4 +229,30 @@ assert.equal(60000 + 10000 + 15000 + 20000, 105000, "Illustrative VR cost with o
 assert.equal(74000 - 70000 - 3500, 500, "Illustrative physical trading remainder A");
 assert.equal(73000 - 70000 - 3500, -500, "Illustrative physical trading remainder B");
 assert.equal(-12000 + 10000, -2000, "Illustrative imperfect price offset, not a trading strategy");
+const droneStorageJazanReviews = {
+  "50": [/검사와 대드론 방어/, /17\.5 ÷ 2/, /8\.75배/, /기체의 능력과 조종자의 숙련/, /전체에 실제 결함이 몇 개 있었는지 모르면/, /판독 불가 15개와 촬영하지 못한 10개/, /시설의 비행 경로·방어 구성·기체 조작이나 안전 점검 절차를 제공하는 글은 아니다/],
+  "49": [/예상 25년/, /1-MW\/hour/, /정격 출력 1MW로 임의 교정/, /교류 출력 경계에서 0\.8MWh/, /손실을 다시 곱하지 않으며/, /0\.30 \+ 0\.05 = 0\.35MW/, /800 ÷ 1,000 = 80%/, /현재 사우디 장비 견적에 사용하지 않았다/, /배터리 설계·설치·충방전 조작·안전 판정 지침은 아니다/],
+  "39": [/400mbpd·Equity ownership 100%/, /3,800MW Gross/, /2026년 10월 15일의 실제 원유 유입량을 확인한 값이 아니다/, /첫 자산군 인수/, /7,200,000 ÷ 25/, /72%/, /100 - 15 - 55 = 30/, /실제 Jazan의 수급 자료가 아님/, /공정 운전·정비·비상 대응이나 작업 허가 지침은 아니다/],
+};
+for (const [id, claims] of Object.entries(droneStorageJazanReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Drone, storage and Jazan evidence boundary: ${id}`);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|지난|현장)|저 역시|제가 만난|현장에서 직접 확인|화재 위험이 없|수명을 보장하는|안심하셔도/, `No invented experience or safety guarantee: ${id}`);
+}
+assert.equal(70 / 4 / (2 / 1), 8.75, "Reported elapsed-time throughput ratio, not labor or safety");
+assert.equal(75 / 100 * 100, 75, "Illustrative usable inspection coverage");
+assert.equal(12 / 20 * 100, 60, "Illustrative alarm precision, not missed defect rate");
+assert.equal(100 - 90, 10, "Illustrative unrecorded inspection targets");
+assert.equal(90 - 75, 15, "Illustrative recorded but unusable targets");
+assert.equal(800 / 1000 * 100, 80, "Illustrative round-trip efficiency");
+assert.ok(0.3 + 0.05 > 0.25, "Illustrative load exceeds output rating despite stored energy");
+assert.equal(800 * 0.2 - 1000 * 0.08, 80, "Illustrative electricity cost difference per cycle");
+assert.equal(80 * 300 - 30000, -6000, "Illustrative annual remainder before capital and other costs");
+assert.equal(320000 * 20 + 160000 * 5, 7200000, "Illustrative refinery period throughput");
+assert.equal(7200000 / 30, 240000, "Illustrative calendar-day average");
+assert.equal(7200000 / 25, 288000, "Illustrative operating-day average");
+assert.equal(7200000 / (400000 * 25) * 100, 72, "Illustrative operating-day denominator");
+assert.equal((100 - 15 - 55) * 24, 720, "Illustrative external electricity energy boundary");
+assert.equal(360 + 1320 + 720, 2400, "Illustrative electricity balance");
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
