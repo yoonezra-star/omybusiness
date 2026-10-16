@@ -1,0 +1,56 @@
+<p>가스터빈의 효율을 비교하려면 먼저 무엇을 투입하고 무엇을 얻었는지 정해야 한다. 터빈 한 대의 전기 효율, 증기터빈을 더한 복합발전의 전기 효율, 공장에 공급한 열까지 포함한 열병합 효율은 같은 숫자가 아니다. 이 글은 공개된 Jafurah 관련 발표의 범위를 확인하고, 자체 가상 계산으로 총출력·순출력과 효율 개선의 분모를 비교한다.</p>
+
+<h2 id="turbine-evidence">2024년 H-Class 출하는 발전소 성능시험 결과가 아니다</h2>
+<p>GE Vernova는 2024년 7월 1일 사우디 Dammam의 GESAT에서 현지 완성한 첫 H-Class 가스터빈을 공개했다. 발표에 명시된 공급 대상은 <strong>Jafurah 열병합 독립 증기·전력 사업(ISPP)</strong>이다. 당시 문서는 가동 후 기대 성능을 미래형으로 설명한다. <a class="source-ref" href="#source-52-1">[1]</a> 따라서 이 발표를 Fadhili의 실측 기록이나 아람코 전 발전소의 상업 운전 효율로 바꾸어 읽으면 안 된다.</p>
+<p>같은 문서의 수소 대응 설계라는 설명도 특정 사업장의 수소 30% 혼소 완료·100% 수소 운전 실적을 뜻하지 않는다. 이 글에서 확인한 자료에는 해당 발전소의 인수시험 조건·보조 동력·기간별 순발전과 연료 계량 원자료가 없다. 이것은 발전소가 현재 미가동이라는 판정이 아니라, 인용한 2024년 발표만으로 현재 상태를 확정하지 않는다는 뜻이다.</p>
+
+<h2 id="turbine-boundaries">효율 숫자 옆에 네 가지 경계를 적는다</h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="가스터빈 효율 비교의 경계와 필요한 자료">
+<table class="analysis-table"><caption>서로 다른 효율을 같은 순위표에 넣기 전에 확인할 항목</caption>
+<thead><tr><th scope="col">경계</th><th scope="col">구분할 것</th><th scope="col">확인 질문</th></tr></thead><tbody>
+<tr><th scope="row">설비 범위</th><td>단순 가스터빈 / 복합발전 / 열병합</td><td>증기터빈 전력과 유효 열을 어디에 넣었는가?</td></tr>
+<tr><th scope="row">출력 기준</th><td>발전기 총출력 / 보조 동력 차감 순출력</td><td>펌프·압축·냉각의 소비 전력은 포함됐는가?</td></tr>
+<tr><th scope="row">연료 기준</th><td>저위발열량 LHV / 고위발열량 HHV</td><td>같은 연료 에너지 기준으로 환산했는가?</td></tr>
+<tr><th scope="row">시험 조건</th><td>정격 시험 / 부분 부하 / 기간 평균</td><td>외기·부하·정지 기간과 계량 위치가 같은가?</td></tr>
+</tbody></table></div>
+<p>EIA는 열소비율을 순전력 1kWh를 만드는 데 필요한 연료 에너지로 설명하며 설비 자체 소비를 차감한다. <a class="source-ref" href="#source-52-2">[2]</a> 열소비율은 낮을수록 같은 전력을 만드는 연료 투입이 적다. 전기 효율과 역관계지만 단위를 맞춰야 한다. kJ/kWh 기준이라면 <strong>전기 효율 = 3,600 ÷ 열소비율</strong>이고 결과에 100을 곱하면 백분율이다.</p>
+<p>HHV는 연소 생성 수증기의 응축열을 포함하는 기준이고 LHV는 이를 제외한다. 같은 출력이라도 더 큰 HHV 분모를 쓰면 효율 수치가 작아진다. 다음 가상 사례에서 동일 연료량을 LHV 200MWth, HHV 220MWth로 가정하면 순출력 100MWe의 효율은 각각 50%와 약 45.45%다. 1.10이라는 발열량 비는 예시의 가정이며 모든 가스에 적용하는 상수가 아니다. 수치 차이만으로 실제 장비 성능이 나빠졌다고 결론내릴 수 없다.</p>
+
+<h2 id="turbine-net">총출력과 열을 더하면 왜 전기 효율이 달라지는가</h2>
+<p>가상의 동일한 1시간 안정 운전에서 LHV 연료 투입률 200MWth, 발전기 총출력 108MWe, 보조 전력 8MWe, 외부에서 실제 사용한 유효 열 50MWth를 가정한다. 실제 아람코 설비의 설계값·시험 성적이 아니다. 아래 비율은 같은 연료 분모를 쓴다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="가상 발전소 총출력 순출력 열병합 비교">
+<table class="analysis-table"><caption>가상 동일 운전점 · 연료 200MWth(LHV)</caption>
+<thead><tr><th scope="col">지표</th><th scope="col">산출물</th><th scope="col">효율</th><th scope="col">뜻</th></tr></thead><tbody>
+<tr><th scope="row">총전기</th><td>108MWe</td><td>54%</td><td>설비 자체 전력 차감 전</td></tr>
+<tr><th scope="row">순전기</th><td>108 - 8 = 100MWe</td><td>50%</td><td>경계 밖에 공급한 전력</td></tr>
+<tr><th scope="row">열병합 총에너지</th><td>100MWe + 50MWth</td><td>75%</td><td>유효 열 포함 · 전기 효율 75%가 아님</td></tr>
+</tbody></table></div>
+<p>EPA도 열병합 총효율을 순유효 전기와 유효 열의 합을 연료 투입으로 나눈 지표로 구분한다. 이 합산은 전기와 열의 경제적 가치가 같다는 뜻이 아니다. <a class="source-ref" href="#source-52-3">[3]</a> 배출된 열 전부가 아니라 실제 유효하게 사용한 열을 세어야 한다. 이 예시의 75%를 복합발전 전기 효율과 그대로 비교하거나, 같은 열로 이미 생산한 전력을 다시 중복 합산하지 않는다.</p>
+
+<h2 id="turbine-improvement">50%에서 51%는 연료 1% 절감과 다르다</h2>
+<p>별도 가상 비교에서 두 설비가 동일한 순출력 100MWe를 낸다고 하자. 연료 종류와 LHV 기준은 같고 다른 조건도 같다고 단순화했다. 반올림 전 값으로 계산한다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="가상 동일 순출력에서 효율과 연료 투입 비교">
+<table class="analysis-table"><caption>가상 효율 비교 · 순출력은 모두 100MWe</caption>
+<thead><tr><th scope="col">항목</th><th scope="col">기준 A</th><th scope="col">비교 B</th></tr></thead><tbody>
+<tr><th scope="row">순전기 효율</th><td>50%</td><td>51%</td></tr>
+<tr><th scope="row">LHV 연료 투입률</th><td>200MWth</td><td>약 196.078MWth</td></tr>
+<tr><th scope="row">순전력 열소비율</th><td>7,200kJ/kWh</td><td>약 7,058.82kJ/kWh</td></tr>
+</tbody></table></div>
+<p>효율 차이는 <strong>1%포인트</strong>, 효율의 상대 증가는 (51 - 50) ÷ 50 = 2%다. 하지만 같은 순출력에서 연료 감소율은 <strong>1 - 50 ÷ 51 ≈ 1.96%</strong>다. 반대로 연료 투입 200MWth를 고정하면 출력이 100에서 102MWe로 늘어나는 계산이다. 어느 쪽을 고정했는지 밝히지 않은 채 절감률과 증산률을 섞지 않아야 한다. 연료 성분·발열량·단위 연료당 배출계수와 비교 대상 발전량을 확인하지 않고 이 비율을 실제 배출 감축률로 확장하지 않는다.</p>
+
+<h2 id="turbine-reading">성능 기사에서 다음 자료까지 연결한다</h2>
+<figure class="analysis-diagram"><ol class="analysis-flow">
+<li><span>01 · 대상</span><strong>사업과 단계</strong><p>제조 출하·설치·인수시험·기간 운전을 나눈다.</p></li>
+<li><span>02 · 분모</span><strong>연료와 출력</strong><p>LHV/HHV와 총/순 계량 경계를 맞춘다.</p></li>
+<li><span>03 · 비교</span><strong>같은 조건</strong><p>부하·기간·외기·열 수요를 함께 적는다.</p></li>
+<li><span>04 · 판단</span><strong>실적의 한계</strong><p>예상 성능과 실제 연료·비용·배출을 구분한다.</p></li>
+</ol><figcaption>자체 효율 기사 해석도. 가스터빈 운전·세정·수소 혼합·개조 승인 절차가 아니다.</figcaption></figure>
+<p>연료비 절감을 평가하려면 해당 기간 순발전량·실제 연료 구매 조건·정비 정지·추가 보조 동력도 필요하다. 이 글은 고정 주기의 물세정·연소 온도·수소 혼합률·노즐 교체 지침을 제공하지 않는다. 공급사 성능 주장만으로 세계 최고·무고장·공통 회수기간이나 이익 증가를 보장하지 않는다.</p>
+
+<h2 id="turbine-sources">출처와 확인 범위</h2>
+<ol class="evidence-list">
+<li id="source-52-1"><a href="https://www.gevernova.com/news/press-releases/abdulaziz-bin-salman-ge-vernova-first-HA-GESAT" target="_blank" rel="noopener noreferrer">GE Vernova · GESAT 첫 H-Class 공개, 2024-07-01</a>. 제조 완료·Jafurah 공급 예정과 당시 기대 성능의 발표. 발전소 실측 인수시험이 아니다.</li>
+<li id="source-52-2"><a href="https://www.eia.gov/tools/faqs/faq.php?id=107&amp;t=3" target="_blank" rel="noopener noreferrer">미국 EIA · 발전 효율과 열소비율</a>. 순발전·자체 소비·열소비율의 일반 정의. kJ 환산 계산은 본문의 자체 예시다.</li>
+<li id="source-52-3"><a href="https://www.epa.gov/chp/methods-calculating-chp-efficiency" target="_blank" rel="noopener noreferrer">미국 EPA · 열병합 효율 계산 방법</a>. 유효 열과 순전력의 경계·지표별 해석 근거다.</li>
+</ol>
+<p class="evidence-note">2026년 10월 16일 원문 확인. 미확인 제어실 방문·포럼 경험·공통 효율·혼소 완료·자동 세정·수익 및 안전 보장을 삭제했다. 수치 표는 교육용 가정이며 실제 발전소 시험·현장 설정·설비 인증 결과가 아니다.</p>

@@ -27,6 +27,7 @@ const primaryDomains = [
   "repsol.com", "icao.int", "ascent.aero",
   "vakt.com", "asmo.com",
   "energy.gov.au", "noaa.gov", "tethys-robotics.ch",
+  "gevernova.com", "otexts.com",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -419,5 +420,58 @@ if (reviewIds.has("54")) {
   assert.equal(Math.round(24800 / 2.1), 11810);
   assert.equal(Math.round(31000 / 2.4), 12917);
   assert.equal(60 - 52.5, 7.5);
+}
+const turbineStationDemandReviews = {
+  "52": [/2024년 7월 1일/, /Jafurah 열병합/, /현재 상태를 확정하지 않는다는/, /45\.45%/, /1\.96%/, /열의 경제적 가치가 같다는 뜻이 아니다/, /운전·세정·수소 혼합·개조 승인 절차가 아니다/],
+  "48": [/2021년 10월 25일/, /2025년 말 사우디 네트워크 185개/, /2019년 6월 18일/, /초기 Toyota Mirai 6대/, /폐점 수를 산출할 수도 없다/, /배터리에 저장되는 쪽의 평균/, /개별 운전자의 대기시간을 몇 분으로 예측한 결과가 아니다/],
+  "46": [/입력 변수별 가중치·훈련 표본·독립 평가 오차/, /예측 - 관측/, /관측 - 예측과 부호는 반대/, /정확도 90%라고 표시하지 않는다/, /기간 사이 재고 이월·재주문·이탈은 없고/, /아람코 공식 내부 시나리오/, /포트폴리오 비중이나 매매 시점을 권하지 않는다/],
+};
+for (const [id, claims] of Object.entries(turbineStationDemandReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Turbine, station and demand evidence boundaries: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|지난)|저 역시|제어실을 방문했을 때|제가 참석했던|오차가 전혀 없/, `No invented experience or perfect prediction: ${id}`);
+}
+if (reviewIds.has("52")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/52.html"), "utf8"));
+  const percentages = dom('div[aria-label="가상 발전소 총출력 순출력 열병합 비교"] tbody tr').toArray().map(row => dom(row).find("td").eq(1).text());
+  assert.deepEqual(percentages, ["54%", "50%", "75%"]);
+  assert.equal(108 / 200 * 100, 54);
+  assert.equal((108 - 8) / 200 * 100, 50);
+  assert.equal((108 - 8 + 50) / 200 * 100, 75);
+  const efficiencies = dom('div[aria-label="가상 동일 순출력에서 효율과 연료 투입 비교"] tbody tr').first().find("td").toArray().map(cell => Number(dom(cell).text().replace("%", "")) / 100);
+  assert.deepEqual(efficiencies, [0.5, 0.51]);
+  assert.equal(Math.round((1 - efficiencies[0] / efficiencies[1]) * 10000) / 100, 1.96);
+  assert.equal(Math.round(3600 / efficiencies[1] * 100) / 100, 7058.82);
+  assert.equal(Math.round(100 / 220 * 10000) / 100, 45.45);
+}
+if (reviewIds.has("48")) {
+  const content = await readFile(path.join(root, "data/reviewed/48.html"), "utf8");
+  const dom = cheerio.load(content);
+  const times = dom('div[aria-label="가상 전기차 충전 에너지와 체류시간 비교"] tbody tr').toArray().map(row => Number(dom(row).find("td").last().text().replace("분", "")));
+  assert.deepEqual(times, [14.4, 24, 30]);
+  const energy = Math.round(60 * (0.8 - 0.2));
+  assert.equal(energy, 36);
+  assert.equal(Math.round(energy / 150 * 600) / 10, times[0]);
+  assert.equal(energy / 90 * 60, times[1]);
+  assert.equal(times[1] + 6, times[2]);
+  assert.equal(2 * 60 / times[2], 4);
+  assert.equal(1 * 60 / times[2], 2);
+}
+if (reviewIds.has("46")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/46.html"), "utf8"));
+  const rows = dom('div[aria-label="가상 수요 관측과 두 예측의 기간별 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().slice(0, 3).map(cell => Number(dom(cell).text())));
+  assert.deepEqual(rows, [[100, 110, 90], [120, 110, 110], [80, 90, 70], [100, 90, 90]]);
+  for (const column of [1, 2]) {
+    const errors = rows.map(row => row[column] - row[0]);
+    assert.equal(errors.reduce((sum, error) => sum + Math.abs(error), 0) / rows.length, 10);
+    assert.equal(errors.reduce((sum, error) => sum + error, 0) / rows.length, column === 1 ? 0 : -10);
+    const shortage = errors.reduce((sum, error) => sum + Math.max(0, -error), 0);
+    const surplus = errors.reduce((sum, error) => sum + Math.max(0, error), 0);
+    assert.equal(shortage, column === 1 ? 20 : 40);
+    assert.equal(surplus, column === 1 ? 20 : 0);
+    assert.equal(shortage * 3 + surplus, column === 1 ? 80 : 120);
+  }
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));

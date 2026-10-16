@@ -1,0 +1,61 @@
+<p>석유 수요를 예측한다는 말만으로 그 모형이 유가·기업 이익·생산량까지 정확히 맞힌다고 볼 수 없다. 세계 수요와 특정 지역의 제품 판매량도 다른 대상이다. 이 글은 공개된 아람코의 AI 설명에서 확인할 수 있는 범위를 밝히고, 자체 가상 예측표로 평균 오차·방향성·의사결정 손실을 나누어 읽는다.</p>
+
+<h2 id="demand-evidence">AI 활용 소개는 내부 모형과 정확도 공개가 아니다</h2>
+<p>아람코는 AI 활용 소개에서 시장 정보와 공급 물류 데이터를 통합한 예측이 생산·정유·유통·거래의 계획을 지원한다고 설명한다. <a class="source-ref" href="#source-46-1">[1]</a> 이는 회사가 설명한 활용 목적이다. 이 자료에서 입력 변수별 가중치·훈련 표본·독립 평가 오차·경쟁 예측 대비 우월성을 검증한 것은 아니다.</p>
+<p>따라서 구리 가격이 수요의 선행 변수라는 고정 공식, 모든 항구·차량 이동을 빠짐없이 관측하는 내부 시스템, 특정 AI 센터의 시장 예측 정확도를 만들어 제시하지 않는다. 수요 전망이 생산·물류 계획의 참고가 될 수 있다는 설명과 회사 생산량·판매 계약·시장 가격이 예측값대로 즉시 바뀐다는 주장은 구분해야 한다.</p>
+
+<h2 id="demand-target">자료를 모으기 전에 예측 대상을 고정한다</h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="석유 수요 예측의 대상과 자료 범위 확인">
+<table class="analysis-table"><caption>독자용 예측 명세표 · 아람코 내부 변수 목록이 아님</caption>
+<thead><tr><th scope="col">항목</th><th scope="col">기록할 내용</th><th scope="col">빠졌을 때 생기는 혼동</th></tr></thead><tbody>
+<tr><th scope="row">대상</th><td>세계 원유 / 지역 경유 / 자사 판매량</td><td>회사 점유율 변화와 전체 수요 변화 혼동</td></tr>
+<tr><th scope="row">단위·기간</th><td>배럴/일인지 기간 총량인지 · 월/분기</td><td>일평균과 월 총량을 같은 값으로 비교</td></tr>
+<tr><th scope="row">발표 시점</th><td>예측 발행일·당시 이용 가능 자료·대상 기간</td><td>뒤늦게 개정된 자료로 과거 예측을 평가</td></tr>
+<tr><th scope="row">비교 상대</th><td>전기 값·계절 기준·기존 모형의 같은 기간 예측</td><td>복잡한 모형이라는 이유로 개선을 가정</td></tr>
+<tr><th scope="row">평가 목적</th><td>물량 오차·편향·부족·잉여·의사결정 제약</td><td>오차 감소를 곧바로 이익 증가로 해석</td></tr>
+</tbody></table></div>
+<p>관측 판매량이 작았더라도 품절·배송 제한으로 팔지 못한 물량이 있다면 판매를 잠재 수요와 동일시하기 어렵다. 반대로 재고 보충 주문이 늘었다고 최종 소비가 같은 폭으로 늘었다고 단정할 수도 없다. 가격·재고·공급 제약을 함께 보되 상관관계를 원인이나 고정 가중치로 바꾸지 않는다.</p>
+
+<h2 id="demand-validation">나중에 알게 된 자료를 과거 예측에 넣지 않는다</h2>
+<p>가상 예로 1월 말에 발행한 2월 수요 예측이 110이고, 나중에 확인한 2월 관측이 120이라고 하자. 3월에 2월 값을 120으로 고쳤더라도 최초 예측의 오차 10이 사라진 것은 아니다. 예측 발행본과 관측 자료의 발표·개정본을 따로 보관해야 한다. 통계의 사후 개정 자체가 잘못이라는 뜻은 아니다.</p>
+<p>Hyndman·Athanasopoulos의 예측 교재는 학습 자료의 잔차와 아직 보지 않은 자료에 대한 예측 오차를 구분하고, 예측 시점을 이동시키면서 그보다 앞선 관측만 사용하는 시계열 교차검증을 설명한다. <a class="source-ref" href="#source-46-2">[2]</a> 한 달 뒤 예측과 열두 달 뒤 예측은 같은 난도의 문제로 합치지 않는다. 모형 선택에 쓴 평가 구간과 최종 독립 평가도 구분해야 한다.</p>
+
+<h2 id="demand-errors">평균 차이가 0이어도 매번 10씩 틀릴 수 있다</h2>
+<p>다음은 가상 지역 연료의 네 기간 수요다. 단위는 <strong>천배럴/기간</strong>이며 일평균이 아니다. A·B 예측은 각 대상 기간의 관측이 알려지기 전에 고정했다고 가정한다. 실제 아람코 예측이나 세계 석유 수요가 아니고, 알고리즘을 실행한 벤치마크도 아니다. 여기서 부호 있는 차이는 읽기 편하도록 <strong>예측 - 관측</strong>으로 정의했다. 교재의 관측 - 예측과 부호는 반대지만 절대오차는 같다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="가상 수요 관측과 두 예측의 기간별 비교">
+<table class="analysis-table"><caption>가상 수요·예측 · 단위 천배럴/기간</caption>
+<thead><tr><th scope="col">기간</th><th scope="col">관측</th><th scope="col">예측 A</th><th scope="col">예측 B</th><th scope="col">차이 A / B</th></tr></thead><tbody>
+<tr><th scope="row">1</th><td>100</td><td>110</td><td>90</td><td>+10 / -10</td></tr>
+<tr><th scope="row">2</th><td>120</td><td>110</td><td>110</td><td>-10 / -10</td></tr>
+<tr><th scope="row">3</th><td>80</td><td>90</td><td>70</td><td>+10 / -10</td></tr>
+<tr><th scope="row">4</th><td>100</td><td>90</td><td>90</td><td>-10 / -10</td></tr>
+</tbody></table></div>
+<p>A의 부호 있는 평균 차이는 0이지만 평균절대오차(MAE)는 <strong>(10 + 10 + 10 + 10) ÷ 4 = 10천배럴</strong>이다. B도 MAE는 10이나 평균 차이는 -10으로 계속 과소 예측한다. A의 총예측 400이 관측 합계 400과 같다고 기간별 예측이 정확한 것은 아니다. 단위 있는 MAE 10을 정확도 90%라고 표시하지 않는다. 교재는 관측이 0이거나 0에 가까우면 백분율 오차에도 문제가 생긴다고 설명한다. <a class="source-ref" href="#source-46-2">[2]</a></p>
+
+<h2 id="demand-decisions">같은 MAE라도 부족 비용이 다르면 판단이 달라진다</h2>
+<p>같은 예측량을 해당 기간 준비량으로 사용한다고 추가 가정하자. 기간 사이 재고 이월·재주문·이탈은 없고, 부족 1천배럴당 가상 손실 3점, 잉여 1천배럴당 1점을 부여한다. 이는 실제 가격·위약금·회사 이익 계산이 아니라 서로 다른 판단 목적을 보여 주는 점수다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="가상 예측의 부족 잉여와 비대칭 손실 비교">
+<table class="analysis-table"><caption>앞의 네 기간 합계 · 가상 손실 = 부족 × 3 + 잉여 × 1</caption>
+<thead><tr><th scope="col">모형</th><th scope="col">부족 합계</th><th scope="col">잉여 합계</th><th scope="col">가상 손실</th></tr></thead><tbody>
+<tr><th scope="row">A</th><td>20천배럴</td><td>20천배럴</td><td>20 × 3 + 20 × 1 = 80점</td></tr>
+<tr><th scope="row">B</th><td>40천배럴</td><td>0천배럴</td><td>40 × 3 + 0 × 1 = 120점</td></tr>
+</tbody></table></div>
+<p>오차 크기가 같아도 이런 가정에서는 B의 과소 예측이 더 불리하다. 그러나 실제 재고 이월·조달 지연·탱크 용량·유통기한·품질 제약이 있으면 손실 구조가 달라진다. 네 관측만으로 A가 항상 우수하다거나 실제 수익이 40 늘어난다고 결론내리지 않는다. 데이터 범위·평가 기간·의사결정 모형을 함께 공개해야 재현 가능한 비교가 된다.</p>
+
+<h2 id="demand-scenarios">장기 시나리오는 단기 수요 예측과 구분한다</h2>
+<p>IEA의 World Energy Outlook 2025는 STEPS와 CPS가 정책·기술 가정이 다른 에너지 경로임을 설명한다. <a class="source-ref" href="#source-46-3">[3]</a> 이런 조건부 경로를 다음 달 수요의 단일 최빈 예측이나 아람코 공식 내부 시나리오로 바꾸어 부르지 않는다. 이전 글의 ‘가속 전환·점진 변화·지속 성장’이라는 세 명칭을 아람코의 공식 모형 이름으로 제시할 근거는 확인하지 못해 삭제했다.</p>
+<figure class="analysis-diagram"><ol class="analysis-flow">
+<li><span>01 · 명세</span><strong>무엇을 언제</strong><p>지역·제품·단위·예측 시점을 고정한다.</p></li>
+<li><span>02 · 자료</span><strong>당시 정보</strong><p>발표 지연·개정·품절·자료 누출을 구분한다.</p></li>
+<li><span>03 · 평가</span><strong>앞선 자료만</strong><p>기간별 오차·편향과 단순 기준을 대조한다.</p></li>
+<li><span>04 · 활용</span><strong>결정의 제약</strong><p>부족·잉여·조달 조건과 불확실성을 남긴다.</p></li>
+</ol><figcaption>자체 예측 검토도. 아람코 내부 알고리즘·재고 운용·투자 판단의 실행 절차가 아니다.</figcaption></figure>
+<p>예측은 범위와 가정이 붙은 정보다. 수요 전망만으로 유가·주가·배당·계약 수익을 확정할 수 없으며, 이 글은 포트폴리오 비중이나 매매 시점을 권하지 않는다. 공개되지 않은 모형을 복원했다고 주장하지 않고, 확인 가능한 활용 설명과 자체 계산의 경계를 남긴다.</p>
+
+<h2 id="demand-sources">출처와 확인 범위</h2>
+<ol class="evidence-list">
+<li id="source-46-1"><a href="https://www.aramco.com/en/about-us/our-brand/powered-by-how/ai-energy-transformation" target="_blank" rel="noopener noreferrer">아람코 · AI와 에너지 가치사슬</a>. 시장 정보·공급 물류를 통한 적응적 계획의 회사 설명. 가중치·평가 오차 공개가 아니다.</li>
+<li id="source-46-2"><a href="https://otexts.com/fpp3/toolbox.html" target="_blank" rel="noopener noreferrer">Hyndman·Athanasopoulos · Forecasting: Principles and Practice, 5장</a>. 5.8절의 학습/평가·MAE·백분율 한계와 5.10절의 이동 예측 시점 평가. 본문의 숫자는 별도 자체 가정이다.</li>
+<li id="source-46-3"><a href="https://www.iea.org/reports/world-energy-outlook-2025/overview-and-key-findings" target="_blank" rel="noopener noreferrer">IEA · World Energy Outlook 2025 개요</a>. 정책·기술 가정이 다른 STEPS·CPS의 구분. 회사 내부 모형·단기 예측 성적표가 아니다.</li>
+</ol>
+<p class="evidence-note">2026년 10월 16일 원문 확인. 미확인 세미나 참석·직접 모형 사용·내부 변수 가중치·공식 시나리오 명칭·완벽한 예측·수익 보장을 삭제했다. 관측·예측·손실 점수는 교육용 가정이며 실제 회사 자료·투자 조언이 아니다.</p>
