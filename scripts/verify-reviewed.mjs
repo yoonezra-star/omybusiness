@@ -32,6 +32,7 @@ const primaryDomains = [
   "aramcolife.com", "hyundai.com",
   "chemistrythatmatters.org", "arodrilling.com", "bsee.gov",
   "nghc.com",
+  "midoceanenergy.com", "next-decade.com", "fao.org",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -708,5 +709,68 @@ if (reviewIds.has("32")) {
   assert.equal(evaluation[4] / evaluation[2] * 100, 80);
   assert.equal(evaluation[4] / evaluation[0] * 100, 48);
   assert.equal((evaluation[4] - evaluation[3]) / evaluation[2] * 100, 20);
+}
+const electrolysisLngBiodiversityReviews = {
+  "31": [/HydoTech/, /2023년 5월 22일/, /2022년 상태와 2026년 목표/, /33\.3 ÷ 50 = 66\.6%/, /33\.3 ÷ 60 = 55\.5%/, /39\.4 ÷ 60 ≈ 65\.7%/, /외부 열 공급은 없다고/, /공식 LCOH나 공급 가격이 아니다/],
+  "30": [/2024년 10월 24일/, /Hunt가 운영자로 남는다고/, /49% × 35% = 17\.15%/, /2025년 8월 1일/, /2030년 하반기/, /명목 계약량의 단순 곱/, /270만 톤/, /모두 대기 중 메탄 누출이라고 가정하지 않았으며/],
+  "29": [/4,900만 그루 넘게/, /64km²/, /2025년 4월 25일/, /14,000그루·5ha·생존율 95%/, /최초 집단은 720 ÷ 1,000 = 72%/, /같은 개체를 계속 추적/, /이 3조차 복원이 원인이라고 확정한 값이 아니다/, /당해 감축 실적으로 잡지 않는다/],
+};
+for (const [id, claims] of Object.entries(electrolysisLngBiodiversityReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Electrolysis, LNG and biodiversity evidence boundaries: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|아는)|저는 과거|저 역시|완벽한 생태 복원|확정된 투자 수익/, `No fabricated experience or guaranteed outcome: ${id}`);
+}
+if (reviewIds.has("31")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/31.html"), "utf8"));
+  const targets = dom('div[aria-label="DOE PEM 수전해의 상태와 목표 및 스택 시스템 전력 구분"] tbody tr').toArray().map(row => dom(row).find("td").toArray().slice(0, 2).map(cell => Number(dom(cell).text())));
+  assert.deepEqual(targets, [[51, 48], [55, 51]]);
+  const energy = dom('div[aria-label="가상 수전해 스택과 정류 보조설비 및 인도 압축의 전력 수지"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text()));
+  assert.deepEqual(energy, [50, 2, 3, 5, 60]);
+  assert.equal(energy.slice(0, 4).reduce((s, n) => s + n, 0), energy[4]);
+  assert.equal(Math.round(33.3 / energy[0] * 1000) / 10, 66.6);
+  assert.equal(Math.round(33.3 / energy[4] * 1000) / 10, 55.5);
+  assert.equal(Math.round(39.4 / energy[4] * 1000) / 10, 65.7);
+  const annual = dom('div[aria-label="가상 전해조의 연간 가용 전력과 생산량 및 부분 비용 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,|약 /g, ""))));
+  assert.deepEqual(annual, [[8000000, 16000000], [133333, 266667], [7.5, 3.75], [1.8, 1.8], [9.3, 5.55]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(4000 * [2000, 4000][i], annual[0][i]);
+    assert.equal(Math.round(annual[0][i] / 60), annual[1][i]);
+    assert.equal(Math.round(1000000 / (annual[0][i] / 60) * 100) / 100, annual[2][i]);
+    assert.ok(Math.abs(60 * 0.03 - annual[3][i]) < 1e-9);
+    assert.ok(Math.abs(annual[2][i] + annual[3][i] - annual[4][i]) < 1e-9);
+  }
+}
+if (reviewIds.has("30")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/30.html"), "utf8"));
+  const equity = dom('div[aria-label="가상 LNG 간접 지분 환산과 별도 구매 물량 비교"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text().replace(/,/g, "")));
+  assert.deepEqual(equity, [40, 25, 10, 1200, 120, 150]);
+  assert.equal(equity[0] / 100 * equity[1], equity[2]);
+  assert.equal(equity[3] * equity[2] / 100, equity[4]);
+  assert.ok(Math.abs(0.49 * 0.35 * 100 - 17.15) < 1e-9);
+  assert.equal(1.2 * 20, 24);
+  const money = dom('div[aria-label="가상 LNG 선적과 고객 인도의 에너지 및 부분 비용 계산"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text().replace(/,/g, "")));
+  assert.deepEqual(money, [1000000, 990000, 8000000, 1500000, 500000, 10000000]);
+  assert.equal(money[0] * 0.99, money[1]);
+  assert.equal(money[0] * 8, money[2]);
+  assert.equal(money.slice(2, 5).reduce((s, n) => s + n, 0), money[5]);
+  assert.equal(Math.round(money[5] / money[1] * 100) / 100, 10.10);
+  assert.equal(money[1] * 10 - money[5], -100000);
+}
+if (reviewIds.has("29")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/29.html"), "utf8"));
+  const cohorts = dom('div[aria-label="가상 최초 식재와 보식 집단의 추적 기간별 생존 수 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => dom(cell).text()));
+  assert.deepEqual(cohorts, [["1,000", "720", "24"], ["200", "180", "6"], ["1,200", "900", "같은 기간 아님"]]);
+  assert.equal(1000 + 200, 1200);
+  assert.equal(720 + 180, 900);
+  assert.equal(720 / 1000 * 100, 72);
+  assert.equal(180 / 200 * 100, 90);
+  assert.equal(900 / 1200 * 100, 75);
+  const observed = dom('div[aria-label="가상 복원 구역과 비교 구역의 전후 관찰 종 수"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(observed, [[20, 30, 10], [15, 22, 7]]);
+  for (const row of observed) assert.equal(row[1] - row[0], row[2]);
+  assert.equal(observed[0][2] - observed[1][2], 3);
+  assert.equal((30 - 20) / 20 * 100, 50);
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
