@@ -28,6 +28,7 @@ const primaryDomains = [
   "vakt.com", "asmo.com",
   "energy.gov.au", "noaa.gov", "tethys-robotics.ch",
   "gevernova.com", "otexts.com",
+  "bahri.sa", "imf.org",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -473,5 +474,56 @@ if (reviewIds.has("46")) {
     assert.equal(surplus, column === 1 ? 20 : 0);
     assert.equal(shortage * 3 + surplus, column === 1 ? 80 : 120);
   }
+}
+const shippingGasCostReviews = {
+  "45": [/2024년 1월 18일/, /Stena Provident·Stena Progressive/, /2025년 9월 11일/, /그 전량을 처리하는 장치/, /남은 79\.2톤/, /59\.3%/, /CII·EEXI 공식 등급 산정이 아니다/],
+  "44": [/2024년 6월 30일/, /31억 5,000만 표준입방피트/, /새 트레인 17개/, /가스 처리 능력/, /처리 전 원료 부피가 아니라/, /관로 증가율과 판매 증가율은 자동으로 같아지지 않는다/, /실제 MGS 계통도·압력 계산·밸브 또는 압축기 조작 절차가 아니다/],
+  "43": [/생산 석유환산배럴당 3\.51달러/, /석유환산배럴당 8\.0달러/, /3\.51 \+ 8\.0 = 11\.51/, /16\.7% 상승/, /10억은 실제 생산량이나 아람코 배당액이 아니라/, /전체 문서 검토로 표시하지 않았다/],
+};
+for (const [id, claims] of Object.entries(shippingGasCostReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Shipping, gas and cost evidence boundaries: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|지난)|저 또한|제가 현장에서|세계에서 가장 안전한|최후의 승자가 될 수밖에/, `No invented experience or universal guarantee: ${id}`);
+}
+if (reviewIds.has("45")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/45.html"), "utf8"));
+  const amounts = dom('div[aria-label="가상 선박 포집량과 순배출의 계산"] tbody tr').toArray().map(row => Number(dom(row).find("td").last().text().replace("tCO₂e", "")));
+  assert.deepEqual(amounts, [110, -88, 8.8, 14, 44.8]);
+  assert.ok(Math.abs(amounts.slice(0, 4).reduce((sum, n) => sum + n, 0) - amounts[4]) < 1e-9);
+  assert.equal(Math.round((110 - amounts[4]) / 110 * 1000) / 10, 59.3);
+  assert.equal(110 * 0.8, 88);
+  assert.equal(Math.round(88 * 0.9 * 10) / 10, 79.2);
+  const voyages = dom('div[aria-label="가상 항차 총배출과 실제 화물 운송량당 배출 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/[,톤]/g, ""))));
+  assert.deepEqual(voyages, [[1000, 100000, 1000, 10], [900, 60000, 1000, 15]]);
+  for (const [co2, cargo, distance, intensity] of voyages) assert.equal(co2 * 1e6 / (cargo * distance), intensity);
+  assert.equal((15 - 10) / 10 * 100, 50);
+}
+if (reviewIds.has("44")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/44.html"), "utf8"));
+  const rows = dom('div[aria-label="가상 가스 공급망의 구간별 상한과 병목 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(rows, [[8, 8, 8], [7, 7, 7], [6, 9, 9], [5, 5, 7], [5, 5, 7]]);
+  for (let i = 0; i < 3; i++) assert.equal(Math.min(...rows.slice(0, 4).map(row => row[i])), rows[4][i]);
+  assert.equal((rows[2][1] - rows[2][0]) / rows[2][0] * 100, 50);
+  assert.equal((rows[4][2] - rows[4][0]) / rows[4][0] * 100, 40);
+  assert.equal(135 / 30, 4.5);
+  assert.equal(135 / (6 * 30) * 100, 75);
+  assert.equal(135 / (6 * 25) * 100, 90);
+}
+if (reviewIds.has("43")) {
+  const content = await readFile(path.join(root, "data/reviewed/43.html"), "utf8");
+  const dom = cheerio.load(content);
+  const reported = dom('div[aria-label="아람코 2025년 평균 상류 비용과 자본지출의 공식 수치"] tbody tr').toArray().map(row => dom(row).find("td").toArray().slice(0, 2).map(cell => Number(dom(cell).text())));
+  assert.deepEqual(reported, [[3.51, 3.53], [8, 8.3]]);
+  const rows = dom('div[aria-label="가상 생산량 변화에 따른 총운영비와 평균 단가 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(rows, [[100, 80], [200, 200], [100, 80], [300, 280], [3, 3.5]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(rows[1][i] + rows[2][i], rows[3][i]);
+    assert.equal(rows[3][i] / rows[0][i], rows[4][i]);
+  }
+  assert.equal(Math.round((3.5 - 3) / 3 * 1000) / 10, 16.7);
+  assert.equal((1200 - 400) / 10, 80);
+  assert.match(content, /800억 ÷ 10억 = 80달러\/배럴/);
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
