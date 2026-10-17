@@ -30,6 +30,7 @@ const primaryDomains = [
   "gevernova.com", "otexts.com",
   "bahri.sa", "imf.org",
   "aramcolife.com", "hyundai.com",
+  "chemistrythatmatters.org", "arodrilling.com", "bsee.gov",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -578,5 +579,68 @@ if (reviewIds.has("40")) {
     assert.equal(money[0][i] * 900 + money[1][i] * 600, money[2][i]);
     assert.equal(money[2][i] - money[3][i] - money[4][i], money[5][i]);
   }
+}
+const centerSynergyDrillingReviews = {
+  "38": [/2022년 10월 23일/, /2019년 설립/, /AI Hub가 24시간 운영 통제센터는 아니/, /2010년 이후/, /다른 플레어 최소화 활동/, /총사용량은.*8% 증가/, /물리적 정확성이 보장됐다는 뜻은 아니다/],
+  "37": [/2020년 6월 17일/, /691억 달러/, /누적 시너지 편익을 32\.7억 달러/, /2030년 반복 연간 EBITDA 효과 목표 30억 달러/, /인수대금·투자지출·운전자본·이자·세금/, /같은 금액이 새로 생긴 것은 아니다/, /열람 리디렉션 문제/],
+  "36": [/2025년 9월 16일/, /6개월 시험/, /최종 성적과 완료 공지가 없어/, /원격이라고 자율인 것은 아니/, /≈ 3\.3%/, /-8,333달러/, /사고 확률이 66\.7% 낮아졌다는 뜻은 아니다/, /미국 관할 설명을 사우디 적용 법규/],
+};
+for (const [id, claims] of Object.entries(centerSynergyDrillingReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Center, synergy and drilling evidence boundaries: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|관찰)|저는 과거|제가 아는 한 지인|저 역시|완벽한 무인|사고를 원천 차단/, `No fabricated experience or safety guarantee: ${id}`);
+}
+if (reviewIds.has("38")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/38.html"), "utf8"));
+  const energy = dom('div[aria-label="가상 생산량과 에너지 총량 및 원단위 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(energy, [[100, 120], [1000, 1080], [10, 9], [1000, 1200]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(energy[1][i] / energy[0][i], energy[2][i]);
+    assert.equal(energy[0][i] * energy[2][0], energy[3][i]);
+  }
+  assert.equal((1080 - 1000) / 1000 * 100, 8);
+  assert.equal((10 - 9) / 10 * 100, 10);
+  assert.equal(1200 - 1080, 120);
+  const data = dom('div[aria-label="가상 데이터 수집량과 고유 유효 관측의 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(data, [[2400, 2160], [480, 0], [1920, 2160], [80, 90]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(data[0][i] - data[1][i], data[2][i]);
+    assert.equal(data[2][i] / (100 * 24) * 100, data[3][i]);
+  }
+}
+if (reviewIds.has("37")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/37.html"), "utf8"));
+  const cash = dom('div[aria-label="가상 통합 프로그램의 연간 편익과 지출 및 누적 현금 효과"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(cash, [[20, 30, 40], [5, 6, 8], [25, 5, 0], [-10, 19, 32], [-10, 9, 41]]);
+  let cumulative = 0;
+  for (let i = 0; i < 3; i++) {
+    assert.equal(cash[0][i] - cash[1][i] - cash[2][i], cash[3][i]);
+    cumulative += cash[3][i];
+    assert.equal(cumulative, cash[4][i]);
+  }
+  assert.equal(cash[0].reduce((s, n) => s + n, 0), 90);
+  assert.equal([...cash[1], ...cash[2]].reduce((s, n) => s + n, 0), 49);
+  const margin = dom('div[aria-label="가상 화학제품 판매 가격과 원료비 하락의 차액 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(margin, [[1000, 850], [600, 500], [250, 250], [150, 100]]);
+  for (let i = 0; i < 2; i++) assert.equal(margin[0][i] - margin[1][i] - margin[2][i], margin[3][i]);
+  assert.equal(Math.round((150 - 100) / 150 * 1000) / 10, 33.3);
+}
+if (reviewIds.has("36")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/36.html"), "utf8"));
+  const times = dom('div[aria-label="가상 연결 작업과 전체 시추 시간의 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(times, [[100, 100], [6, 4], [10, 6.667], [90, 90], [100, 96.667]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(Math.round(times[0][i] * times[1][i] / 60 * 1000) / 1000, times[2][i]);
+    assert.equal(times[2][i] + times[3][i], times[4][i]);
+  }
+  assert.equal(Math.round((6 - 4) / 6 * 1000) / 10, 33.3);
+  assert.equal(Math.round((100 - 96.667) / 100 * 1000) / 10, 3.3);
+  assert.equal(Math.round(200 / 60 * 5000 - 25000), -8333);
+  const exposure = dom('div[aria-label="가상 연결 작업의 작업구역 인원과 체류 시간 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(exposure, [[100, 100], [2, 1], [6, 4], [1200, 400]]);
+  for (let i = 0; i < 2; i++) assert.equal(exposure[0][i] * exposure[1][i] * exposure[2][i], exposure[3][i]);
+  assert.equal(Math.round((1200 - 400) / 1200 * 1000) / 10, 66.7);
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
