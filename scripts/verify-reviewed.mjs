@@ -33,6 +33,7 @@ const primaryDomains = [
   "chemistrythatmatters.org", "arodrilling.com", "bsee.gov",
   "nghc.com",
   "midoceanenergy.com", "next-decade.com", "fao.org",
+  "europa.eu",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -772,5 +773,74 @@ if (reviewIds.has("29")) {
   for (const row of observed) assert.equal(row[1] - row[0], row[2]);
   assert.equal(observed[0][2] - observed[1][2], 3);
   assert.equal((30 - 20) / 20 * 100, 50);
+}
+const polymerPyrolysisFactoryReviews = {
+  "28": [/2015년 Khurais/, /시작·종료 연도/, /공개 초록으로 규격의 대상만/, /600 × 4 = 2,400/, /2,600 \+ 2,600 \+ 300 = 5,500/, /ISO 준수 LCA를 수행한 것이 아니다/, /교체 공백 없이 같은 기능/],
+  "27": [/2023년 7월 17일/, /SATORP·Ju'aymah/, /480 ÷ 800 = 60%/, /400 ÷ 1,000 = 40%/, /200 \+ 200 \+ 120 \+ 400 \+ 80 = 1,000kg/, /앞의 열분해 공정과 이어지지 않는/, /물리적으로 측정한 재생 분자 비율로 바꾸거나/, /공정 연료로 썼다면/],
+  "26": [/2023년 1월 22일/, /VVUQ/, /0\.90 × 0\.85 × 0\.90 = 68\.85%/, /≈ 0\.66%/, /108 ÷ 168 ≈ 64\.3%/, /95 ÷ 168 ≈ 56\.5%/, /인과 증거는 없으며/, /가동시간 감소 자체를 실패로 단정하지 않는다/],
+};
+for (const [id, claims] of Object.entries(polymerPyrolysisFactoryReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Polymer, pyrolysis and factory evidence boundary: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|아는)|저는 과거|저 역시|현장에서 직접 확인한/, `No invented personal experience: ${id}`);
+}
+if (reviewIds.has("28")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/28.html"), "utf8"));
+  const inventory = dom('div[aria-label="가상 동등 기능 배관의 질량과 초기 배출 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(inventory, [[1000, 600], [2, 4], [2000, 2400], [500, 200], [2500, 2600]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(inventory[0][i] * inventory[1][i], inventory[2][i]);
+    assert.equal(inventory[2][i] + inventory[3][i], inventory[4][i]);
+  }
+  assert.equal((inventory[0][0] - inventory[0][1]) / inventory[0][0] * 100, 40);
+  const service = dom('div[aria-label="가상 배관의 이십 년 기능과 교체 횟수에 따른 부분 배출 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(service, [[2500, 2600, 2600], [0, 0, 2600], [100, 150, 300], [2600, 2750, 5500], [130, 137.5, 275]]);
+  for (let i = 0; i < 3; i++) {
+    assert.equal(service[0][i] + service[1][i] + service[2][i], service[3][i]);
+    assert.equal(service[3][i] / 20, service[4][i]);
+  }
+}
+if (reviewIds.has("27")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/27.html"), "utf8"));
+  const stages = dom('div[aria-label="가상 폐플라스틱의 수거 선별 열분해 및 규격 원료 질량 수지"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text().replace(/,/g, "")));
+  assert.deepEqual(stages, [1000, 800, 480]);
+  assert.equal(800 + 200, stages[0]);
+  assert.equal(480 + 200 + 120, stages[1]);
+  assert.equal(400 + 80, stages[2]);
+  assert.equal(200 + 200 + 120 + 400 + 80, stages[0]);
+  assert.equal(480 / 800 * 100, 60);
+  assert.equal(480 / 1000 * 100, 48);
+  assert.equal(400 / 1000 * 100, 40);
+  assert.equal(400 / 800 * 100, 50);
+  assert.equal(Math.round(400 / 480 * 1000) / 10, 83.3);
+  const attribution = dom('div[aria-label="가상 인증 원료의 공정 손실과 제품별 귀속량 계산"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text()));
+  assert.deepEqual(attribution, [100, 900, 800, 80, 40, 40]);
+  assert.equal((attribution[0] + attribution[1]) * 0.8, attribution[2]);
+  assert.equal(attribution[0] * 0.8, attribution[3]);
+  assert.equal(attribution[4] + attribution[5], attribution[3]);
+  assert.equal(attribution[4] / 200 * 100, 20);
+  assert.equal(Math.round(attribution[5] / 600 * 1000) / 10, 6.7);
+}
+if (reviewIds.has("26")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/26.html"), "utf8"));
+  const output = dom('div[aria-label="가상 제조 라인의 정지 속도 품질과 양품 생산 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(output, [[100, 100], [20, 10], [80, 90], [7200, 7650], [6840, 6885], [80, 90], [90, 85], [95, 90], [68.4, 68.85]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(output[0][i] - output[1][i], output[2][i]);
+    assert.equal(output[2][i] / output[0][i] * 100, output[5][i]);
+    assert.equal(output[3][i] / (output[2][i] * 100) * 100, output[6][i]);
+    assert.equal(output[4][i] / output[3][i] * 100, output[7][i]);
+    assert.equal(Math.round(output[5][i] * output[6][i] * output[7][i] / 100) / 100, output[8][i]);
+    assert.equal(output[4][i] / (output[0][i] * 100) * 100, output[8][i]);
+  }
+  assert.equal(Math.round((6885 - 6840) / 6840 * 10000) / 100, 0.66);
+  const time = dom('div[aria-label="가상 주간 생산 계획 시간과 달력 시간의 가동 비율 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(time, [[168, 168], [120, 100], [108, 95], [90, 95], [64.3, 56.5]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(time[2][i] / time[1][i] * 100, time[3][i]);
+    assert.equal(Math.round(time[2][i] / time[0][i] * 1000) / 10, time[4][i]);
+  }
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
