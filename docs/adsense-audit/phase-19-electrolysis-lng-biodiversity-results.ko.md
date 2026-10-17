@@ -27,4 +27,18 @@
 - 390px에서 표9개 모두 키보드 가로 이동·목차의 출처 이동·개정 내역 펼치기를 확인했다. 브라우저 오류 기록은 없었다. PC 분석표와 모바일 첫 화면을 저장 후 직접 확인했다.
 - 화면·측정 기록: `C:/Users/yoone/.codex/visualizations/2026/10/17/omybusiness-electrolysis-lng-biodiversity/`의 `local-layouts.json`, `local-interactions.json`, `local-31-analysis.jpg`, `local-*-mobile.jpg`.
 
-공개 배포 결과는 실제 확인 후 기록한다. AdSense 재심사·티스토리 일괄 삭제/비공개·DNS 변경은 이번 범위가 아니다.
+## 공개 배포 검증
+
+- 본문 반영 커밋: `2c26228eb66c913ac74a68f985b8389f7e621978`. GitHub main 반영 후 Cloudflare Pages 배포 `3d5674e0-3e43-4eff-b34d-5eaa3b3c283c`의 완료·성공 상태를 확인했다.
+- 공개 세 주소 모두 HTTP200이며 본문·제목·canonical·개정 시각·원래 발행일·구조화 데이터·스타일 참조가 로컬 빌드와 일치했다.
+- 공개 본문 SHA-256: 31번 `e126b0303965ff1a484c357518b74a07b4e015cd7e7b4bb42a3b4efe427e80e7`, 30번 `0f38becb8199a97e5fba22fcd066c401bc4968ae90f393e4255be0dc44960228`, 29번 `70e46c7e7c4028795cb89f359bf7a2e3664bd04e1a04cc4f1f1c286b5c47ffe5`.
+- 공개 브라우저에서도 세 글×네 화면 크기의 12개 배치 검사를 통과했다. 표9개 키보드 가로 이동·각 출처 목차 이동·개정 내역 펼치기가 동작하고 오류 로그는 없었다.
+- 공개 작성자 페이지의 82편·개정58편·검토 남은24편과 2026년10월17일 갱신을 확인했다. 정정 기록은58개다.
+- `live-layouts.json`, `live-interactions.json`, `live-inventory.json` 및 `live-31-analysis.jpg`, `live-30-analysis.jpg`, `live-29-analysis.jpg`, `live-*-mobile.jpg`를 같은 화면 기록 폴더에 저장했다. PC 분석표3개와 대표 모바일 화면을 직접 열어 확인했다.
+- 원문 PDF 확인 이미지도 `source-aramco-2025-printed40-41.png`로 보관했다. 공개 글의 가상 표를 회사 실측·독립 현장 시험으로 표시하지 않았다.
+
+## 다음 범위와 한계
+
+- 다음 검토 후보는 28번 차세대 고분자·27번 폐플라스틱 열분해·26번 스마트 팩토리다. 소재 적용 조건, 재활용 수율·귀속, 디지털 도입과 검증 성과의 구분을 우선한다. 이번 단계에서 이 세 글은 수정하지 않았다.
+- 총58편 개정은 내부 작업 현황일 뿐 Google의 승인 점수·확률·전체 검토 완료가 아니다. AdSense 재심사는 요청하지 않았으며 승인도 보장하지 않는다.
+- 티스토리 일괄 삭제/비공개·DNS·계정 설정은 변경하지 않았다.
