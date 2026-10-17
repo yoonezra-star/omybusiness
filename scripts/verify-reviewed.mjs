@@ -29,6 +29,7 @@ const primaryDomains = [
   "energy.gov.au", "noaa.gov", "tethys-robotics.ch",
   "gevernova.com", "otexts.com",
   "bahri.sa", "imf.org",
+  "aramcolife.com", "hyundai.com",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -525,5 +526,57 @@ if (reviewIds.has("43")) {
   assert.equal(Math.round((3.5 - 3) / 3 * 1000) / 10, 16.7);
   assert.equal((1200 - 400) / 10, 80);
   assert.match(content, /800억 ÷ 10억 = 80달러\/배럴/);
+}
+const desalEngineConversionReviews = {
+  "42": [/2021년 1월 27일/, /2020년 9월/, /나노여과 트레인/, /35,000kg/, /58\.2kg/, /4\.21kWh/, /특정 농축수를 바다에 방류해도 안전하다는 판정에 사용할 수 없다/],
+  "41": [/2022년 3월 30일/, /초희박 불꽃점화 엔진용 연료/, /가솔린 엔진/, /2024년 양산 완료의 증거가 아니다/, /25\.2kWh/, /63\.49kWh/, /차량·탱크·생산설비 제조/],
+  "40": [/2022년 11월 17일/, /2027년 1월 목표 상업 가동/, /원유 20 \+ 중질유 26MBD/, /독립 검증한 것은 아니다/, /60 \+ 57 = 117톤/, /수율은 이익률이 아니다/, /영업이익·순이익이 아니며/],
+};
+for (const [id, claims] of Object.entries(desalEngineConversionReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Desalination, engine and conversion boundaries: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|지난)|제가 업계|저도 처음|저 역시|제가 전문가/, `No invented experience: ${id}`);
+}
+if (reviewIds.has("42")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/42.html"), "utf8"));
+  const rows = dom('div[aria-label="가상 담수화 회수율과 농축수의 부피 및 염 수지 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/[,%]/g, ""))));
+  assert.deepEqual(rows, [[400, 500], [40, 50], [600, 500], [80, 100], [34920, 34900], [58.2, 69.8]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(rows[0][i] + rows[2][i], 1000);
+    assert.equal(rows[3][i] + rows[4][i], 35000);
+    assert.equal(rows[4][i] / rows[2][i], rows[5][i]);
+  }
+  const power = dom('div[aria-label="가상 담수화 설비의 전력과 최종 인도수 기준 비교"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text().replace(/,/g, "")));
+  assert.deepEqual(power, [200, 1200, 100, 100, 1600]);
+  assert.equal(power.slice(0, 4).reduce((sum, n) => sum + n, 0), power[4]);
+  assert.equal(Math.round(power[4] / 380 * 100) / 100, 4.21);
+  assert.equal(Math.round((69.8 - 58.2) / 58.2 * 1000) / 10, 19.9);
+}
+if (reviewIds.has("41")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/41.html"), "utf8"));
+  const energy = dom('div[aria-label="가상 수소 에너지 경로의 단계별 잔량 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace("kWh", ""))));
+  assert.deepEqual(energy, [[70, 63, 25.2], [70, 63, 31.5]]);
+  const emissions = dom('div[aria-label="가상 수소 경로의 전력 배출계수에 따른 배출 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace("약 ", ""))));
+  assert.deepEqual(emissions, [[79.37, 7.94, 47.62], [63.49, 6.35, 38.10]]);
+  for (let i = 0; i < 2; i++) {
+    assert.ok(Math.abs(100 * 0.7 * 0.9 * [0.4, 0.5][i] - energy[i][2]) < 1e-9);
+    const input = 20 / energy[i][2] * 100;
+    assert.equal(Math.round(input * 100) / 100, emissions[i][0]);
+    for (const [j, factor] of [[1, 0.1], [2, 0.6]]) assert.equal(Math.round(input * factor * 100) / 100, emissions[i][j]);
+  }
+}
+if (reviewIds.has("40")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/40.html"), "utf8"));
+  const accounting = dom('div[aria-label="가상 화학전환 중간제품과 최종제품의 중복 집계 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/모노머 |폴리머 /g, ""))));
+  assert.deepEqual(accounting, [[60, 57], [25, 25], [15, 18], [100, 100]]);
+  for (let i = 0; i < 2; i++) assert.equal(accounting.slice(0, 3).reduce((sum, row) => sum + row[i], 0), accounting[3][i]);
+  const money = dom('div[aria-label="가상 화학 수율과 변동가공비 및 판매 차액 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(money, [[60, 70], [40, 30], [78000, 81000], [60000, 60000], [12000, 18000], [6000, 3000]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(money[0][i] * 900 + money[1][i] * 600, money[2][i]);
+    assert.equal(money[2][i] - money[3][i] - money[4][i], money[5][i]);
+  }
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
