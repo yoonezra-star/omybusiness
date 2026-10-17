@@ -31,6 +31,7 @@ const primaryDomains = [
   "bahri.sa", "imf.org",
   "aramcolife.com", "hyundai.com",
   "chemistrythatmatters.org", "arodrilling.com", "bsee.gov",
+  "nghc.com",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -642,5 +643,70 @@ if (reviewIds.has("36")) {
   assert.deepEqual(exposure, [[100, 100], [2, 1], [6, 4], [1200, 400]]);
   for (let i = 0; i < 2; i++) assert.equal(exposure[0][i] * exposure[1][i] * exposure[2][i], exposure[3][i]);
   assert.equal(Math.round((1200 - 400) / 1200 * 1000) / 10, 66.7);
+}
+const hydrogenShaheenTrainingReviews = {
+  "35": [/2022년 8월 4일/, /37,800톤/, /8,075톤/, /하루 6톤 능력을 목표로 한 엔지니어링 설계 단계/, /ACWA Power·Air Products·NEOM/, /40\.8%/, /대기 누출이 아니라/, /실제 LCA 또는 인증 심사를 수행한 글이 아니다/],
+  "34": [/2026년 6월 25일/, /9조 2,580억 원/, /2027년 1월/, /2026년 10월 현재 상업 생산·판매가 확정됐다는 기록으로 쓰지 않는다/, /규격 미달 총량/, /후자를 공식 설비 이용률이라고 부르지 않는다/, /일별 출근 최대 120명도 교대가 있다면/],
+  "32": [/UPDC/, /100만 건 초과/, /2025년 708명/, /320 ÷ 90 ≈ 3\.56시간/, /48 ÷ 100 = 48%/, /평가에 참여하지 않은 40명을 전부 실패 또는 성공으로 가정하지 않는다/, /실제 교육생의 개인정보나 시험 기록을 수집하지 않았다/],
+};
+for (const [id, claims] of Object.entries(hydrogenShaheenTrainingReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Hydrogen, Shaheen and training boundaries: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|아는)|저는 과거|저 역시|전 직원의 역량을 보장|영구 고용을 보장/, `No invented experience or guaranteed results: ${id}`);
+}
+if (reviewIds.has("35")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/35.html"), "utf8"));
+  const rows = dom('div[aria-label="가상 수소 생산의 선택 흐름 포집과 전체 배출 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(rows, [[6, 0.6], [4, 4], [2, 2], [0, 0.5], [12, 7.1]]);
+  for (let i = 0; i < 2; i++) assert.ok(Math.abs(rows.slice(0, 4).reduce((s, row) => s + row[i], 0) - rows[4][i]) < 1e-9);
+  assert.ok(Math.abs(rows[0][0] * 0.1 - rows[0][1]) < 1e-9);
+  assert.equal(5.4 / 10 * 100, 54);
+  assert.equal(Math.round((12 - 7.1) / 12 * 1000) / 10, 40.8);
+  const delivery = dom('div[aria-label="가상 공장 출구와 고객 인도 수소의 배출 원단위 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,|약 /g, ""))));
+  assert.deepEqual(delivery, [[1000, 900], [3000, 4200], [3, 4.67]]);
+  assert.equal(delivery[1][1] - delivery[1][0], 1200);
+  for (let i = 0; i < 2; i++) assert.equal(Math.round(delivery[1][i] / delivery[0][i] * 100) / 100, delivery[2][i]);
+}
+if (reviewIds.has("34")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/34.html"), "utf8"));
+  const rows = dom('div[aria-label="가상 초기 가동의 생산 규격 제품 판매 및 재고 흐름"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(rows, [[0, 0, 0, 0], [50, 40, 30, 10], [80, 72, 60, 22], [100, 95, 100, 17], [230, 207, 190, 17]]);
+  let stock = 0;
+  for (const row of rows.slice(0, 4)) {
+    assert.ok(row[0] >= row[1]);
+    stock += row[1] - row[2];
+    assert.equal(stock, row[3]);
+  }
+  for (let i = 0; i < 3; i++) assert.equal(rows.slice(0, 4).reduce((s, row) => s + row[i], 0), rows[4][i]);
+  assert.equal(stock, rows[4][3]);
+  assert.equal(rows[4][0] - rows[4][1], 23);
+  assert.equal(Math.round(rows[4][0] / 400 * 1000) / 10, 57.5);
+  assert.equal(Math.round(rows[4][2] / 400 * 1000) / 10, 47.5);
+  const people = dom('div[aria-label="가상 건설 인력의 일별 인원과 중복 제거 집계"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text()));
+  assert.deepEqual(people, [100, 120, 80, 220, 140, 120]);
+  assert.equal(people[0] + people[1], people[3]);
+  assert.equal(people[0] + people[1] - people[2], people[4]);
+  assert.equal(Math.max(...people.slice(0, 2)), people[5]);
+}
+if (reviewIds.has("32")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/32.html"), "utf8"));
+  const reported = dom('div[aria-label="아람코 2025년 교육 지표의 단위와 비교 범위"] tbody tr').toArray().slice(0, 2).map(row => dom(row).find("td").toArray().slice(0, 2).map(cell => Number(dom(cell).text())));
+  assert.deepEqual(reported, [[13.8, 16.6], [140, 167]]);
+  const courses = dom('div[aria-label="가상 두 교육 과정의 수료 건수와 학습 시간"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => dom(cell).text()));
+  assert.deepEqual(courses, [["60", "2", "120"], ["50", "4", "200"], ["110", "해당 없음", "320"]]);
+  for (const row of courses.slice(0, 2)) assert.equal(Number(row[0]) * Number(row[1]), Number(row[2]));
+  assert.equal(60 + 50 - 20, 90);
+  assert.equal(90 / 200 * 100, 45);
+  assert.equal(Math.round(320 / 90 * 100) / 100, 3.56);
+  assert.equal(Math.round(320 / 110 * 100) / 100, 2.91);
+  const evaluation = dom('div[aria-label="가상 교육 과정의 수료와 후속 평가 및 통과 집계"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text()));
+  assert.deepEqual(evaluation, [100, 80, 60, 36, 48]);
+  assert.equal(evaluation[1] / evaluation[0] * 100, 80);
+  assert.equal(evaluation[2] / evaluation[1] * 100, 75);
+  assert.equal(evaluation[4] / evaluation[2] * 100, 80);
+  assert.equal(evaluation[4] / evaluation[0] * 100, 48);
+  assert.equal((evaluation[4] - evaluation[3]) / evaluation[2] * 100, 20);
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
