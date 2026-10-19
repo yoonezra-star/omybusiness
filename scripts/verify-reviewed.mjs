@@ -897,4 +897,61 @@ if (reviewIds.has("23")) {
   for (let i = 0; i < 2; i++) assert.equal(patents.slice(0, 3).reduce((sum, row) => sum + row[i], 0), patents[3][i]);
   assert.equal(Math.round(818 * 0.2 * 10) / 10, 163.6);
 }
+const standardsCorrosionNanoReviews = {
+  "22": [/2026년 9월 16일/, /모든 기존 인증의 즉시 무효/, /비복원 추출/, /무검출일 때 로트가 무결점일 확률/, /940 ÷ 1,000 = 94%/, /980 ÷ 1,000 = 98%/, /유료 표준 전문을 검토하거나/],
+  "21": [/2025년 11월 11일/, /매개변수 40,000개는 두께 센서 40,000개/, /약 5개월 노출/, /100\.000 - 0\.200 \+ 0\.250 = 100\.050g/, /평균의 3\.2배/, /실제 배관 면적을 대표하는 표본 설계는 아니다/, /허용 압력, 검사 주기나 운전 계속 여부를 정하지 않는다/],
+  "20": [/Autonomous Reservoir Nano-Agents/, /2020년 4월 17일/, /자유롭게 이동하는 나노 입자라고 특정하지 않는다/, /\(11\.5 - 2\) ÷ 10 × 100 = 95%/, /\(9 - 2\) ÷ 10 × 100 = 70%/, /분석상의 첨가 회수율/, /2026년 현장 나노 센서의 승인 기준이 아니다/, /사건에서 보고까지는 8시간/],
+};
+for (const [id, claims] of Object.entries(standardsCorrosionNanoReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Standards, corrosion and nano evidence boundary: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|아는)|저는 과거|현장에서 직접 확인한/, `No invented personal experience: ${id}`);
+}
+if (reviewIds.has("22")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/22.html"), "utf8"));
+  const samples = dom('div[aria-label="가상 천 개 로트에서 표본 크기별 불량 미검출 확률"] tbody tr').toArray().map(row => [Number(dom(row).find("th").text()), Number(dom(row).find("td").first().text().replace("%", ""))]);
+  assert.deepEqual(samples, [[50, 35.5], [100, 11.9], [200, 1.1]]);
+  for (const [n, expected] of samples) {
+    let zeroDefects = 1;
+    for (let i = 0; i < n; i++) zeroDefects *= (980 - i) / (1000 - i);
+    assert.equal(Math.round(zeroDefects * 1000) / 10, expected);
+  }
+  const yieldCounts = dom('div[aria-label="가상 최초 검사와 재작업 후 최종 합격의 고유 제품 집계"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text().replace(/,/g, "")));
+  assert.deepEqual(yieldCounts, [1000, 940, 60, 40, 20, 980]);
+  assert.equal(yieldCounts[1] + yieldCounts[2], yieldCounts[0]);
+  assert.equal(yieldCounts[3] + yieldCounts[4], yieldCounts[2]);
+  assert.equal(yieldCounts[1] + yieldCounts[3], yieldCounts[5]);
+  assert.equal(yieldCounts[1] / yieldCounts[0] * 100, 94);
+  assert.equal(yieldCounts[5] / yieldCounts[0] * 100, 98);
+}
+if (reviewIds.has("21")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/21.html"), "utf8"));
+  const mass = dom('div[aria-label="가상 부식 시편의 금속 손실과 침전물에 따른 질량 수지"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text()));
+  assert.deepEqual(mass, [100, 0.2, 99.8, 0.25, 100.05, 0.05]);
+  assert.ok(Math.abs(mass[0] - mass[1] - mass[2]) < 1e-9);
+  assert.ok(Math.abs(mass[2] + mass[3] - mass[4]) < 1e-9);
+  assert.ok(Math.abs(mass[4] - mass[0] - mass[5]) < 1e-9);
+  const thickness = dom('div[aria-label="가상 네 측정점의 잔존 두께와 국부 손실 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(thickness, [[10, 9.9, 0.1], [10, 9.9, 0.1], [10, 9.9, 0.1], [10, 8.8, 1.2], [10, 9.625, 0.375]]);
+  for (const row of thickness) assert.ok(Math.abs(row[0] - row[1] - row[2]) < 1e-9);
+  for (let i = 0; i < 3; i++) assert.ok(Math.abs(thickness.slice(0, 4).reduce((sum, row) => sum + row[i], 0) / 4 - thickness[4][i]) < 1e-9);
+  assert.ok(Math.abs(thickness[3][2] / thickness[4][2] - 3.2) < 1e-9);
+}
+if (reviewIds.has("20")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/20.html"), "utf8"));
+  const spike = dom('div[aria-label="가상 기준 매질과 염분 시료의 분석 첨가 회수율 계산"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(spike, [[2, 2], [10, 10], [11.5, 9], [9.5, 7], [95, 70]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(spike[2][i] - spike[0][i], spike[3][i]);
+    assert.equal(spike[3][i] / spike[1][i] * 100, spike[4][i]);
+  }
+  const times = dom('div[aria-label="가상 현장 사건부터 시료 채취 분석과 보고까지의 시간 기록"] tbody tr').toArray().map(row => dom(row).find("td").first().text());
+  assert.deepEqual(times, ["12:00", "13:00", "15:00", "19:00", "20:00"]);
+  const hours = times.map(value => Number(value.split(":")[0]));
+  assert.equal(hours[4] - hours[0], 8);
+  assert.equal(hours[4] - hours[1], 7);
+  assert.equal(hours[3] - hours[2], 4);
+}
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));

@@ -1,0 +1,61 @@
+<p>부식 관리에는 재료 선정·환경 관리·검사·예측이 함께 필요하다. 비금속이나 억제제 한 종류가 반영구 수명을 보장하지 않으며, 예측 모델과 실제 두께 측정도 같은 증거가 아니다. 공개 사례의 관측 범위를 확인하고, 질량 증가 속 금속 손실과 평균값이 가릴 수 있는 국부 손상을 가상 표로 분석한다.</p>
+
+<h2 id="corrosion-evidence">예측·두께 측정·회수 시편 분석은 다른 관측이다</h2>
+<p>아람코의 2025년 11월 11일 부식 관련 연설은 HySCorr가 20년에 걸친 데이터셋을 활용하는 예측 기술이라고 설명한다. 같은 연설의 FalconScan은 배관에 접근해 초음파 두께를 측정하는 드론 기술이다. <a class="source-ref" href="#source-21-1">[1]</a> 회사가 소개한 특정 기술을 모든 배관 전 구간의 매초 직접 측정·고장 사전 차단 실적으로 확대하지 않는다.</p>
+<p>2022년 AI Hub 소개에는 배관의 구조·성능 관련 약 40,000개 매개변수와 유속·물 축적 시뮬레이션을 활용한 부식 예측이 나온다. <a class="source-ref" href="#source-21-2">[2]</a> 모델의 매개변수 40,000개는 두께 센서 40,000개나 독립 현장 측정점 40,000곳이라는 뜻이 아니다. 모델이 표시한 위험 구역과 실제 검사로 확인된 금속 손실은 구분해야 한다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="부식 예측 초음파 측정과 회수 시편 분석의 관측 범위 비교">
+<table class="analysis-table"><caption>공개 기술의 관측 방식 · 회사 소개와 논문을 전사 검증 결과로 합치지 않는다</caption>
+<thead><tr><th scope="col">방법</th><th scope="col">얻는 정보</th><th scope="col">해석의 한계</th></tr></thead><tbody>
+<tr><th scope="row">HySCorr·AI 모델 [1][2]</th><td>입력 조건에 따른 부식 위험 예측</td><td>현재 모든 위치의 실측 두께가 아님</td></tr>
+<tr><th scope="row">FalconScan 초음파 [1]</th><td>접근·측정한 위치의 두께 정보</td><td>미측정 위치·미래 수명을 자동 보증하지 않음</td></tr>
+<tr><th scope="row">유정 회수 시편 [3]</th><td>회수 뒤 표면·성분·국부 손상 분석</td><td>회수 전 매 순간의 변화나 전 배관 상태가 아님</td></tr>
+</tbody></table></div>
+
+<h2 id="corrosion-coupon">회수 후 분석에서 확인한 것을 실시간 감시로 바꾸지 않는다</h2>
+<p>2018년 겨울 Journal of Technology의 해당 논문 인쇄 59쪽은 사워 가스 유정에서 약 5개월 노출한 시편을 회수해 SEM·EDS·XRD·표면 형상 분석을 수행한 연구를 소개한다. 스케일이 쌓인 표면에서 국부 부식도 관찰했다. <a class="source-ref" href="#source-21-3">[3]</a> 이는 특정 재료·환경·기간의 사후 분석이지 전 배관이 실시간으로 같은 상태였다는 자료가 아니다.</p>
+<p>부식 억제제는 적용 환경과 재료·유동·노출 상태에 따라 평가해야 한다. 비금속도 금속의 부식 문제에 대응하는 선택지일 수 있지만 열·압력·투과·접합·노화 등 다른 제약이 있다. 스케일층이 보인다고 보호 효과를 일괄 인정하거나, 억제제를 사용했다는 사실만으로 무부식·무누출·반영구 사용을 선언하지 않는다. 제품별 조건과 수명 비교는 관련 소재·부품 글에서 별도로 다룬다.</p>
+
+<h2 id="corrosion-mass">시편 무게가 늘어도 금속은 줄었을 수 있다</h2>
+<p>다음은 실제 논문의 수치를 옮긴 것이 아닌 자체 가상 질량 수지다. 깨끗한 금속 시편이 100.000g에서 시작해 금속 0.200g을 잃고, 회수 때 부식 생성물·외부 침전물 등 부착물 0.250g이 남았다고 놓는다. 여기서 부착물은 회수 시점 시편에 붙어 있는 총질량이며 금속 손실과 따로 주어진 가정이다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="가상 부식 시편의 금속 손실과 침전물에 따른 질량 수지">
+<table class="analysis-table"><caption>가상 질량 · g · 부착물이 있는 회수 무게와 잔존 금속량은 다르다</caption>
+<thead><tr><th scope="col">항목</th><th scope="col">질량</th><th scope="col">의미</th></tr></thead><tbody>
+<tr><th scope="row">처음 깨끗한 금속</th><td>100.000</td><td>초기 기준</td></tr>
+<tr><th scope="row">금속 손실</th><td>0.200</td><td>초기 금속에서 차감</td></tr>
+<tr><th scope="row">남아 있는 금속</th><td>99.800</td><td>100.000 - 0.200</td></tr>
+<tr><th scope="row">회수 때 부착물</th><td>0.250</td><td>시편에 붙은 총질량</td></tr>
+<tr><th scope="row">부착물 포함 회수 무게</th><td>100.050</td><td>99.800 + 0.250</td></tr>
+<tr><th scope="row">겉보기 무게 증가</th><td>0.050</td><td>100.050 - 100.000</td></tr>
+</tbody></table></div>
+<p>100.000 - 0.200 + 0.250 = 100.050g이므로 겉보기 무게가 0.050g 늘어도 금속은 0.200g 줄었다. 회수 전후 무게만 보고 “부식이 없었다”거나 억제제가 완벽히 작동했다고 결론 내릴 수 없는 반례다. 반대로 실제 측정에서 무게가 늘었다고 이 예시의 손실량을 그대로 적용할 수도 없다.</p>
+<p>질량 손실로 부식 속도를 계산하려면 면적·시간·밀도와 검증된 시편 처리·보정 절차가 필요하다. 부착물 제거 과정의 금속 손실, 잔류물·건조 상태·측정 불확실성도 결과에 영향을 준다. 이 글은 세척 약품·처리 조건·억제제 농도·주입량을 제시하지 않으며 위 표만으로 실제 부식률을 산출하지 않는다.</p>
+
+<h2 id="corrosion-local">네 점의 평균은 가장 깊은 손상을 대신하지 못한다</h2>
+<p>앞의 질량 예시와 별개로, 네 측정점의 초기 두께가 각각 10.0mm였다고 하자. 이후 같은 지점을 같은 방법으로 확인한 값이 다음과 같고 측정 오차는 생략했다고 놓는다. 네 점을 동등하게 가중한 산술평균일 뿐, 실제 배관 면적을 대표하는 표본 설계는 아니다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="가상 네 측정점의 잔존 두께와 국부 손실 비교">
+<table class="analysis-table"><caption>가상 동일 지점 두께 · mm · 잔여 수명이나 운전 허용 기준이 아니다</caption>
+<thead><tr><th scope="col">측정점</th><th scope="col">초기 두께</th><th scope="col">이후 두께</th><th scope="col">손실</th></tr></thead><tbody>
+<tr><th scope="row">A</th><td>10.0</td><td>9.9</td><td>0.1</td></tr>
+<tr><th scope="row">B</th><td>10.0</td><td>9.9</td><td>0.1</td></tr>
+<tr><th scope="row">C</th><td>10.0</td><td>9.9</td><td>0.1</td></tr>
+<tr><th scope="row">D</th><td>10.0</td><td>8.8</td><td>1.2</td></tr>
+<tr><th scope="row">네 점 산술평균</th><td>10.0</td><td>9.625</td><td>0.375</td></tr>
+</tbody></table></div>
+<p>평균 손실은 (0.1 + 0.1 + 0.1 + 1.2) ÷ 4 = 0.375mm지만 D의 손실은 1.2mm로 평균의 3.2배다. 평균 잔존 두께 9.625mm를 전 구간 최소 두께로 쓰면 국부 손상을 숨기게 된다. 네 점 사이에 더 깊은 구멍이 있을 가능성도 이 표는 배제하지 못한다.</p>
+<p>잔여 수명은 이 평균을 과거 기간으로 나눠 직선 연장하는 것만으로 확정되지 않는다. 손상 형상·위치 재현성·검사 해상도·재료·하중·환경 변화와 전문적인 건전성 평가가 필요하다. 이 글은 8.8mm의 안전·불안전 판정, 허용 압력, 검사 주기나 운전 계속 여부를 정하지 않는다.</p>
+
+<h2 id="corrosion-proof">재료·환경·측정 범위·국부 검증을 연결한다</h2>
+<figure class="analysis-diagram"><ol class="analysis-flow">
+<li><span>01 · 조건</span><strong>무엇이 노출됐나</strong><p>재료·환경·기간을 특정한다.</p></li>
+<li><span>02 · 관측</span><strong>예측인가 실측인가</strong><p>모델·두께·회수 시편을 나눈다.</p></li>
+<li><span>03 · 수지</span><strong>무게에 무엇이 있나</strong><p>금속 손실과 부착물 질량을 구분한다.</p></li>
+<li><span>04 · 국부</span><strong>평균 밖 손상은 어떤가</strong><p>최소 두께·미측정 영역을 따로 본다.</p></li>
+</ol><figcaption>자체 부식 기사 검토도. 약품 처리·현장 검사·정비·운전 및 잔여 수명 판정 지침이 아니다.</figcaption></figure>
+
+<h2 id="corrosion-sources">출처와 확인 범위</h2>
+<ol class="evidence-list">
+<li id="source-21-1"><a href="https://www.aramco.com/en/news-media/speeches/2025/keynote-speech-by-ahmad-o-khowaiter-at-the-middle-east-corrosion-conference-2025" target="_blank" rel="noopener noreferrer">아람코 · Middle East Corrosion Conference 연설, 2025-11-11</a>. HySCorr·FalconScan의 회사 설명. 독립적인 전사 성능 시험이 아니다.</li>
+<li id="source-21-2"><a href="https://www.aramco.com/en/news-media/elements-magazine/2022/the-ai-hub-at-aramco" target="_blank" rel="noopener noreferrer">아람코 · The AI Hub at Aramco, 2022</a>. 배관 매개변수·시뮬레이션 소개. 센서 개수나 현재 전 구간 감시율로 읽지 않았다.</li>
+<li id="source-21-3"><a href="https://www.aramco.com/-/media/publications/jot/2018-jot-winter.pdf" target="_blank" rel="noopener noreferrer">Journal of Technology, Winter 2018 · 부식·스케일 모니터링 논문, 인쇄 59~64쪽</a>. 특정 사워 가스 유정의 시편 회수 후 분석. 가상 질량·두께 표의 실제 원자료가 아니다.</li>
+</ol>
+<p class="evidence-note">2026년 10월 19일 원문 확인. 전 배관 매초 관측·완전 부식 방지·반영구 수명·무누출 및 안전 보장을 제거했다. 표는 자체 가정이며 실제 시편 실험·두께 검사·억제제 평가·건전성 평가를 수행하지 않았다.</p>
