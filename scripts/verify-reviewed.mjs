@@ -34,6 +34,7 @@ const primaryDomains = [
   "nghc.com",
   "midoceanenergy.com", "next-decade.com", "fao.org",
   "europa.eu",
+  "wipo.int",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -842,5 +843,58 @@ if (reviewIds.has("26")) {
     assert.equal(time[2][i] / time[1][i] * 100, time[3][i]);
     assert.equal(Math.round(time[2][i] / time[0][i] * 1000) / 10, time[4][i]);
   }
+}
+const mineralShaleResearchReviews = {
+  "25": [/2023년 10월 9일/, /인쇄 35쪽/, /연간 CO₂ 400톤/, /2026년 첫 장치 시험 계획/, /60 \+ 60 = 120톤으로 합산하면 안 된다/, /60 - 55 - 10 = -5/, /모두 직접 공기 포집에서 왔다고 추가 가정/, /같은 60톤 고정을 대기 제거라고 부르지 않는다/],
+  "24": [/2026년 2월 26일/, /2025년 12월 시작/, /100 - 30 \+ 40 = 110/, /49 \+ 28 = 77/, /10 × 30 \+ 7 × 30 \+ 5 × 30 = 660/, /≈ 36\.4%/, /담수 취수 감소율도 확정할 수 없다/, /600 ÷ 1,000을 이번 주입액의 회수율로 쓰지 않는다/],
+  "23": [/2025년 4월 말까지/, /사우디 내 R&amp;D 센터 4개/, /숫자를 골라 합친 13개/, /직접 프로그램 비용과 추정 간접비/, /585 ÷ 974 ≈ 60\.1%/, /818 × 20% = 163\.6/, /정확히 164건이라고 재게시하지 않는다/, /가상 자료/, /패밀리 수가 제품 수와 일치하지도 않는다/],
+};
+for (const [id, claims] of Object.entries(mineralShaleResearchReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Mineralization, shale and research evidence boundary: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|아는)|저는 과거|현장에서 직접 확인한/, `No invented personal experience: ${id}`);
+}
+if (reviewIds.has("25")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/25.html"), "utf8"));
+  const carbon = dom('div[aria-label="가상 광물화의 기존 탄산염과 새 고정량 및 가스 수지"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text()));
+  assert.deepEqual(carbon, [20, 80, 60, 100, 40]);
+  assert.equal(carbon[1] - carbon[0], carbon[2]);
+  assert.equal(carbon[3] - carbon[4], carbon[2]);
+  assert.equal(carbon[2] / carbon[3] * 100, 60);
+  const net = dom('div[aria-label="가상 대기 유래 CO2 광물화의 총고정과 전 과정 순효과 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(net, [[60, 60], [20, 55], [10, 10], [30, -5]]);
+  for (let i = 0; i < 2; i++) assert.equal(net[0][i] - net[1][i] - net[2][i], net[3][i]);
+}
+if (reviewIds.has("24")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/24.html"), "utf8"));
+  const cohorts = dom('div[aria-label="가상 기존 우물과 신규 우물 집단의 시점별 가스 생산율"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(cohorts, [[100, 70, 49], [0, 40, 28], [0, 0, 30], [100, 110, 107]]);
+  for (let i = 0; i < 3; i++) assert.equal(cohorts.slice(0, 3).reduce((sum, row) => sum + row[i], 0), cohorts[3][i]);
+  assert.equal(110 - 49 - 28, 33);
+  const volume = dom('div[aria-label="가상 우물의 월평균 생산율과 구십 일 누적 가스량"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/약 /g, ""))));
+  assert.deepEqual(volume, [[10, 300], [7, 210], [5, 150], [7.33, 660]]);
+  for (const row of volume.slice(0, 3)) assert.equal(row[0] * 30, row[1]);
+  assert.equal(volume.slice(0, 3).reduce((sum, row) => sum + row[1], 0), volume[3][1]);
+  assert.equal(Math.round(volume[3][1] / 90 * 100) / 100, volume[3][0]);
+  assert.equal(Math.round((10 * 90 - 660) / 660 * 1000) / 10, 36.4);
+  const water = dom('div[aria-label="가상 파쇄 용수 공급과 회수수 재이용의 서로 다른 분모"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(water, [[300, 600, 50], [300, 1000, 30], [700, 1000, 70]]);
+  for (const row of water) assert.equal(row[0] / row[1] * 100, row[2]);
+  assert.equal(water[1][0] + water[2][0], water[1][1]);
+}
+if (reviewIds.has("23")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/23.html"), "utf8"));
+  const spend = dom('div[aria-label="아람코 보고서의 연도별 연구개발비와 지속가능성 기술 지출"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(spend, [[540, 623, 585], [861, 996, 974], [63, 63, 60]]);
+  for (let i = 0; i < 3; i++) assert.equal(Math.round(spend[0][i] / spend[1][i] * 100), spend[2][i]);
+  assert.equal(Math.round(585 / 974 * 1000) / 10, 60.1);
+  assert.equal(623 - 585, 38);
+  assert.equal(Math.round((623 - 585) / 623 * 1000) / 10, 6.1);
+  const patents = dom('div[aria-label="가상 연구 성과의 출원 건수와 특허 패밀리 집계"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(patents, [[4, 1], [3, 1], [2, 1], [9, 3]]);
+  for (let i = 0; i < 2; i++) assert.equal(patents.slice(0, 3).reduce((sum, row) => sum + row[i], 0), patents[3][i]);
+  assert.equal(Math.round(818 * 0.2 * 10) / 10, 163.6);
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
