@@ -27,4 +27,17 @@
 - 화면·측정 기록: `C:/Users/yoone/.codex/visualizations/2026/10/19/omybusiness-mineralization-shale-research/`의 `local-layouts.json`, `local-interactions.json`, PC 분석표3개와 모바일 첫 화면. PC 세 화면과 대표 모바일 화면을 직접 열어 확인했다.
 - PDF 원문 확인 이미지는 같은 폴더의 `source-aramco-2025-printed34-35.png`, `source-aramco-2025-printed40-41.png`로 보관했다.
 
-공개 배포 결과는 실제 확인 후 기록한다. AdSense 재심사·티스토리 일괄 삭제/비공개·DNS 변경은 이번 범위가 아니다.
+## 공개 배포 검증
+
+- 본문 반영 커밋 `b3246ea06aecd63e72e75f55fbae3ccef6e6640a`을 GitHub main에 반영했다. Cloudflare Pages 배포 `0e6182fb-3bef-42f6-a49d-c003ace66ca0`의 완료·성공 상태를 확인했다.
+- 공개 세 주소 모두 HTTP200이며 제목·본문·canonical·개정 시각·원래 발행일·구조화 데이터·스타일 참조가 로컬 빌드와 일치했다.
+- 공개 본문 SHA-256: 25번 `119945df8ebcf8e29ccf23196c562d297fd666ae244d0ef76c1a5680ab69d31d`, 24번 `8b9c0f5987310abad1c3315032c38825d271b46ed8f414ad0e888ec0ed4f1209`, 23번 `efa1a3b8c4a8dfb5e86f62f60b430a6c5effb24aa872df50d8ec7af33c7968f1`.
+- 공개 브라우저에서도 세 글×네 크기의12개 배치 검사 통과. 표9개 키보드 가로 이동·각 출처 목차 이동·개정 내역 펼치기가 동작했고 오류 로그는 없었다.
+- 작성자 페이지의 전체82편·개정64편·검토 남은18편·2026년10월19일 갱신과 정정 기록64개를 확인했다.
+- 같은 화면 기록 폴더에 `live-layouts.json`, `live-interactions.json`, `live-inventory.json`, `live-25-analysis.jpg`, `live-24-analysis.jpg`, `live-23-analysis.jpg`, `live-*-mobile.jpg`를 저장했다. 공개 PC 분석표3개와 대표 모바일 화면을 직접 열어 확인했다.
+
+## 다음 범위와 한계
+
+- 다음 검토 후보는22번 에너지 기술 표준·21번 부식 방지·20번 나노 기술 센서다. 표준 참여와 제품 적합성, 부식 억제와 실제 잔존 수명, 연구 검출 성능과 현장 신뢰성을 우선 구분한다. 이번 단계에서는 이 세 글을 수정하지 않았다.
+- 64편 개정은 내부 집계이지 Google의90점·승인 확률·전체 검토 완료가 아니다. AdSense 재심사는 요청하지 않았으며 승인을 보장하지 않는다.
+- 티스토리 일괄 삭제/비공개·DNS·계정 설정은 변경하지 않았다.
