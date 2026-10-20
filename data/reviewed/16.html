@@ -1,0 +1,62 @@
+<p>“소용돌이 방지”라는 이름만으로 배관 진동·기포·부식이 모두 사라지는 것은 아니다. 공개된 아람코 지원 연구의 범위부터 확인하고, 서로 다른 유동 현상과 가상 진동·전력 비교로 설계 개선을 판단할 때 빠지기 쉬운 조건을 살펴본다.</p>
+
+<h2 id="flow-evidence">과거 스트레이너 연구 과제와 전사 도입 실적을 구분한다</h2>
+<p>KFUPM Hassan M. Badr 교수의 대학 연구 페이지에는 “Vortex Shedding-Free Strainer”가 2008년 사우디아람코 지원 과제로 기재돼 있다. <a class="source-ref" href="#source-16-1">[1]</a> 확인되는 것은 과제명·지원 주체·연도다. 이 목록만으로 모든 배관에 설치된 독자 장치, 상용화 완료, 실제 수명 연장률이나 전사 절감액을 확인할 수 없다.</p>
+<p>해당 연구의 내부 보고서·시험 조건·설치 목록은 확보하지 않았다. 따라서 “어떠한 환경에서도 난류를 근본 차단했다”는 기존 설명을 유지하지 않는다. 아래는 특정 아람코 장치의 재현이 아니라 공개된 일반 유동 원리와 자체 비교 예시다. 장치 형상·배관 개조·펌프 운전 조건을 제안하는 설계 문서가 아니다.</p>
+
+<h2 id="flow-mechanisms">수면 와류·카르만 와류·공동 현상은 같은 문제가 아니다</h2>
+<p>Hydraulic Institute는 흡입구의 수면 와류에 의한 공기 유입과, 유체 압력이 증기압 아래로 내려가 기포가 생기는 공동 현상을 다른 맥락에서 설명한다. <a class="source-ref" href="#source-16-2">[2]</a> <a class="source-ref" href="#source-16-3">[3]</a> 공기가 빨려 들어가는 것과 액체가 국부적으로 기화하는 것을 동일한 “기포”로 진단하면 필요한 검증도 달라진다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="흡입 수면 와류 카르만 와류와 공동 현상의 개념 비교">
+<table class="analysis-table"><caption>일반 유동 현상의 차이 · 소음만으로 원인을 판정하는 표가 아니다</caption>
+<thead><tr><th scope="col">현상</th><th scope="col">주요 개념</th><th scope="col">구분할 조건</th></tr></thead><tbody>
+<tr><th scope="row">흡입구 수면 와류 [2]</th><td>액면에서 형성된 공기 중심 와류 유입</td><td>흡입 형상·유량·잠김 조건</td></tr>
+<tr><th scope="row">카르만 와류 [4]</th><td>물체 뒤에 교대로 형성되는 와류</td><td>형상·속도·발생 주파수·구조 응답</td></tr>
+<tr><th scope="row">공동 현상 [3]</th><td>국부 압력 저하로 생긴 증기 기포의 붕괴</td><td>유체·온도·압력·펌프 성능 조건</td></tr>
+</tbody></table></div>
+<p>Yokogawa는 카르만 와류의 발생 빈도와 유속 관계를 이용하는 유량계 원리를 설명한다. <a class="source-ref" href="#source-16-4">[4]</a> 즉 와류는 모든 곳에서 제거할 대상만은 아니다. 손상 원인인 유동 가진과 계측에 의도적으로 쓰는 현상을 구분해야 한다. 이 제조사 설명은 아람코가 해당 제품을 특정 위치에 설치했다는 근거가 아니다.</p>
+<p>Hydraulic Institute의 NPSH 설명도 NPSH3를 공동으로 양정이 3% 낮아지는 기준으로 구분하며, 그 값을 넘었다는 사실만으로 모든 공동·침식이 없다고 보지 않는다. <a class="source-ref" href="#source-16-3">[3]</a> 이 글은 필요한 잠김 깊이·흡입 여유·허용 진동이나 안전 운전 범위를 정하지 않는다.</p>
+
+<h2 id="flow-vibration">한 주파수대의 진동 감소가 전체 감소는 아닐 수 있다</h2>
+<p>다음은 가상 진동 신호를 두 개의 서로 겹치지 않는 주파수대로 나눈 예시다. 동일 위치·방향·속도 단위·시간 구간·처리 방식으로 측정했고, 다른 주파수 성분과 대역 간 상관 항은 없다고 가정한다. 각 값은 최대값이 아니라 실효값 RMS다. 실제 설비 시험이나 특정 장치의 개선 결과가 아니다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="가상 비중첩 진동 대역의 실효값과 전체 실효값 비교">
+<table class="analysis-table"><caption>가상 진동 속도 RMS · mm/s · 진단 기준이나 허용 한계가 아니다</caption>
+<thead><tr><th scope="col">구간</th><th scope="col">A</th><th scope="col">B</th></tr></thead><tbody>
+<tr><th scope="row">20~40Hz 대역</th><td>4</td><td>2</td></tr>
+<tr><th scope="row">60~80Hz 대역</th><td>1</td><td>4</td></tr>
+<tr><th scope="row">두 대역 합성 RMS</th><td>4.12</td><td>4.47</td></tr>
+</tbody></table></div>
+<p>이 가정에서 전체 RMS는 대역 RMS의 제곱합의 제곱근이다. A는 √(4² + 1²) ≈ 4.12mm/s, B는 √(2² + 4²) ≈ 4.47mm/s다. 첫 대역은 50% 줄었지만 전체는 반올림 전 값 기준 약 8.5% 늘었다. 대역 값을 4 + 1처럼 단순 합산하거나 서로 다른 측정 대역의 값을 직접 비교하지 않는다.</p>
+<p>이 변화만으로 B가 더 위험하다거나 수명이 얼마나 줄었다고 판단할 수는 없다. 주파수별 구조 응답·측정 위치·부하·회전수·재현성·불확실성과 전문적인 평가가 필요하다. 낮아진 한 피크만 골라 “모든 진동 제거”라고 쓰는 주장을 경계하기 위한 예시다. RMS를 변위·가속도·최대값과 같은 지표로 취급하지 않는다.</p>
+
+<h2 id="flow-power">유동을 바꾼 장치의 압력 손실도 전력 경계에 넣는다</h2>
+<p>미국 DOE의 펌핑 시스템 자료집 인쇄 9쪽은 유체 동력이 양정·유량과 관계되고 펌프·모터의 비효율 때문에 입력 동력이 더 필요함을 설명한다. <a class="source-ref" href="#source-16-5">[5]</a> 진동이 줄었다는 사실만으로 전력도 줄었다고 볼 수 없다. 장치를 추가할 때 다른 손실이 바뀌는지, 같은 유량·도착 조건을 유지하는지 따로 확인해야 한다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="가상 동일 유량에서 추가 유동 장치의 압력 손실과 펌핑 전력 비교">
+<table class="analysis-table"><caption>가상 정상 비압축성 유동 · 같은 유량·도착 조건 · 실제 개조 성능 아님</caption>
+<thead><tr><th scope="col">항목</th><th scope="col">A · 추가 장치 없음</th><th scope="col">B · 추가 장치 있음</th></tr></thead><tbody>
+<tr><th scope="row">체적 유량 · m³/s</th><td>0.1</td><td>0.1</td></tr>
+<tr><th scope="row">기존 전체 필요 압력 상승 · kPa</th><td>200</td><td>200</td></tr>
+<tr><th scope="row">추가 장치 압력 손실 · kPa</th><td>0</td><td>20</td></tr>
+<tr><th scope="row">필요 총압력 상승 · kPa</th><td>200</td><td>220</td></tr>
+<tr><th scope="row">펌프·모터 합성 효율</th><td>0.75</td><td>0.75</td></tr>
+<tr><th scope="row">계산 입력 전력 · kW</th><td>26.67</td><td>29.33</td></tr>
+</tbody></table></div>
+<p>전력은 Q × Δp ÷ η이며 m³/s와 kPa를 쓰면 kW가 된다. A는 0.1 × 200 ÷ 0.75 ≈ 26.67kW, B는 0.1 × 220 ÷ 0.75 ≈ 29.33kW다. 다른 조건과 효율이 같다는 이 가정에서는 입력 전력이 10% 늘어난다. 앞의 진동 표와 연결되는 동일 장치의 결과는 아니다.</p>
+<p>실제로는 장치가 다른 손실을 줄이거나 펌프 운전점·효율이 달라질 수 있으므로 모든 방지 장치가 전력을 늘린다는 결론도 아니다. 고정 속도에서 같은 유량이 유지된다고 임의로 가정하거나, 전력 차이만으로 전체 경제성을 판정하지 않는다. 설비비·정비·정지 시간·기간별 부하와 안전 제약은 별도 자료가 필요하다. 진동 감소율을 부품 수명 증가율·비용 절감률로 그대로 바꾸지 않는다.</p>
+
+<h2 id="flow-proof">현상·측정 대역·전체 손실·검증 범위를 연결한다</h2>
+<figure class="analysis-diagram"><ol class="analysis-flow">
+<li><span>01 · 근거</span><strong>과제인가 설치 실적인가</strong><p>연도·대상·검증 단계를 구분한다.</p></li>
+<li><span>02 · 현상</span><strong>어떤 유동 문제인가</strong><p>공기 유입·와류·기화를 나눈다.</p></li>
+<li><span>03 · 응답</span><strong>무슨 진동이 줄었나</strong><p>같은 위치·방향·대역으로 본다.</p></li>
+<li><span>04 · 전체</span><strong>손실과 전력은 어떤가</strong><p>동일 서비스와 실제 효율을 맞춘다.</p></li>
+</ol><figcaption>자체 유동 기사 검토도. 배관 개조·잠김 깊이·펌프 설정·검사 및 운전 승인 지침이 아니다.</figcaption></figure>
+
+<h2 id="flow-sources">출처와 확인 범위</h2>
+<ol class="evidence-list">
+<li id="source-16-1"><a href="https://faculty.kfupm.edu.sa/ME/badrhm/Research.html" target="_blank" rel="noopener noreferrer">KFUPM · Hassan M. Badr 연구 활동</a>. 2008년 아람코 지원 스트레이너 과제명. 현재 전사 도입·성능·내부 보고서 검토 자료가 아니다.</li>
+<li id="source-16-2"><a href="https://datatool.pumps.org/pump-fundamentals/submergence" target="_blank" rel="noopener noreferrer">Hydraulic Institute · Submergence</a>. 수면 와류·공기 유입의 일반 개념. 현장 잠김 깊이를 산정하지 않았다.</li>
+<li id="source-16-3"><a href="https://datatool.pumps.org/pump-fundamentals/pump-principles" target="_blank" rel="noopener noreferrer">Hydraulic Institute · Pump Principles</a>. 공동·NPSH3의 구분. 유료 표준 전문이나 특정 설비 적합성 판정이 아니다.</li>
+<li id="source-16-4"><a href="https://www.yokogawa.com/us/library/resources/tutorials/vortex-flowmeters-measurement-principle-and-measured-fluids/" target="_blank" rel="noopener noreferrer">Yokogawa · Vortex Flowmeters의 측정 원리</a>. 와류를 계측에 활용하는 제조사 설명. 아람코 설치 실적으로 쓰지 않았다.</li>
+<li id="source-16-5"><a href="https://www.energy.gov/sites/default/files/2014/05/f16/pump.pdf" target="_blank" rel="noopener noreferrer">미국 DOE · Improving Pumping System Performance, 2판, 인쇄 9쪽</a>. 양정·유량·동력과 효율의 일반 관계. 가상 전력 표는 SI 단위의 자체 계산이며 현장 실행 지침으로 쓰지 않았다.</li>
+</ol>
+<p class="evidence-note">2026년 10월 20일 원문 확인. 전사 설치·난류 완전 차단·공동 제거·무고장·일률적 수명 및 절감·안전 보장을 제거했다. 표는 자체 가정이며 실제 CFD·진동 시험·펌프 성능 시험·잔여 수명 평가를 수행하지 않았다.</p>

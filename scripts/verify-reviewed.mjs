@@ -35,6 +35,7 @@ const primaryDomains = [
   "midoceanenergy.com", "next-decade.com", "fao.org",
   "europa.eu",
   "wipo.int",
+  "kfupm.edu.sa", "pumps.org", "seg.org",
 ];
 assert.equal(reviewIds.size, reviews.length, "Review IDs must be unique");
 
@@ -953,5 +954,62 @@ if (reviewIds.has("20")) {
   assert.equal(hours[4] - hours[0], 8);
   assert.equal(hours[4] - hours[1], 7);
   assert.equal(hours[3] - hours[2], 4);
+}
+const aviationGeophysicsFlowReviews = {
+  "19": [/ASTM D1655-26b/, /1\.3절/, /원료·수소 등을 포함한 총유입 질량/, /240 \+ 710 \+ 50 = 1,000톤/, /LCAF 인증을 향해 진행 중/, /2025년 보고 범위/, /약 7\.9% 늘었다/, /80이라는 값만으로/],
+  "17": [/2019년 12월 12일/, /2026년 8월 25일/, /반복 측정은 잡음 평가·중합 등에 가치/, /800 ÷ 1,000 = 80%/, /3,000 ÷ 60 ÷ 4 = 12\.5m/, /3,000 × 0\.002 ÷ 2 = 3m/, /실제 유전의 해상도나 절대적 검출 한계가 아니다/],
+  "16": [/2008년 사우디아람코 지원 과제/, /NPSH3/, /서로 겹치지 않는 주파수대/, /대역 간 상관 항은 없다고 가정/, /반올림 전 값 기준 약 8\.5%/, /입력 전력이 10% 늘어난다/, /모든 방지 장치가 전력을 늘린다는 결론도 아니다/],
+};
+for (const [id, claims] of Object.entries(aviationGeophysicsFlowReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Aviation, geophysics and flow evidence boundary: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|아는)|저는 과거|현장에서 직접 확인한/, `No invented personal experience: ${id}`);
+}
+if (reviewIds.has("19")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/19.html"), "utf8"));
+  const mass = dom('div[aria-label="가상 정제 경계의 총유입과 항공유 및 다른 출구 질량 분류"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(mass, [[1000, 1000], [200, 240], [750, 710], [50, 50], [20, 24]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(mass.slice(1, 4).reduce((sum, row) => sum + row[i], 0), mass[0][i]);
+    assert.equal(mass[1][i] / mass[0][i] * 100, mass[4][i]);
+  }
+  assert.equal(mass[4][1] - mass[4][0], 4);
+  assert.equal((mass[1][1] - mass[1][0]) / mass[1][0] * 100, 20);
+  const emissions = dom('div[aria-label="가상 항공유 에너지당 전 과정 배출과 총에너지 증가의 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(emissions, [[89, 80], [100, 120], [8900, 9600]]);
+  for (let i = 0; i < 2; i++) assert.equal(emissions[0][i] * emissions[1][i], emissions[2][i]);
+  assert.equal(Math.round((89 - 80) / 89 * 1000) / 10, 10.1);
+  assert.equal(Math.round((9600 - 8900) / 8900 * 1000) / 10, 7.9);
+}
+if (reviewIds.has("17")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/17.html"), "utf8"));
+  const traces = dom('div[aria-label="가상 지진파 기록의 반복 제거와 유효 고유 관측 집계"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text().replace(/,/g, "")));
+  assert.deepEqual(traces, [1000, 1100, 200, 900, 100, 800]);
+  assert.equal(traces[1] - traces[2], traces[3]);
+  assert.equal(traces[3] - traces[4], traces[5]);
+  assert.equal(traces[5] / traces[0] * 100, 80);
+  const waves = dom('div[aria-label="가상 지진파 우세 주파수에 따른 파장과 사분의 일 파장 비교"] tbody tr').toArray().map(row => [Number(dom(row).find("th").text()), ...dom(row).find("td").toArray().map(cell => Number(dom(cell).text()))]);
+  assert.deepEqual(waves, [[30, 100, 25], [60, 50, 12.5], [90, 33.33, 8.33]]);
+  for (const row of waves) {
+    assert.equal(Math.round(3000 / row[0] * 100) / 100, row[1]);
+    assert.equal(Math.round(3000 / row[0] / 4 * 100) / 100, row[2]);
+  }
+  assert.equal(3000 * 0.002 / 2, 3);
+}
+if (reviewIds.has("16")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/16.html"), "utf8"));
+  const bands = dom('div[aria-label="가상 비중첩 진동 대역의 실효값과 전체 실효값 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(bands, [[4, 2], [1, 4], [4.12, 4.47]]);
+  for (let i = 0; i < 2; i++) assert.equal(Math.round(Math.hypot(bands[0][i], bands[1][i]) * 100) / 100, bands[2][i]);
+  assert.equal(Math.round((Math.sqrt(20) / Math.sqrt(17) - 1) * 1000) / 10, 8.5);
+  const power = dom('div[aria-label="가상 동일 유량에서 추가 유동 장치의 압력 손실과 펌핑 전력 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(power, [[0.1, 0.1], [200, 200], [0, 20], [200, 220], [0.75, 0.75], [26.67, 29.33]]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(power[1][i] + power[2][i], power[3][i]);
+    assert.equal(Math.round(power[0][i] * power[3][i] / power[4][i] * 100) / 100, power[5][i]);
+  }
+  assert.ok(Math.abs((220 / 200 - 1) * 100 - 10) < 1e-9);
 }
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
