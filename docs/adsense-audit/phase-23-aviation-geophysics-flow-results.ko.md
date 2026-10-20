@@ -29,7 +29,12 @@
 
 ## 공개 배포 검증
 
-GitHub main 배포 후 공개 본문·메타데이터·화면을 대조한다. 완료하지 않은 검증을 통과로 기록하지 않는다.
+- 본문 반영 커밋 `2e70555d38a04422166a5ffb7ba4de40fe32d8dd`을 GitHub main에 반영했다. Cloudflare Pages 배포 `66fbbf19-bd93-49fc-bf98-958128f6b3f4`의 완료·성공 상태를 확인했다.
+- 공개 세 주소 모두 HTTP200이며 제목·본문·canonical·개정 시각·원래 발행일·구조화 데이터·스타일 참조가 로컬 빌드와 일치했다.
+- 공개 본문 SHA-256: 19번 `3973e4dd9de50f1e43dee8fe6cb100bdd77c28477310df5d9636fcbd4c544159`, 17번 `411b59be2ea31668ee66bbe2e9997215961e9a59fdfc40f568a0a1f70cdcd804`, 16번 `43838e72920110e1d8b01292e197a1a942e78e2e9a1badbf845de345d02da334`.
+- 공개 브라우저 세 글×네 크기의12개 배치 검사를 통과했다. 표9개의 키보드 가로 이동·각 출처 목차 이동·개정 내역 펼치기도 동작했고 오류 로그는 없었다.
+- 작성자 페이지의 전체82편·개정70편·검토 남은12편·2026년10월20일 갱신과 정정 기록70개를 확인했다.
+- 같은 화면 기록 폴더에 `live-layouts.json`, `live-interactions.json`, `live-inventory.json`, `live-19-analysis.jpg`, `live-17-analysis.jpg`, `live-16-analysis.jpg`, `live-*-mobile.jpg`를 저장했다. 공개 PC 분석표3개와 대표 모바일 화면을 직접 열어 확인했다. 뷰포트 변경과 캡처를 분리해 재배치 완료 후 기록했다.
 
 ## 다음 범위와 한계
 
