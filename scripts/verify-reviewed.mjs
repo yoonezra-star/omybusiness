@@ -1012,4 +1012,59 @@ if (reviewIds.has("16")) {
   }
   assert.ok(Math.abs((220 / 200 - 1) * 100 - 10) < 1e-9);
 }
+const bioCrudeGeothermalReviews = {
+  "15": [/2025년 1월 13일/, /슬라이드 10/, /2017년 11월 30일/, /금속 원소 자체를 파괴할 수 없으며/, /오염토 희석을 권장하거나/, /분해 질량은 0kg/, /모두 미생물 분해량이라고 할 수 없다/, /실제 분해가 전혀 없었다는 뜻도 아니다/],
+  "14": [/2021년 4월 21일/, /2023년 5월 18일/, /2022년 첫 버전 시험·2023년 현장 시제품 시험 예상/, /2022년 10월 23일/, /ASTM D3764-23/, /피어슨 상관계수 r은 1/, /평균 편향과 RMSE는 모두 0\.2%포인트/, /실제 통계 검증을 대신하지 않는다/],
+  "13": [/2023년 10월 9일/, /2025년 8월 19일/, /후보지 세 곳을 가동 발전소 세 곳/, /20 × 4 × 40 = 3,200kJ\/s/, /0\.32 - 0\.40 = -0\.08MWe/, /외부에서 80kW/, /0\.07 × 6,000 = 420MWh/, /같은 에너지를 중복 계산/],
+};
+for (const [id, claims] of Object.entries(bioCrudeGeothermalReviews)) {
+  if (!reviewIds.has(id)) continue;
+  const content = await readFile(path.join(root, "data/reviewed", `${id}.html`), "utf8");
+  for (const claim of claims) assert.match(content, claim, `Bioremediation, crude quality and geothermal evidence boundary: ${id}`);
+  assert.match(content, /가상/);
+  assert.doesNotMatch(content, /제가 (?:직접|과거|아는)|저는 과거|현장에서 직접 확인한/, `No invented personal experience: ${id}`);
+}
+if (reviewIds.has("15")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/15.html"), "utf8"));
+  const dilution = dom('div[aria-label="가상 건조 토양의 농도 감소와 변하지 않은 오염 질량 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(dilution, [[1000, 2000], [10000, 5000], [10, 10]]);
+  for (let i = 0; i < 2; i++) assert.equal(dilution[0][i] * dilution[1][i] / 1000000, dilution[2][i]);
+  assert.equal((10000 - 5000) / 10000 * 100, 50);
+  assert.equal(dilution[2][0] - dilution[2][1], 0);
+  const fate = dom('div[aria-label="가상 정화 구역의 토양 잔류 다른 매질 이동과 미설명 질량 수지"] tbody tr').toArray().map(row => Number(dom(row).find("td").first().text()));
+  assert.deepEqual(fate, [10, 4, 1, 1, 4]);
+  assert.equal(fate[0] - fate[1] - fate[2] - fate[3], fate[4]);
+  assert.equal((fate[0] - fate[1]) / fate[0] * 100, 60);
+}
+if (reviewIds.has("14")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/14.html"), "utf8"));
+  const blend = dom('div[aria-label="가상 두 시간대 원유의 시간 평균과 황 질량 가중 평균 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(blend, [[1, 10, 1, 0.1], [1, 90, 3, 2.7], [2, 100, 2.8, 2.8]]);
+  for (const row of blend) assert.ok(Math.abs(row[1] * row[2] / 100 - row[3]) < 1e-9);
+  for (const i of [0, 1, 3]) assert.ok(Math.abs(blend[0][i] + blend[1][i] - blend[2][i]) < 1e-9);
+  assert.equal((1 + 3) / 2, 2);
+  const pairs = dom('div[aria-label="가상 원유 황 기준값과 일정한 양의 편향을 가진 예측값 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(pairs, [[1, 1.2, 0.2], [2, 2.2, 0.2], [3, 3.2, 0.2], [4, 4.2, 0.2], [5, 5.2, 0.2]]);
+  for (const row of pairs) assert.ok(Math.abs(row[1] - row[0] - row[2]) < 1e-9);
+  const errors = pairs.map(row => row[1] - row[0]);
+  assert.ok(Math.abs(errors.reduce((a, b) => a + b, 0) / errors.length - 0.2) < 1e-9);
+  assert.ok(Math.abs(Math.sqrt(errors.reduce((a, b) => a + b * b, 0) / errors.length) - 0.2) < 1e-9);
+  const means = [0, 1].map(i => pairs.reduce((sum, row) => sum + row[i], 0) / pairs.length);
+  const covariance = pairs.reduce((sum, row) => sum + (row[0] - means[0]) * (row[1] - means[1]), 0);
+  const variance = [0, 1].map(i => pairs.reduce((sum, row) => sum + (row[i] - means[i]) ** 2, 0));
+  assert.ok(Math.abs(covariance / Math.sqrt(variance[0] * variance[1]) - 1) < 1e-9);
+}
+if (reviewIds.has("13")) {
+  const dom = cheerio.load(await readFile(path.join(root, "data/reviewed/13.html"), "utf8"));
+  const net = dom('div[aria-label="가상 지열 열출력 총전력과 보조 소비에 따른 순전력 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text())));
+  assert.deepEqual(net, [[3.2, 3.2], [10, 10], [0.32, 0.32], [0.25, 0.4], [0.07, -0.08]]);
+  assert.equal(20 * 4 * 40 / 1000, 3.2);
+  for (let i = 0; i < 2; i++) {
+    assert.ok(Math.abs(net[0][i] * net[1][i] / 100 - net[2][i]) < 1e-9);
+    assert.ok(Math.abs(net[2][i] - net[3][i] - net[4][i]) < 1e-9);
+  }
+  const annual = dom('div[aria-label="가상 지열의 총발전 순발전과 연간 운전시간별 발전량 비교"] tbody tr').toArray().map(row => dom(row).find("td").toArray().map(cell => Number(dom(cell).text().replace(/,/g, ""))));
+  assert.deepEqual(annual, [[0.32, 6000, 1920], [0.07, 6000, 420], [0.07, 8760, 613.2]]);
+  for (const row of annual) assert.ok(Math.abs(row[0] * row[1] - row[2]) < 1e-9);
+}
 console.log(JSON.stringify({ articles: posts.length, reviewed: report, unchangedLegacyArticles: legacy.length, legacyHash }, null, 2));
